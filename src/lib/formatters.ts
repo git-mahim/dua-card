@@ -41,7 +41,16 @@ const BENGALI_MONTHS = [
 ];
 
 /**
- * Convert any integer or formatted number to Bengali digits with commas
+ * Convert any integer to plain Bengali digits WITHOUT commas
+ * Essential for Years (e.g. 2026 -> ২০২৬), dates, IDs
+ */
+export function toBengaliDigits(value: number | string): string {
+  if (value === undefined || value === null) return "০";
+  return value.toString().replace(/[0-9]/g, (digit) => BENGALI_DIGITS[digit] || digit);
+}
+
+/**
+ * Convert any integer or formatted number to Bengali digits with commas for counts
  * e.g. 1000 -> ১,০০০; 25000 -> ২৫,০০০
  */
 export function toBengaliNumber(value: number | string): string {
@@ -62,7 +71,7 @@ export function getBengaliDayNumber(dateStr: string): string {
   if (!dateStr) return "";
   const parts = dateStr.split("-").map((p) => parseInt(p, 10));
   if (parts.length < 3) return "";
-  return toBengaliNumber(parts[2]);
+  return toBengaliDigits(parts[2]);
 }
 
 /**
@@ -72,13 +81,13 @@ export function formatBengaliDateShort(timestamp: number): string {
   if (!timestamp) return "";
   const d = new Date(timestamp);
   const month = BENGALI_MONTHS[d.getMonth()] || "আগস্ট";
-  const day = toBengaliNumber(d.getDate());
+  const day = toBengaliDigits(d.getDate());
   return `${day} ${month}`;
 }
 
 /**
  * Parse YYYY-MM-DD into Bengali localized date
- * e.g. 2026-08-26 -> বুধবার, ২৬ আগস্ট
+ * e.g. 2026-08-26 -> বুধবার, ২৬ আগস্ট ২০২৬
  */
 export function formatBengaliDate(dateStr: string, includeYear: boolean = false): string {
   if (!dateStr) return "";
@@ -92,8 +101,8 @@ export function formatBengaliDate(dateStr: string, includeYear: boolean = false)
   const dateObj = new Date(year, month, day);
   const dayName = BENGALI_DAYS[dateObj.getDay()];
   const monthName = BENGALI_MONTHS[month];
-  const bengaliDay = toBengaliNumber(day);
-  const bengaliYear = toBengaliNumber(year);
+  const bengaliDay = toBengaliDigits(day);
+  const bengaliYear = toBengaliDigits(year);
 
   if (includeYear) {
     return `${dayName}, ${bengaliDay} ${monthName} ${bengaliYear}`;
@@ -147,15 +156,15 @@ const BENGALI_SUFFIXES: Record<number, string> = {
 };
 
 /**
- * Format today's date in traditional Bengali format
+ * Format today's date in traditional Bengali format without number commas in year
  * e.g. "২৬শে আগস্ট, ২০২৬" or "৫ই আগস্ট, ২০২৬"
  */
 export function getBengaliTodayFormatted(withSuffix: boolean = true): string {
   const d = new Date();
   const dayNum = d.getDate();
-  const dayStr = toBengaliNumber(dayNum);
+  const dayStr = toBengaliDigits(dayNum);
   const suffix = withSuffix ? (BENGALI_SUFFIXES[dayNum] || "") : "";
   const month = BENGALI_MONTHS[d.getMonth()] || "আগস্ট";
-  const year = toBengaliNumber(d.getFullYear());
+  const year = toBengaliDigits(d.getFullYear());
   return `${dayStr}${suffix} ${month}, ${year}`;
 }
