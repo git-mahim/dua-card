@@ -311,14 +311,24 @@ export const DuaCard: React.FC<DuaCardProps> = ({
           <button
             type="button"
             onClick={() => onOpenCountModal && onOpenCountModal(dua)}
-            className="px-3 py-1.5 rounded-[12px] bg-zinc-100/90 dark:bg-zinc-800/70 hover:bg-[#ffb31a]/15 hover:border-[#ffb31a]/40 text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-100 text-xs font-bengali font-bold border border-zinc-200/80 dark:border-zinc-750 flex items-center gap-1.5 transition-all active:scale-95 shadow-2xs whitespace-nowrap"
+            className={`px-3 py-1.5 rounded-[12px] text-xs font-bengali font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow-2xs whitespace-nowrap ${
+              isCompleted
+                ? "bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] border border-[#ffb31a]/35 hover:bg-[#ffb31a]/25"
+                : "bg-zinc-100/90 dark:bg-zinc-800/70 hover:bg-[#ffb31a]/15 hover:border-[#ffb31a]/40 text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-100 border border-zinc-200/80 dark:border-zinc-750"
+            }`}
             title="আমল সংখ্যা যোগ বা পরিবর্তন করুন"
           >
             <span>আজকে:</span>
-            <span className="font-mono font-extrabold text-[13px] text-zinc-900 dark:text-zinc-100">
+            <span className={`font-mono font-extrabold text-[13px] ${
+              isCompleted ? "text-zinc-950 dark:text-[#ffb31a]" : "text-zinc-900 dark:text-zinc-100"
+            }`}>
               {toBengaliNumber(currentCount)}
             </span>
-            <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400">বার</span>
+            <span className={`text-[10px] font-medium ${
+              isCompleted ? "text-amber-900/80 dark:text-amber-300/80" : "text-zinc-500 dark:text-zinc-400"
+            }`}>
+              বার
+            </span>
             <Plus className="w-3 h-3 text-[#ffb31a] stroke-[2.5]" />
           </button>
 
