@@ -176,7 +176,7 @@ export const DuaList: React.FC<DuaListProps> = ({
     <div className="w-full flex flex-col gap-3 pb-24">
       {/* Smart Status Filter Tabs (সকল দোয়া | বাকি দোয়া | পড়েছি) */}
       {!isSearchActive && (
-        <div className="w-full grid grid-cols-3 gap-1.5 p-1.5 bg-surface-card border border-zinc-200/90 dark:border-zinc-800/90 rounded-2xl shadow-xs text-xs font-bengali">
+        <div className="w-full grid grid-cols-3 gap-1.5 p-1.5 bg-surface-card border border-zinc-200/90 dark:border-zinc-800/90 rounded-2xl shadow-xs text-xs sm:text-[13px] font-bengali">
           <button
             type="button"
             onClick={() => {
@@ -191,13 +191,13 @@ export const DuaList: React.FC<DuaListProps> = ({
           >
             <span>সকল দোয়া</span>
             <span
-              className={`text-[11px] font-mono px-2 py-0.5 rounded-full font-bold leading-none translate-y-[0.5px] ${
+              className={`font-mono text-xs font-bold leading-none translate-y-[0.5px] ${
                 activeTab === "all"
-                  ? "bg-black/15 text-zinc-950"
-                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200/60 dark:border-zinc-700/60"
+                  ? "text-zinc-950 opacity-90"
+                  : "text-zinc-500 dark:text-zinc-400 opacity-80"
               }`}
             >
-              {toBengaliNumber(duas.length)}
+              ({toBengaliNumber(duas.length)})
             </span>
           </button>
 
@@ -215,13 +215,13 @@ export const DuaList: React.FC<DuaListProps> = ({
           >
             <span>বাকি দোয়া</span>
             <span
-              className={`text-[11px] font-mono px-2 py-0.5 rounded-full font-bold leading-none translate-y-[0.5px] ${
+              className={`font-mono text-xs font-bold leading-none translate-y-[0.5px] ${
                 activeTab === "pending"
-                  ? "bg-black/15 text-zinc-950"
-                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200/60 dark:border-zinc-700/60"
+                  ? "text-zinc-950 opacity-90"
+                  : "text-zinc-500 dark:text-zinc-400 opacity-80"
               }`}
             >
-              {toBengaliNumber(pendingCount)}
+              ({toBengaliNumber(pendingCount)})
             </span>
           </button>
 
@@ -239,13 +239,13 @@ export const DuaList: React.FC<DuaListProps> = ({
           >
             <span>পড়েছি</span>
             <span
-              className={`text-[11px] font-mono px-2 py-0.5 rounded-full font-bold leading-none translate-y-[0.5px] ${
+              className={`font-mono text-xs font-bold leading-none translate-y-[0.5px] ${
                 activeTab === "completed"
-                  ? "bg-black/15 text-zinc-950"
-                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200/60 dark:border-zinc-700/60"
+                  ? "text-zinc-950 opacity-90"
+                  : "text-zinc-500 dark:text-zinc-400 opacity-80"
               }`}
             >
-              {toBengaliNumber(completedCount)}
+              ({toBengaliNumber(completedCount)})
             </span>
           </button>
         </div>
