@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Search, Settings, Moon, Sun } from "lucide-react";
+import { Search, Settings, Moon, Sun, Sunrise, Sunset } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { OfflineBadge } from "./OfflineBadge";
-import { getBengaliTodayFormatted } from "@/lib/formatters";
 
 interface HeaderProps {
   searchQuery: string;
@@ -12,6 +11,26 @@ interface HeaderProps {
   isSearchOpen: boolean;
   onToggleSearch: () => void;
   onOpenSettings: () => void;
+}
+
+type TimeSlot = "morning" | "noon" | "evening" | "night";
+
+interface GreetingInfo {
+  title: string;
+  slot: TimeSlot;
+}
+
+function getDynamicGreeting(): GreetingInfo {
+  const hour = new Date().getHours();
+  if (hour >= 4 && hour < 12) {
+    return { title: "সকালের আমল", slot: "morning" };
+  } else if (hour >= 12 && hour < 16) {
+    return { title: "দুপুরের আমল", slot: "noon" };
+  } else if (hour >= 16 && hour < 19) {
+    return { title: "সান্ধ্য আমল", slot: "evening" };
+  } else {
+    return { title: "রাতের আমল", slot: "night" };
+  }
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -22,10 +41,20 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSettings,
 }) => {
   const { theme, setTheme } = useTheme();
-  const [todayText, setTodayText] = useState<string>("২৬শে আগস্ট, ২০২৬");
+  const [greeting, setGreeting] = useState<GreetingInfo>({
+    title: "সকালের আমল",
+    slot: "morning",
+  });
 
   useEffect(() => {
-    setTodayText(getBengaliTodayFormatted(true));
+    setGreeting(getDynamicGreeting());
+
+    // Update greeting every 5 minutes if app stays open across time slots
+    const interval = setInterval(() => {
+      setGreeting(getDynamicGreeting());
+    }, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const toggleTheme = () => {
@@ -36,12 +65,29 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="sticky top-0 z-30 w-full bg-white/85 dark:bg-[#121212]/85 backdrop-blur-xl border-b border-zinc-200/60 dark:border-zinc-800/60 px-4 py-3 transition-colors duration-200">
       <div className="max-w-md mx-auto flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
-          {/* Header Title: Today's Date in Bengali */}
+          {/* Header Title: Dynamic Time-Aware Greeting */}
           <div className="flex items-center gap-2">
-            <h1 className="text-[17px] sm:text-lg font-extrabold font-bengali tracking-tight text-zinc-900 dark:text-zinc-50 flex items-center gap-2">
-              <span>{todayText}</span>
-            </h1>
-            <OfflineBadge />
+            <div className="w-8 h-8 rounded-[11px] bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] flex items-center justify-center shrink-0 shadow-2xs">
+              {greeting.slot === "morning" && (
+                <Sunrise className="w-4 h-4 text-[#ffb31a]" />
+              )}
+              {greeting.slot === "noon" && (
+                <Sun className="w-4 h-4 text-[#ffb31a]" />
+              )}
+              {greeting.slot === "evening" && (
+                <Sunset className="w-4 h-4 text-orange-500" />
+              )}
+              {greeting.slot === "night" && (
+                <Moon className="w-4 h-4 text-[#ffb31a]" />
+              )}
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <h1 className="text-[16px] sm:text-[17px] font-extrabold font-bengali tracking-tight text-zinc-900 dark:text-zinc-50 leading-tight">
+                {greeting.title}
+              </h1>
+              <OfflineBadge />
+            </div>
           </div>
 
           {/* Action Buttons Group */}
