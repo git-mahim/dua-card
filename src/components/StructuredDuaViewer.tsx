@@ -144,7 +144,7 @@ export const StructuredDuaViewer: React.FC<StructuredDuaViewerProps> = ({
           return (
             <blockquote
               key={index}
-              className="border-l-[3.5px] border-[#ffb31a] bg-zinc-100/70 dark:bg-zinc-900/60 pl-3.5 pr-3 py-2 my-2 rounded-r-xl text-zinc-700 dark:text-zinc-300 text-[13.5px] leading-relaxed shadow-2xs"
+              className="border-l-[3.5px] border-[#ffb31a] bg-[#eef0f3] dark:bg-[#222224] pl-3.5 pr-3.5 py-2.5 my-2.5 rounded-r-[14px] text-zinc-900 dark:text-zinc-100 text-[14px] font-medium leading-[1.6] shadow-2xs"
             >
               {block.content?.map((subBlock, subIdx) => {
                 if (subBlock.type === "paragraph") {

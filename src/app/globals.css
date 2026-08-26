@@ -146,11 +146,19 @@ body {
 }
 
 .tiptap blockquote {
-  border-left: 3px solid #71717a;
-  padding-left: 0.75rem;
+  border-left: 3.5px solid #ffb31a;
+  background-color: #eef0f3;
+  padding: 0.55rem 0.85rem;
   margin: 0.5rem 0;
-  font-style: italic;
-  opacity: 0.85;
+  border-top-right-radius: 0.75rem;
+  border-bottom-right-radius: 0.75rem;
+  color: #18181b;
+}
+
+.dark .tiptap blockquote {
+  background-color: #222224;
+  border-left-color: #ffb31a;
+  color: #fafafa;
 }
 
 .tiptap hr {
