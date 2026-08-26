@@ -366,21 +366,33 @@ export async function toggleTodayCompleted(
 export async function resetAllTodayLogs(
   dateStr: string = getLocalDateString()
 ): Promise<void> {
-  const spiritualDate = getSpiritualDate();
-  const spiritualDateStr = getLocalDateString(spiritualDate);
-  const nowRaw = new Date();
-  const nowRawStr = `${nowRaw.getFullYear()}-${String(nowRaw.getMonth() + 1).padStart(2, "0")}-${String(nowRaw.getDate()).padStart(2, "0")}`;
+  try {
+    const spiritualDate = getSpiritualDate();
+    const spiritualDateStr = getLocalDateString(spiritualDate);
+    const nowRaw = new Date();
+    const nowRawStr = `${nowRaw.getFullYear()}-${String(nowRaw.getMonth() + 1).padStart(2, "0")}-${String(nowRaw.getDate()).padStart(2, "0")}`;
 
-  const targetDates = new Set([dateStr, spiritualDateStr, nowRawStr]);
+    const targetDates = new Set([dateStr, spiritualDateStr, nowRawStr]);
 
-  // Find all logs in Dexie that belong to any of today's target dates
-  const allLogs = await db.logs.toArray();
-  const toDeleteIds = allLogs
-    .filter((l) => targetDates.has(l.date) || targetDates.has(l.id.split("_")[1]))
-    .map((l) => l.id);
+    const allLogs = await db.logs.toArray();
+    const toDeleteIds: string[] = [];
 
-  if (toDeleteIds.length > 0) {
-    await db.logs.bulkDelete(toDeleteIds);
+    for (const log of allLogs) {
+      if (
+        targetDates.has(log.date) ||
+        Array.from(targetDates).some((d) => log.id.endsWith(`_${d}`))
+      ) {
+        toDeleteIds.push(log.id);
+      }
+    }
+
+    if (toDeleteIds.length > 0) {
+      await db.logs.bulkDelete(toDeleteIds);
+    } else {
+      await db.logs.where("date").equals(dateStr).delete();
+    }
+  } catch (error) {
+    console.error("Failed to reset today's logs:", error);
   }
 }
 
