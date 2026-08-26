@@ -152,10 +152,10 @@ export const DuaCard: React.FC<DuaCardProps> = ({
               type="button"
               onClick={() => onToggleCompleted && onToggleCompleted(dua)}
               className="px-2 py-0.5 bg-[#ffb31a]/20 text-[#b36f00] dark:text-[#ffb31a] border border-[#ffb31a]/40 rounded-full text-[10px] font-bold font-bengali flex items-center gap-1 shadow-2xs hover:bg-[#ffb31a]/30 transition-colors"
-              title="ডাবল ট্যাপে সম্পূর্ণ হয়েছে (আনচেক করতে ট্যাপ করুন)"
+              title="পড়া হয়েছে (আনচেক করতে ট্যাপ করুন)"
             >
               <CheckCircle2 className="w-3 h-3 stroke-[2.5]" />
-              <span>সম্পূর্ণ</span>
+              <span>পড়েছি</span>
             </button>
           )}
 

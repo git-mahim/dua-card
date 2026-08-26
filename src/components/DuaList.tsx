@@ -237,7 +237,7 @@ export const DuaList: React.FC<DuaListProps> = ({
                 : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
             }`}
           >
-            <span>সম্পূর্ণ</span>
+            <span>পড়েছি</span>
             <span
               className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold ${
                 activeTab === "completed"
