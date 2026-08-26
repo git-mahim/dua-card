@@ -295,7 +295,11 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                 triggerHaptic(40);
                 onOpenAnalytics(dua);
               }}
-              className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold font-bengali text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 active:scale-95 rounded-xl border border-zinc-200/70 dark:border-zinc-700/70 transition-all shadow-2xs whitespace-nowrap"
+              className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold font-bengali text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 active:scale-95 rounded-xl border transition-all shadow-2xs whitespace-nowrap ${
+                isCompleted
+                  ? "border-[#ffb31a]/40 dark:border-[#ffb31a]/50 bg-surface-card/80 dark:bg-zinc-900/40"
+                  : "border-zinc-200/80 dark:border-zinc-800 bg-surface-card/60 dark:bg-zinc-900/40 hover:border-[#ffb31a]/40"
+              }`}
               title="আমল হিস্ট্রি ও বিস্তারিত চার্ট দেখুন"
             >
               <TrendingUp className="w-3.5 h-3.5 text-[#ffb31a]" />
@@ -307,15 +311,15 @@ export const DuaCard: React.FC<DuaCardProps> = ({
           <button
             type="button"
             onClick={() => onOpenCountModal && onOpenCountModal(dua)}
-            className={`px-2.5 py-1 rounded-xl text-xs font-bengali font-bold border transition-all active:scale-95 flex items-center gap-1.5 shadow-2xs whitespace-nowrap ${
-              currentCount > 0
-                ? "bg-[#ffb31a]/15 border-[#ffb31a]/40 text-amber-900 dark:text-[#ffb31a]"
-                : "bg-zinc-100 dark:bg-zinc-800/80 border-zinc-200/80 dark:border-zinc-700/80 text-zinc-700 dark:text-zinc-300 hover:border-[#ffb31a]/40"
+            className={`px-2.5 py-1 rounded-xl text-xs font-bengali font-bold border transition-all active:scale-95 flex items-center gap-1.5 shadow-2xs whitespace-nowrap text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 ${
+              isCompleted
+                ? "border-[#ffb31a]/40 dark:border-[#ffb31a]/50 bg-surface-card/80 dark:bg-zinc-900/40"
+                : "border-zinc-200/80 dark:border-zinc-800 bg-surface-card/60 dark:bg-zinc-900/40 hover:border-[#ffb31a]/40"
             }`}
             title="আমল সংখ্যা যোগ বা পরিবর্তন করুন"
           >
             <span>আজকে:</span>
-            <span className="font-mono font-extrabold text-[13px]">
+            <span className="font-mono font-extrabold text-[13px] text-zinc-900 dark:text-zinc-100">
               {toBengaliNumber(currentCount)}
             </span>
             <span className="text-[10px] font-medium opacity-80">বার</span>
