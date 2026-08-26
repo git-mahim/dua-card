@@ -124,11 +124,11 @@ export const DuaCard: React.FC<DuaCardProps> = ({
       tabIndex={0}
       onClick={handleCardClick}
       aria-label={dua.title ? `দোয়া: ${dua.title}` : "দোয়া কার্ড"}
-      className={`group relative w-full rounded-3xl p-4 text-left select-none outline-none transition-all duration-200 ${
+      className={`group relative w-full rounded-3xl p-4 text-left select-none outline-none transition-all duration-300 ease-in-out ${
         isDragOverlay
           ? "border border-[#ffb31a] bg-white dark:bg-[#181818] z-50 pointer-events-none shadow-xl scale-[1.02]"
           : isCompleted
-          ? "opacity-40 grayscale-[15%] bg-[#ffb31a]/5 dark:bg-[#ffb31a]/10 border-[1.5px] border-dotted border-[#ffb31a]/40 dark:border-[#ffb31a]/50 shadow-xs"
+          ? "opacity-50 dark:opacity-45 bg-zinc-100/60 dark:bg-zinc-900/40 border border-dashed border-zinc-300/90 dark:border-zinc-700/80 shadow-none"
           : "opacity-100 bg-surface-card border border-solid border-zinc-200/90 dark:border-zinc-800/80 shadow-xs"
       }`}
     >
