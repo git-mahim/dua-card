@@ -145,12 +145,12 @@ export const DuaCard: React.FC<DuaCardProps> = ({
           
           {/* Status Badge: Completed or Pending (matched exact height, padding & radius of footer buttons) */}
           {isCompleted ? (
-            <span className="px-2.5 py-1 bg-surface-card/80 dark:bg-zinc-900/40 text-[#b36f00] dark:text-[#ffb31a] border border-[#ffb31a]/40 dark:border-[#ffb31a]/50 rounded-xl text-xs font-bold font-sans tracking-wide inline-flex items-center gap-1.5 shadow-2xs leading-none">
-              <Check className="w-3.5 h-3.5 stroke-[2.5] text-[#ffb31a] shrink-0" />
+            <span className="px-2.5 py-1 bg-[#ffb31a] text-zinc-950 border border-[#e69c05]/80 rounded-xl text-xs font-extrabold font-sans tracking-wide inline-flex items-center gap-1.5 shadow-xs leading-none">
+              <Check className="w-3.5 h-3.5 stroke-[2.8] text-zinc-950 shrink-0" />
               <span className="leading-none translate-y-[0.5px]">Completed</span>
             </span>
           ) : (
-            <span className="px-2.5 py-1 bg-zinc-100/70 dark:bg-zinc-900/40 text-zinc-500 dark:text-zinc-400 border border-zinc-200/70 dark:border-zinc-800 rounded-xl text-xs font-semibold font-sans tracking-wide inline-flex items-center gap-1.5 shadow-2xs leading-none">
+            <span className="px-2.5 py-1 bg-zinc-100/80 dark:bg-zinc-900/60 text-zinc-600 dark:text-zinc-400 border border-zinc-200/80 dark:border-zinc-800 rounded-xl text-xs font-semibold font-sans tracking-wide inline-flex items-center gap-1.5 shadow-2xs leading-none">
               <Clock className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 shrink-0" />
               <span className="leading-none translate-y-[0.5px]">Pending</span>
             </span>
