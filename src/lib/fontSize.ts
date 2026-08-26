@@ -10,10 +10,10 @@ export interface FontSizeSettings {
 }
 
 export const DEFAULT_FONT_SIZES: FontSizeSettings = {
-  title: 18,
-  pronunciation: 16,
-  meaning: 14,
-  general: 13,
+  title: 19,
+  pronunciation: 17,
+  meaning: 15,
+  general: 14,
 };
 
 export interface FontElementConfig {
@@ -28,30 +28,30 @@ export const FONT_CONFIGS: FontElementConfig[] = [
   {
     key: "title",
     label: "শিরোনাম",
-    min: 13,
-    max: 25,
-    presets: { s: 15, m: 18, l: 21 },
+    min: 14,
+    max: 26,
+    presets: { s: 16, m: 19, l: 22 },
   },
   {
     key: "pronunciation",
     label: "উচ্চারণ",
-    min: 12,
-    max: 22,
-    presets: { s: 14, m: 16, l: 18 },
+    min: 13,
+    max: 23,
+    presets: { s: 15, m: 17, l: 19 },
   },
   {
     key: "meaning",
     label: "অনুবাদ",
-    min: 11,
-    max: 20,
-    presets: { s: 12, m: 14, l: 16 },
+    min: 12,
+    max: 21,
+    presets: { s: 13, m: 15, l: 17 },
   },
   {
     key: "general",
     label: "সাধারণ টেক্সট",
-    min: 10,
-    max: 18,
-    presets: { s: 11, m: 13, l: 15 },
+    min: 11,
+    max: 19,
+    presets: { s: 12, m: 14, l: 16 },
   },
 ];
 

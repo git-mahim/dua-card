@@ -13,10 +13,10 @@
   --font-bengali-stack: var(--font-hind-siliguri), var(--font-anek-bangla), var(--font-noto-sans-bengali), 'Hind Siliguri', 'Anek Bangla', 'Noto Sans Bengali', 'Kalpurush', 'SolaimanLipi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   /* Dynamic Dua Font Size Variables (Customizable from Settings) */
-  --dua-font-title: 18px;
-  --dua-font-pronunciation: 16px;
-  --dua-font-meaning: 14px;
-  --dua-font-general: 13px;
+  --dua-font-title: 19px;
+  --dua-font-pronunciation: 17px;
+  --dua-font-meaning: 15px;
+  --dua-font-general: 14px;
 }
 
 .dark {
