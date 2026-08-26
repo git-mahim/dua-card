@@ -243,23 +243,25 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         )}
 
         {/* Card Display Preferences */}
-        <div className="flex flex-col gap-2 p-3 bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-2xl">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {hideVirtueOnHome ? (
-                <EyeOff className="w-4 h-4 text-[#ffb31a]" />
-              ) : (
-                <Eye className="w-4 h-4 text-zinc-500" />
-              )}
-              <div>
+        <div className="p-3 bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-2xl">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <div className="w-8 h-8 rounded-xl bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] flex items-center justify-center shrink-0">
+                {hideVirtueOnHome ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
                 <label
                   htmlFor="hide-virtue-toggle"
-                  className="text-xs font-bold text-zinc-900 dark:text-zinc-100 cursor-pointer block"
+                  className="text-xs font-bold text-zinc-900 dark:text-zinc-100 cursor-pointer block truncate"
                 >
-                  হোম কার্ডে অতিরিক্ত বিবরণ লুকান (কমপ্যাক্ট ভিউ)
+                  কমপ্যাক্ট কার্ড ভিউ
                 </label>
                 <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-tight mt-0.5">
-                  হোমে শুধু শিরোনাম, উচ্চারণ ও অনুবাদ থাকবে; কার্ডে ট্যাপ করলে বিস্তারিত বিবরণ দেখা যাবে।
+                  হোম কার্ডে বাড়তি বিবরণ লুকিয়ে রাখুন
                 </p>
               </div>
             </div>
