@@ -170,7 +170,7 @@ export const DuaCountModal: React.FC<DuaCountModalProps> = ({
             type="button"
             onClick={handleReset}
             disabled={currentCount === 0}
-            className="py-2.5 px-3 bg-zinc-100 dark:bg-zinc-800/80 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-zinc-700 dark:text-zinc-300 hover:text-rose-600 dark:hover:text-rose-400 border border-zinc-200 dark:border-zinc-700/80 rounded-xl text-xs font-bold font-bengali transition-colors flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs active:scale-95"
+            className="py-2.5 px-3 bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200/80 dark:hover:bg-zinc-700/80 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700/80 rounded-xl text-xs font-bold font-bengali transition-colors flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs active:scale-95"
             title="আজকের কাউন্ট ০ করুন"
           >
             <RotateCcw className="w-3.5 h-3.5" />
