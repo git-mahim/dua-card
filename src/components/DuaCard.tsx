@@ -142,10 +142,10 @@ export const DuaCard: React.FC<DuaCardProps> = ({
         <div className="flex items-center gap-1.5 text-zinc-400 dark:text-zinc-500">
           <GripVertical className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing" />
           
-          {/* Completed Badge (shown only when completed) */}
+          {/* Completed Badge (matched exact height, padding & radius of footer buttons) */}
           {isCompleted && (
-            <span className="px-2 py-0.5 bg-[#ffb31a]/20 text-[#b36f00] dark:text-[#ffb31a] border border-[#ffb31a]/40 rounded-full text-[10px] font-bold font-sans tracking-wide inline-flex items-center gap-1 shadow-2xs leading-none">
-              <Check className="w-3 h-3 stroke-[2.5] shrink-0" />
+            <span className="px-2.5 py-1 bg-surface-card/80 dark:bg-zinc-900/40 text-[#b36f00] dark:text-[#ffb31a] border border-[#ffb31a]/40 dark:border-[#ffb31a]/50 rounded-xl text-xs font-bold font-sans tracking-wide inline-flex items-center gap-1.5 shadow-2xs leading-none">
+              <Check className="w-3.5 h-3.5 stroke-[2.5] text-[#ffb31a] shrink-0" />
               <span className="leading-none translate-y-[0.5px]">Completed</span>
             </span>
           )}
