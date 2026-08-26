@@ -126,7 +126,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
         isDragOverlay
           ? "border-[#ffb31a] bg-white dark:bg-[#181818] z-50 pointer-events-none shadow-xl scale-[1.02]"
           : isCompleted
-          ? "opacity-60 hover:opacity-95 bg-surface-card border-zinc-200/90 dark:border-zinc-800/80 hover:border-[#ffb31a]/40 shadow-xs"
+          ? "opacity-35 hover:opacity-90 bg-surface-card border-zinc-200/90 dark:border-zinc-800/80 hover:border-[#ffb31a]/40 shadow-xs"
           : "opacity-100 bg-surface-card hover:bg-surface-cardHover border-zinc-200/90 dark:border-zinc-800/80 hover:border-[#ffb31a]/40 shadow-xs"
       }`}
     >
@@ -149,16 +149,16 @@ export const DuaCard: React.FC<DuaCardProps> = ({
         </div>
 
         <div className="flex items-center gap-1.5" data-no-double-tap="true">
-          {/* Today's Completed Pill Badge */}
+          {/* Completed Pill Badge */}
           {isCompleted && (
             <button
               type="button"
               onClick={() => onToggleCompleted && onToggleCompleted(dua)}
-              className="px-2 py-0.5 bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] border border-[#ffb31a]/35 rounded-full text-[10px] font-bold font-bengali flex items-center gap-1 shadow-2xs hover:bg-[#ffb31a]/25 transition-colors"
-              title="ডাবল ট্যাপে সম্পন্ন হয়েছে (আনচেক করতে ট্যাপ করুন)"
+              className="px-2 py-0.5 bg-[#ffb31a]/20 text-[#b36f00] dark:text-[#ffb31a] border border-[#ffb31a]/40 rounded-full text-[10px] font-bold font-bengali flex items-center gap-1 shadow-2xs hover:bg-[#ffb31a]/30 transition-colors"
+              title="ডাবল ট্যাপে সম্পূর্ণ হয়েছে (আনচেক করতে ট্যাপ করুন)"
             >
               <CheckCircle2 className="w-3 h-3 stroke-[2.5]" />
-              <span>আজকের আমল</span>
+              <span>সম্পূর্ণ</span>
             </button>
           )}
 
