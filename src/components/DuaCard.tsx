@@ -126,13 +126,18 @@ export const DuaCard: React.FC<DuaCardProps> = ({
   return (
     <article
       ref={setNodeRef}
-      style={style}
+      style={{
+        ...style,
+        WebkitUserSelect: "none",
+        userSelect: "none",
+        WebkitTouchCallout: "none",
+      }}
       {...attributes}
       {...listeners}
       tabIndex={0}
       onClick={handleCardClick}
       aria-label={dua.title ? `দোয়া: ${dua.title}` : "দোয়া কার্ড"}
-      className={`group relative w-full rounded-[20px] p-4 sm:p-5 text-left select-none outline-none transition-all duration-200 ${
+      className={`dua-card group relative w-full rounded-[20px] p-4 sm:p-5 text-left select-none no-select outline-none transition-all duration-200 ${
         isDragOverlay
           ? "border border-[#ffb31a] bg-white dark:bg-[#181818] z-50 pointer-events-none shadow-xl scale-[1.02]"
           : isCompleted
@@ -292,8 +297,8 @@ export const DuaCard: React.FC<DuaCardProps> = ({
         </div>
       </div>
 
-      {/* Structured Rich-Text Content */}
-      <div className="relative">
+      {/* Structured Rich-Text Content (Non-selectable on home card) */}
+      <div className="relative select-none no-select dua-card-content">
         <StructuredDuaViewer
           content={dua.richTextContent}
           isTruncated={false}

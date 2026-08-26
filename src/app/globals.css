@@ -51,10 +51,16 @@ body {
 }
 
 /* Prevent accidental text selection during drag and drop */
-.no-select {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  user-select: none;
+.no-select,
+.dua-card,
+.dua-card *,
+.dua-card-content,
+.dua-card-content * {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
 }
 
 /* TipTap Editor Styles */
