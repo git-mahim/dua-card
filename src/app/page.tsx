@@ -9,6 +9,7 @@ import { DuaCountModal } from "@/components/DuaCountModal";
 import { DuaAnalyticsModal } from "@/components/DuaAnalyticsModal";
 import { SettingsModal } from "@/components/SettingsModal";
 import { DeleteConfirmModal } from "@/components/DeleteConfirmModal";
+import { DuaExportModal } from "@/components/DuaExportModal";
 import { DuaRecord, DuaDailyLog } from "@/lib/types";
 import {
   getAllDuas,
@@ -49,9 +50,10 @@ export default function HomePage() {
   const [editingDua, setEditingDua] = useState<DuaRecord | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  // Habit Tracker Modals
+  // Habit Tracker & Export Modals
   const [activeCountDua, setActiveCountDua] = useState<DuaRecord | null>(null);
   const [activeAnalyticsDua, setActiveAnalyticsDua] = useState<DuaRecord | null>(null);
+  const [activeExportDua, setActiveExportDua] = useState<DuaRecord | null>(null);
 
   // Deletion modal state
   const [duaToDelete, setDuaToDelete] = useState<DuaRecord | null>(null);
@@ -270,6 +272,7 @@ export default function HomePage() {
             onOpenCountModal={(dua) => setActiveCountDua(dua)}
             onQuickAddCount={handleQuickAddCount}
             onOpenAnalytics={(dua) => setActiveAnalyticsDua(dua)}
+            onExportImage={(dua) => setActiveExportDua(dua)}
             onMoveUp={handleMoveUp}
             onMoveDown={handleMoveDown}
             onReorder={handleReorder}
@@ -340,6 +343,13 @@ export default function HomePage() {
         totalDuasCount={duas.length}
         hideVirtueOnHome={hideVirtueOnHome}
         onToggleHideVirtue={handleToggleHideVirtue}
+      />
+
+      {/* Dua Image Export & Share Modal */}
+      <DuaExportModal
+        dua={activeExportDua}
+        isOpen={!!activeExportDua}
+        onClose={() => setActiveExportDua(null)}
       />
 
       {/* Delete Single Dua Confirmation Modal */}

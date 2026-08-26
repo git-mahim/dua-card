@@ -19,6 +19,7 @@ import {
   Plus,
   Check,
   Clock,
+  Image as ImageIcon,
 } from "lucide-react";
 
 interface DuaCardProps {
@@ -30,6 +31,7 @@ interface DuaCardProps {
   onOpenCountModal?: (dua: DuaRecord) => void;
   onQuickAddCount?: (dua: DuaRecord, delta: number) => void;
   onOpenAnalytics?: (dua: DuaRecord) => void;
+  onExportImage?: (dua: DuaRecord) => void;
   onOpen?: (dua: DuaRecord) => void;
   onMoveUp?: (dua: DuaRecord) => void;
   onMoveDown?: (dua: DuaRecord) => void;
@@ -47,6 +49,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
   onToggleCompleted,
   onOpenCountModal,
   onOpenAnalytics,
+  onExportImage,
   onMoveUp,
   onMoveDown,
   isFirst = false,
@@ -243,6 +246,22 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                     </div>
 
                     <div className="py-1">
+                      {/* ইমেজ হিসেবে সেভ (Save as Image) */}
+                      {onExportImage && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowMenu(false);
+                            onExportImage(dua);
+                          }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 text-left transition-colors font-medium"
+                        >
+                          <ImageIcon className="w-3.5 h-3.5 text-[#ffb31a]" />
+                          <span>ইমেজ হিসেবে সেভ</span>
+                        </button>
+                      )}
+
                       {/* আমল হিস্ট্রি (Analytics) */}
                       {onOpenAnalytics && (
                         <button

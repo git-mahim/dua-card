@@ -34,6 +34,7 @@ interface DuaListProps {
   onOpenCountModal: (dua: DuaRecord) => void;
   onQuickAddCount: (dua: DuaRecord, delta: number) => void;
   onOpenAnalytics: (dua: DuaRecord) => void;
+  onExportImage?: (dua: DuaRecord) => void;
   onMoveUp: (dua: DuaRecord) => void;
   onMoveDown: (dua: DuaRecord) => void;
   onReorder: (newOrderedList: DuaRecord[]) => void;
@@ -54,6 +55,7 @@ export const DuaList: React.FC<DuaListProps> = ({
   onOpenCountModal,
   onQuickAddCount,
   onOpenAnalytics,
+  onExportImage,
   onMoveUp,
   onMoveDown,
   onReorder,
@@ -337,6 +339,7 @@ export const DuaList: React.FC<DuaListProps> = ({
                     onOpenCountModal={onOpenCountModal}
                     onQuickAddCount={onQuickAddCount}
                     onOpenAnalytics={onOpenAnalytics}
+                    onExportImage={onExportImage}
                     onMoveUp={onMoveUp}
                     onMoveDown={onMoveDown}
                     isFirst={index === 0}
@@ -376,6 +379,7 @@ export const DuaList: React.FC<DuaListProps> = ({
                 onOpenCountModal={onOpenCountModal}
                 onQuickAddCount={onQuickAddCount}
                 onOpenAnalytics={onOpenAnalytics}
+                onExportImage={onExportImage}
                 onMoveUp={onMoveUp}
                 onMoveDown={onMoveDown}
                 isFirst={index === 0}
