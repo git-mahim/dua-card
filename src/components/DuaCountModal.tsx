@@ -30,7 +30,19 @@ export const DuaCountModal: React.FC<DuaCountModalProps> = ({
     if (isOpen) {
       setCustomInput("");
       setIsEditingCustom(false);
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+    } else {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+      document.body.style.touchAction = "";
     }
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+      document.body.style.touchAction = "";
+    };
   }, [isOpen]);
 
   if (!isOpen || !dua) return null;
@@ -68,9 +80,13 @@ export const DuaCountModal: React.FC<DuaCountModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-150 h-[100dvh] w-screen overscroll-none touch-none select-none box-border"
+    >
       <div
-        className="w-full max-w-sm bg-surface-card border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 shadow-2xl flex flex-col gap-4 animate-in zoom-in-95 duration-150"
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-sm bg-surface-card border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 shadow-2xl flex flex-col gap-4 animate-in zoom-in-95 duration-150 touch-auto select-auto"
         role="dialog"
         aria-modal="true"
         aria-labelledby="count-modal-title"

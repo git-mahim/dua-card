@@ -62,7 +62,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   // Destructive delete confirmation
   const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+    } else {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+      document.body.style.touchAction = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+      document.body.style.touchAction = "";
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -186,9 +201,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150"
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-150 h-[100dvh] w-screen overscroll-none touch-none select-none box-border"
     >
-      <div className="w-full max-w-md max-h-[90vh] bg-surface-card border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 shadow-2xl font-bengali text-left flex flex-col gap-4 overflow-y-auto">
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md max-h-[90vh] bg-surface-card border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 shadow-2xl font-bengali text-left flex flex-col gap-4 overflow-y-auto touch-auto select-auto"
+      >
         {/* Header */}
         <div className="flex items-center justify-between pb-2 border-b border-zinc-100 dark:border-zinc-800/80">
           <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
