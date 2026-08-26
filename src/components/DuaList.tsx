@@ -176,7 +176,7 @@ export const DuaList: React.FC<DuaListProps> = ({
     <div className="w-full flex flex-col gap-3 pb-24">
       {/* Smart Status Filter Tabs (সকল দোয়া | বাকি দোয়া | পড়েছি) */}
       {!isSearchActive && (
-        <div className="w-full grid grid-cols-3 gap-1.5 p-1.5 bg-surface-card border border-zinc-200/90 dark:border-zinc-800/90 rounded-2xl shadow-xs text-xs sm:text-[13px] font-bengali">
+        <div className="w-full grid grid-cols-3 gap-1.5 p-1.5 bg-surface-card border border-zinc-200/90 dark:border-zinc-800/90 rounded-2xl shadow-xs font-bengali">
           <button
             type="button"
             onClick={() => {
@@ -189,9 +189,9 @@ export const DuaList: React.FC<DuaListProps> = ({
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/60"
             }`}
           >
-            <span>সকল দোয়া</span>
+            <span className="text-[13.5px] sm:text-[15px]">সকল দোয়া</span>
             <span
-              className={`font-mono text-xs font-bold leading-none translate-y-[0.5px] ${
+              className={`font-mono text-[13px] sm:text-[14px] font-bold leading-none translate-y-[0.5px] ${
                 activeTab === "all"
                   ? "text-zinc-950 opacity-90"
                   : "text-zinc-500 dark:text-zinc-400 opacity-80"
@@ -213,9 +213,9 @@ export const DuaList: React.FC<DuaListProps> = ({
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/60"
             }`}
           >
-            <span>বাকি দোয়া</span>
+            <span className="text-[13.5px] sm:text-[15px]">বাকি দোয়া</span>
             <span
-              className={`font-mono text-xs font-bold leading-none translate-y-[0.5px] ${
+              className={`font-mono text-[13px] sm:text-[14px] font-bold leading-none translate-y-[0.5px] ${
                 activeTab === "pending"
                   ? "text-zinc-950 opacity-90"
                   : "text-zinc-500 dark:text-zinc-400 opacity-80"
@@ -237,9 +237,9 @@ export const DuaList: React.FC<DuaListProps> = ({
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/60"
             }`}
           >
-            <span>পড়েছি</span>
+            <span className="text-[13.5px] sm:text-[15px]">পড়েছি</span>
             <span
-              className={`font-mono text-xs font-bold leading-none translate-y-[0.5px] ${
+              className={`font-mono text-[13px] sm:text-[14px] font-bold leading-none translate-y-[0.5px] ${
                 activeTab === "completed"
                   ? "text-zinc-950 opacity-90"
                   : "text-zinc-500 dark:text-zinc-400 opacity-80"
