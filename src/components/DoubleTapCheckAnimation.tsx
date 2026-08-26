@@ -34,8 +34,8 @@ export const DoubleTapCheckAnimation: React.FC<DoubleTapCheckAnimationProps> = (
           <Check className="w-9 h-9 stroke-[3]" />
         </div>
         <Sparkles className="w-6 h-6 text-[#ffb31a] absolute -top-2 -right-2 animate-bounce" />
-        <span className="mt-2 px-3 py-1 bg-black/80 text-[#ffb31a] text-xs font-bold font-bengali rounded-full shadow-md backdrop-blur-sm">
-          পড়েছি!
+        <span className="mt-2 px-3 py-1 bg-black/80 text-[#ffb31a] text-xs font-bold font-bengali rounded-full shadow-md backdrop-blur-sm flex items-center justify-center leading-none">
+          <span className="translate-y-[0.5px]">পড়েছি!</span>
         </span>
       </div>
     </div>
