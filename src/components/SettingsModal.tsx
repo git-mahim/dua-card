@@ -23,6 +23,7 @@ import {
   EyeOff,
   Eye,
   Type,
+  RotateCcw,
 } from "lucide-react";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
 import {
@@ -357,10 +358,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <button
               type="button"
               onClick={handleResetFontSizes}
-              className="text-[11px] font-bengali text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-200/70 dark:bg-zinc-800 hover:bg-zinc-300/80 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg text-[11px] font-bold font-bengali transition-all active:scale-95 border border-zinc-200/90 dark:border-zinc-700/90 shadow-2xs"
               title="ডিফল্ট ফন্ট সাইজে ফিরে যান"
             >
-              ডিফল্ট রিসেট
+              <RotateCcw className="w-3 h-3 text-[#ffb31a]" />
+              <span>ডিফল্ট রিসেট</span>
             </button>
           </div>
 
