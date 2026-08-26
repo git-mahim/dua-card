@@ -367,9 +367,20 @@ export async function resetAllTodayLogs(
   dateStr: string = getLocalDateString()
 ): Promise<void> {
   const spiritualDate = getSpiritualDate();
-  await db.logs.where("date").equals(dateStr).delete();
-  if (spiritualDate !== dateStr) {
-    await db.logs.where("date").equals(spiritualDate).delete();
+  const spiritualDateStr = getLocalDateString(spiritualDate);
+  const nowRaw = new Date();
+  const nowRawStr = `${nowRaw.getFullYear()}-${String(nowRaw.getMonth() + 1).padStart(2, "0")}-${String(nowRaw.getDate()).padStart(2, "0")}`;
+
+  const targetDates = new Set([dateStr, spiritualDateStr, nowRawStr]);
+
+  // Find all logs in Dexie that belong to any of today's target dates
+  const allLogs = await db.logs.toArray();
+  const toDeleteIds = allLogs
+    .filter((l) => targetDates.has(l.date) || targetDates.has(l.id.split("_")[1]))
+    .map((l) => l.id);
+
+  if (toDeleteIds.length > 0) {
+    await db.logs.bulkDelete(toDeleteIds);
   }
 }
 

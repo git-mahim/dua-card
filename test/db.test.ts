@@ -184,4 +184,25 @@ describe("IndexedDB Dua Card Database Operations", () => {
     expect(stats.streakDays).toBe(3); // 3 consecutive days
     expect(stats.logs.length).toBe(3);
   });
+
+  it("should reset/uncheck all completed duas for today cleanly", async () => {
+    const d1 = await createDua({ richTextContent: {}, plainTextPreview: "দোয়া ১", title: "দোয়া ১" });
+    const d2 = await createDua({ richTextContent: {}, plainTextPreview: "দোয়া ২", title: "দোয়া ২" });
+
+    // Mark d1 as completed and d2 with count 50
+    await toggleTodayCompleted(d1.id);
+    await addDuaCount(d2.id, 50);
+
+    let todayMap = await getAllTodayLogs();
+    expect(todayMap[d1.id]?.completed).toBe(true);
+    expect(todayMap[d2.id]?.count).toBe(50);
+
+    // Call resetAllTodayLogs
+    const { resetAllTodayLogs } = await import("../src/lib/db");
+    await resetAllTodayLogs();
+
+    todayMap = await getAllTodayLogs();
+    expect(todayMap[d1.id]).toBeUndefined();
+    expect(todayMap[d2.id]).toBeUndefined();
+  });
 });
