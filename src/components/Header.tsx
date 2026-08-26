@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Search, Settings, Moon, Sun } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { OfflineBadge } from "./OfflineBadge";
+import { getBengaliTodayFormatted } from "@/lib/formatters";
 
 interface HeaderProps {
   searchQuery: string;
@@ -21,6 +22,11 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSettings,
 }) => {
   const { theme, setTheme } = useTheme();
+  const [todayText, setTodayText] = useState<string>("২৬শে আগস্ট, ২০২৬");
+
+  useEffect(() => {
+    setTodayText(getBengaliTodayFormatted(true));
+  }, []);
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
@@ -30,10 +36,10 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="sticky top-0 z-30 w-full bg-background/90 backdrop-blur-md border-b border-zinc-200/80 dark:border-zinc-800/80 px-4 py-3 transition-colors duration-200">
       <div className="max-w-md mx-auto flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
-          {/* Logo / App Name */}
+          {/* Header Title: Today's Date in Bengali */}
           <div className="flex items-center gap-2">
-            <h1 className="text-lg font-bold font-bengali tracking-tight text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
-              <span>দোয়া কার্ড</span>
+            <h1 className="text-[16px] sm:text-lg font-bold font-bengali tracking-tight text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
+              <span>{todayText}</span>
             </h1>
             <OfflineBadge />
           </div>

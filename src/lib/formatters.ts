@@ -111,3 +111,51 @@ export function getBengaliDayName(dateStr: string): string {
   const dateObj = new Date(parts[0], parts[1] - 1, parts[2]);
   return BENGALI_DAYS[dateObj.getDay()];
 }
+
+const BENGALI_SUFFIXES: Record<number, string> = {
+  1: "লা",
+  2: "রা",
+  3: "রা",
+  4: "ঠা",
+  5: "ই",
+  6: "ই",
+  7: "ই",
+  8: "ই",
+  9: "ই",
+  10: "ই",
+  11: "ই",
+  12: "ই",
+  13: "ই",
+  14: "ই",
+  15: "ই",
+  16: "ই",
+  17: "ই",
+  18: "ই",
+  19: "শে",
+  20: "শে",
+  21: "শে",
+  22: "শে",
+  23: "শে",
+  24: "শে",
+  25: "শে",
+  26: "শে",
+  27: "শে",
+  28: "শে",
+  29: "শে",
+  30: "শে",
+  31: "শে",
+};
+
+/**
+ * Format today's date in traditional Bengali format
+ * e.g. "২৬শে আগস্ট, ২০২৬" or "৫ই আগস্ট, ২০২৬"
+ */
+export function getBengaliTodayFormatted(withSuffix: boolean = true): string {
+  const d = new Date();
+  const dayNum = d.getDate();
+  const dayStr = toBengaliNumber(dayNum);
+  const suffix = withSuffix ? (BENGALI_SUFFIXES[dayNum] || "") : "";
+  const month = BENGALI_MONTHS[d.getMonth()] || "আগস্ট";
+  const year = toBengaliNumber(d.getFullYear());
+  return `${dayStr}${suffix} ${month}, ${year}`;
+}
