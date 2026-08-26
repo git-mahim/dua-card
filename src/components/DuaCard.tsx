@@ -146,19 +146,6 @@ export const DuaCard: React.FC<DuaCardProps> = ({
         </div>
 
         <div className="flex items-center gap-1.5" data-no-double-tap="true">
-          {/* Completed Pill Badge */}
-          {isCompleted && (
-            <button
-              type="button"
-              onClick={() => onToggleCompleted && onToggleCompleted(dua)}
-              className="px-2 py-0.5 bg-[#ffb31a]/20 text-[#b36f00] dark:text-[#ffb31a] border border-[#ffb31a]/40 rounded-full text-[10px] font-bold font-bengali inline-flex items-center justify-center gap-1 shadow-2xs hover:bg-[#ffb31a]/30 transition-colors leading-none"
-              title="পড়া হয়েছে (আনচেক করতে ট্যাপ করুন)"
-            >
-              <CheckCircle2 className="w-3 h-3 stroke-[2.5] shrink-0" />
-              <span className="leading-none translate-y-[0.5px]">পড়েছি</span>
-            </button>
-          )}
-
           {/* Secondary Action Overflow Menu */}
           {!isDragOverlay && (
             <div className="relative">
