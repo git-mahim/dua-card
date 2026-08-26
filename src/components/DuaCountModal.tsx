@@ -24,12 +24,10 @@ export const DuaCountModal: React.FC<DuaCountModalProps> = ({
   onSetCount,
 }) => {
   const [customInput, setCustomInput] = useState("");
-  const [isEditingCustom, setIsEditingCustom] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setCustomInput("");
-      setIsEditingCustom(false);
       document.body.style.overflow = "hidden";
       document.documentElement.style.overflow = "hidden";
       document.body.style.touchAction = "none";
@@ -59,22 +57,11 @@ export const DuaCountModal: React.FC<DuaCountModalProps> = ({
       triggerHaptic(50);
       onAddCount(val);
       setCustomInput("");
-      setIsEditingCustom(false);
-    }
-  };
-
-  const handleCustomSetSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const val = parseInt(customInput.replace(/[^0-9]/g, ""), 10);
-    if (!isNaN(val) && val >= 0) {
-      triggerHaptic(50);
-      onSetCount(val);
-      setCustomInput("");
-      setIsEditingCustom(false);
     }
   };
 
   const handleReset = () => {
+    if (currentCount === 0) return;
     triggerHaptic(50);
     onSetCount(0);
   };
@@ -150,23 +137,11 @@ export const DuaCountModal: React.FC<DuaCountModalProps> = ({
           </div>
         </div>
 
-        {/* Custom Input Form */}
-        <div className="flex flex-col gap-2 pt-1 border-t border-zinc-100 dark:border-zinc-800/80">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold font-bengali text-zinc-600 dark:text-zinc-400">
-              কাস্টম সংখ্যা লিখুন:
-            </label>
-            {currentCount > 0 && (
-              <button
-                type="button"
-                onClick={handleReset}
-                className="flex items-center gap-1 text-[11px] text-rose-600 dark:text-rose-400 hover:underline font-bengali"
-              >
-                <RotateCcw className="w-3 h-3" />
-                <span>আজকের কাউন্ট রিসেট (০)</span>
-              </button>
-            )}
-          </div>
+        {/* Custom Input Form (Divider removed) */}
+        <div className="flex flex-col gap-1.5 pt-0.5">
+          <label className="text-xs font-semibold font-bengali text-zinc-600 dark:text-zinc-400">
+            কাস্টম সংখ্যা লিখুন:
+          </label>
 
           <form onSubmit={handleCustomAddSubmit} className="flex items-center gap-2">
             <input
@@ -189,14 +164,26 @@ export const DuaCountModal: React.FC<DuaCountModalProps> = ({
           </form>
         </div>
 
-        {/* Footer Done Button */}
-        <div className="pt-2">
+        {/* Footer Actions: 2 Half-width Buttons [ কাউন্টার রিসেট ] & [ সম্পন্ন ] */}
+        <div className="grid grid-cols-2 gap-2 pt-1">
+          <button
+            type="button"
+            onClick={handleReset}
+            disabled={currentCount === 0}
+            className="py-2.5 px-3 bg-zinc-100 dark:bg-zinc-800/80 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-zinc-700 dark:text-zinc-300 hover:text-rose-600 dark:hover:text-rose-400 border border-zinc-200 dark:border-zinc-700/80 rounded-xl text-xs font-bold font-bengali transition-colors flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs active:scale-95"
+            title="আজকের কাউন্ট ০ করুন"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>কাউন্টার রিসেট</span>
+          </button>
+
           <button
             type="button"
             onClick={onClose}
-            className="w-full py-2.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-xl text-xs font-bold font-bengali transition-colors"
+            className="py-2.5 px-3 bg-[#ffb31a] hover:bg-[#e69c05] text-zinc-950 rounded-xl text-xs font-bold font-bengali transition-all shadow-xs active:scale-95 flex items-center justify-center gap-1"
           >
-            সম্পন্ন
+            <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>সম্পন্ন</span>
           </button>
         </div>
       </div>
