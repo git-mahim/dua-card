@@ -37,10 +37,12 @@ const config: Config = {
       },
       fontFamily: {
         bengali: [
-          "var(--font-noto-sans-bengali)",
           "var(--font-hind-siliguri)",
-          "'Noto Sans Bengali'",
+          "var(--font-anek-bangla)",
+          "var(--font-noto-sans-bengali)",
           "'Hind Siliguri'",
+          "'Anek Bangla'",
+          "'Noto Sans Bengali'",
           "Kalpurush",
           "SolaimanLipi",
           "-apple-system",
