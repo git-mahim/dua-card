@@ -10,6 +10,25 @@ interface StructuredDuaViewerProps {
 }
 
 /**
+ * Check if a JSONContent node has any non-empty text
+ */
+function hasTextContent(block: JSONContent): boolean {
+  if (block.type === "horizontalRule") return true;
+  if (!block.content || !Array.isArray(block.content) || block.content.length === 0) {
+    return false;
+  }
+  return block.content.some((child) => {
+    if (child.type === "text" && child.text && child.text.trim().length > 0) {
+      return true;
+    }
+    if (child.content && Array.isArray(child.content)) {
+      return hasTextContent(child);
+    }
+    return false;
+  });
+}
+
+/**
  * Render inline text with marks (bold, italic, strike, code)
  */
 function renderInlineContent(nodes?: JSONContent[]): React.ReactNode {
@@ -59,7 +78,8 @@ export const StructuredDuaViewer: React.FC<StructuredDuaViewerProps> = ({
     return null;
   }
 
-  let visibleBlocks = content.content;
+  // Filter out any blocks that have no actual text/content
+  let visibleBlocks = content.content.filter((block) => hasTextContent(block));
 
   // If hideVirtue is enabled on Home screen, filter out virtue and secondary notes
   if (hideVirtue) {
@@ -70,7 +90,9 @@ export const StructuredDuaViewer: React.FC<StructuredDuaViewerProps> = ({
 
     // Fallback: If all blocks were filtered out, show at least first 2 blocks
     if (visibleBlocks.length === 0) {
-      visibleBlocks = content.content.slice(0, 2);
+      visibleBlocks = content.content
+        .filter((block) => hasTextContent(block))
+        .slice(0, 2);
     }
   }
 
@@ -83,14 +105,14 @@ export const StructuredDuaViewer: React.FC<StructuredDuaViewerProps> = ({
       {blocks.map((block, index) => {
         // 1. Paragraphs (with semantic styles: title, pronunciation, meaning, virtue, paragraph)
         if (block.type === "paragraph") {
+          // If paragraph is completely empty, omit completely without any empty spacer
+          if (!hasTextContent(block)) {
+            return null;
+          }
+
           const styleKey = block.attrs?.semanticStyle || "dua-paragraph";
           const typography = SEMANTIC_STYLES[styleKey] || SEMANTIC_STYLES["dua-paragraph"];
           const inner = renderInlineContent(block.content);
-
-          // If paragraph is completely empty, render empty spacer
-          if (!block.content || block.content.length === 0) {
-            return <div key={index} className="h-2" />;
-          }
 
           if (styleKey === "dua-title") {
             return (
@@ -117,6 +139,8 @@ export const StructuredDuaViewer: React.FC<StructuredDuaViewerProps> = ({
 
         // 2. Blockquotes (কোটেশন / উদ্ধৃতি)
         if (block.type === "blockquote") {
+          if (!hasTextContent(block)) return null;
+
           return (
             <blockquote
               key={index}
@@ -124,6 +148,7 @@ export const StructuredDuaViewer: React.FC<StructuredDuaViewerProps> = ({
             >
               {block.content?.map((subBlock, subIdx) => {
                 if (subBlock.type === "paragraph") {
+                  if (!hasTextContent(subBlock)) return null;
                   return (
                     <p key={subIdx} className="m-0">
                       {renderInlineContent(subBlock.content)}
@@ -138,6 +163,8 @@ export const StructuredDuaViewer: React.FC<StructuredDuaViewerProps> = ({
 
         // 3. Bullet Lists (বুলেট তালিকা)
         if (block.type === "bulletList") {
+          if (!hasTextContent(block)) return null;
+
           return (
             <ul key={index} className="list-disc pl-5 my-2 space-y-1 text-sm text-zinc-800 dark:text-zinc-200">
               {block.content?.map((item, itemIdx) => (
@@ -155,6 +182,8 @@ export const StructuredDuaViewer: React.FC<StructuredDuaViewerProps> = ({
 
         // 4. Ordered Lists (নম্বর তালিকা)
         if (block.type === "orderedList") {
+          if (!hasTextContent(block)) return null;
+
           return (
             <ol key={index} className="list-decimal pl-5 my-2 space-y-1 text-sm text-zinc-800 dark:text-zinc-200">
               {block.content?.map((item, itemIdx) => (
@@ -173,12 +202,14 @@ export const StructuredDuaViewer: React.FC<StructuredDuaViewerProps> = ({
         // 5. Horizontal Divider (বিভাজক রেখা)
         if (block.type === "horizontalRule") {
           return (
-            <hr key={index} className="my-3 border-t border-zinc-200 dark:border-zinc-800" />
+            <hr key={index} className="my-2.5 border-t border-zinc-200 dark:border-zinc-800" />
           );
         }
 
         // 6. Code Block (কোড ব্লক)
         if (block.type === "codeBlock") {
+          if (!hasTextContent(block)) return null;
+
           return (
             <pre
               key={index}

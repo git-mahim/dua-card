@@ -26,7 +26,7 @@ export const SEMANTIC_STYLES: Record<string, TypographyStyle> = {
     fontSize: "text-[19px] sm:text-[21px]",
     fontWeight: "font-extrabold",
     lineHeight: "leading-[1.4]",
-    className: "dua-title text-[19px] sm:text-[21px] font-extrabold leading-[1.4] text-zinc-900 dark:text-zinc-50 mb-3 font-bengali tracking-tight",
+    className: "dua-title text-[19px] sm:text-[21px] font-extrabold leading-[1.4] text-zinc-900 dark:text-zinc-50 mb-2 font-bengali tracking-tight",
   },
   "dua-pronunciation": {
     id: "dua-pronunciation",
@@ -36,7 +36,7 @@ export const SEMANTIC_STYLES: Record<string, TypographyStyle> = {
     fontSize: "text-[16px] sm:text-[17px]",
     fontWeight: "font-medium",
     lineHeight: "leading-[1.6]",
-    className: "dua-pronunciation text-[16px] sm:text-[17px] font-medium leading-[1.6] text-zinc-800 dark:text-zinc-200 mb-3 font-bengali",
+    className: "dua-pronunciation text-[16px] sm:text-[17px] font-medium leading-[1.6] text-zinc-800 dark:text-zinc-200 mb-2 font-bengali",
   },
   "dua-meaning": {
     id: "dua-meaning",
@@ -46,7 +46,7 @@ export const SEMANTIC_STYLES: Record<string, TypographyStyle> = {
     fontSize: "text-[15px] sm:text-[16px]",
     fontWeight: "font-normal",
     lineHeight: "leading-[1.6]",
-    className: "dua-meaning text-[15px] sm:text-[16px] font-normal leading-[1.6] text-zinc-900 dark:text-zinc-50 pl-3.5 pr-3 py-2.5 my-3 border-l-[3px] border-[#ffb31a] bg-amber-500/8 dark:bg-amber-400/10 rounded-r-[12px] font-bengali shadow-2xs",
+    className: "dua-meaning text-[15px] sm:text-[16px] font-normal leading-[1.6] text-zinc-900 dark:text-zinc-50 pl-3.5 pr-3 py-2 my-2 border-l-[3px] border-[#ffb31a] bg-amber-500/8 dark:bg-amber-400/10 rounded-r-[12px] font-bengali shadow-2xs",
   },
   "dua-paragraph": {
     id: "dua-paragraph",
@@ -56,6 +56,6 @@ export const SEMANTIC_STYLES: Record<string, TypographyStyle> = {
     fontSize: "text-[14.5px] sm:text-[15.5px]",
     fontWeight: "font-normal",
     lineHeight: "leading-[1.6]",
-    className: "dua-paragraph text-[14.5px] sm:text-[15.5px] font-normal leading-[1.6] text-zinc-700 dark:text-zinc-200 mt-2.5 mb-2 font-bengali",
+    className: "dua-paragraph text-[14.5px] sm:text-[15.5px] font-normal leading-[1.6] text-zinc-700 dark:text-zinc-200 my-1.5 font-bengali",
   },
 };
