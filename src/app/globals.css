@@ -150,3 +150,15 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(150, 150, 150, 0.45);
 }
+
+/* Remove number input spinners / arrows */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}

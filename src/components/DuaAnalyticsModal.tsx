@@ -378,10 +378,11 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
                               <div className="flex items-center gap-1">
                                 <input
                                   type="number"
+                                  inputMode="numeric"
                                   min="0"
                                   value={editCountInput}
                                   onChange={(e) => setEditCountInput(e.target.value)}
-                                  className="w-16 px-2 py-1 text-xs bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-lg font-mono focus:outline-none focus:ring-1 focus:ring-[#ffb31a]"
+                                  className="w-16 px-2 py-1 text-xs bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-lg font-mono focus:outline-none focus:ring-1 focus:ring-[#ffb31a] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                   autoFocus
                                 />
                                 <button

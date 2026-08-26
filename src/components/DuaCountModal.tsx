@@ -155,11 +155,12 @@ export const DuaCountModal: React.FC<DuaCountModalProps> = ({
           <form onSubmit={handleCustomAddSubmit} className="flex items-center gap-2">
             <input
               type="number"
+              inputMode="numeric"
               min="1"
               placeholder="যেমন: ২০০০"
               value={customInput}
               onChange={(e) => setCustomInput(e.target.value)}
-              className="flex-1 min-w-0 px-3.5 py-2 text-sm bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:border-[#ffb31a] font-mono text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 placeholder:font-bengali"
+              className="flex-1 min-w-0 px-3.5 py-2 text-sm bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:border-[#ffb31a] font-mono text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 placeholder:font-bengali [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
             <button
               type="submit"
