@@ -8,9 +8,10 @@ import {
   restoreBackupMerge,
   restoreBackupReplace,
 } from "@/lib/backup";
-import { DuaRecord, ThemeMode } from "@/lib/types";
+import { DuaRecord } from "@/lib/types";
 import {
   X,
+  ArrowLeft,
   Download,
   Upload,
   Moon,
@@ -81,16 +82,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       setFontSizes(loadSavedFontSizes());
       document.body.style.overflow = "hidden";
       document.documentElement.style.overflow = "hidden";
-      document.body.style.touchAction = "none";
     } else {
       document.body.style.overflow = "";
       document.documentElement.style.overflow = "";
-      document.body.style.touchAction = "";
     }
     return () => {
       document.body.style.overflow = "";
       document.documentElement.style.overflow = "";
-      document.body.style.touchAction = "";
     };
   }, [isOpen]);
 
@@ -121,51 +119,56 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     try {
       setIsProcessing(true);
       const res = await exportBackupFile();
-      showToast(
-        "success",
-        `ব্যাকআপ ফাইল ডাউনলোড সম্পন্ন হয়েছে (${res.totalRecords} টি দোয়া)।`
-      );
-    } catch (err) {
-      console.error("Export backup failed:", err);
-      showToast("error", "ব্যাকআপ ফাইল তৈরিতে সমস্যা হয়েছে।");
+      if (res.success) {
+        showToast("success", `ব্যাকআপ ফাইল সফলভাবে ডাউনলোড হয়েছে (${res.recordCount} টি দোয়া)`);
+      } else {
+        showToast("error", res.error || "ব্যাকআপ এক্সপোর্ট করতে সমস্যা হয়েছে");
+      }
+    } catch {
+      showToast("error", "একটি অপ্রত্যাশিত ত্রুটি ঘটেছে");
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // Handle file selection for Import
+  // Handle Import File Selected
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      const text = event.target?.result as string;
-      const result = validateBackupJson(text);
+      try {
+        const text = event.target?.result as string;
+        const validation = validateBackupJson(text);
 
-      if (!result.success || !result.data) {
-        showToast("error", result.error || "অকার্যকর ব্যাকআপ ফাইল।");
-        return;
+        if (!validation.isValid) {
+          showToast(
+            "error",
+            `ফাইলটি সঠিক নয়: ${validation.errors.join(", ")}`
+          );
+          return;
+        }
+
+        const payload = validation.payload!;
+        setImportPreview({
+          duas: payload.duas,
+          count: payload.duas.length,
+          filename: file.name,
+        });
+      } catch {
+        showToast("error", "ফাইল পড়তে ব্যর্থ হয়েছে। সঠিক JSON ফাইল নির্বাচন করুন।");
+      } finally {
+        // Reset input so same file can be selected again
+        if (fileInputRef.current) fileInputRef.current.value = "";
       }
-
-      setImportPreview({
-        duas: result.data.duas,
-        count: result.data.duas.length,
-        filename: file.name,
-      });
-    };
-
-    reader.onerror = () => {
-      showToast("error", "ফাইল পড়তে সমস্যা হয়েছে।");
     };
 
     reader.readAsText(file);
-    // Reset file input value so same file can be chosen again
-    e.target.value = "";
   };
 
   // Execute Merge Restore
-  const handleConfirmMerge = async () => {
+  const handleRestoreMerge = async () => {
     if (!importPreview) return;
     try {
       setIsProcessing(true);
@@ -173,22 +176,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       if (res.success) {
         showToast(
           "success",
-          `সফলভাবে যুক্ত হয়েছে: ${res.added} টি নতুন দোয়া (${res.skipped} টি পুনরাবৃত্তি এড়ানো হয়েছে)।`
+          `সফলভাবে যুক্ত হয়েছে (${res.importedCount} টি নতুন, ${res.updatedCount} টি আপডেট)।`
         );
         setImportPreview(null);
         onDataChanged();
       } else {
-        showToast("error", "রিস্টোর করতে সমস্যা হয়েছে।");
+        showToast("error", "রিস্টোর ব্যর্থ হয়েছে।");
       }
     } catch {
-      showToast("error", "রিস্টোর ব্যর্থ হয়েছে।");
+      showToast("error", "রিস্টোর প্রক্রিয়া ব্যর্থ হয়েছে।");
     } finally {
       setIsProcessing(false);
     }
   };
 
   // Execute Replace Restore
-  const handleConfirmReplace = async () => {
+  const handleRestoreReplace = async () => {
     if (!importPreview) return;
     try {
       setIsProcessing(true);
@@ -229,39 +232,51 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-150 h-[100dvh] w-screen overscroll-none touch-none select-none box-border"
+      className="fixed inset-0 z-50 flex flex-col bg-background text-foreground animate-in fade-in duration-150 overflow-y-auto overscroll-y-contain w-full max-w-full font-bengali select-text"
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md max-h-[90vh] bg-surface-card border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 shadow-2xl font-bengali text-left flex flex-col gap-4 overflow-y-auto touch-auto select-auto"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between pb-2 border-b border-zinc-100 dark:border-zinc-800/80">
-          <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
-            সেটিংস ও ডেটা ব্যবস্থাপনা
-          </h2>
+      {/* Sticky Top Header */}
+      <header className="sticky top-0 z-20 w-full bg-background/95 backdrop-blur-md border-b border-zinc-200/80 dark:border-zinc-800/80 px-4 py-3">
+        <div className="max-w-md mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="ফিরে যান"
+              className="p-1.5 -ml-1 rounded-xl text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100 font-bengali">
+              সেটিংস ও ডেটা ব্যবস্থাপনা
+            </h2>
+          </div>
+
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-xl text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
             aria-label="বন্ধ করুন"
+            className="p-1.5 rounded-xl text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
+      </header>
 
-        {/* Notifications Toast */}
+      {/* Main Settings Page Container */}
+      <main className="flex-1 w-full max-w-md mx-auto px-4 py-4 pb-24 flex flex-col gap-4">
+        {/* Toast Alert */}
         {notification && (
           <div
+            role="status"
+            aria-live="polite"
             className={`p-3 rounded-xl text-xs flex items-center gap-2 animate-in fade-in slide-in-from-top-1 ${
               notification.type === "success"
-                ? "bg-[#ffb31a]/10 border border-[#ffb31a]/30 text-amber-900 dark:text-[#ffb31a]"
-                : "bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-300"
+                ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
+                : "bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800"
             }`}
           >
             {notification.type === "success" ? (
-              <CheckCircle2 className="w-4 h-4 shrink-0 text-[#ffb31a]" />
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
             ) : (
               <AlertCircle className="w-4 h-4 shrink-0" />
             )}
@@ -431,7 +446,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               ব্যাকআপ ও রিস্টোর
             </label>
             <span className="text-[11px] text-zinc-400">
-              সংরক্ষিত: {totalDuasCount} টি
+              সংরক্ষিত: {toBengaliNumber(totalDuasCount)} টি
             </span>
           </div>
 
@@ -457,6 +472,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <Upload className="w-3.5 h-3.5" />
               <span>ব্যাকআপ রিস্টোর</span>
             </button>
+
             <input
               ref={fileInputRef}
               type="file"
@@ -465,64 +481,41 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               className="hidden"
             />
           </div>
-
-          {/* Load Sample/Demo Duas Button */}
-          <button
-            type="button"
-            onClick={async () => {
-              try {
-                setIsProcessing(true);
-                const { INITIAL_DEMO_DUAS } = await import("@/lib/seedData");
-                const res = await restoreBackupMerge(INITIAL_DEMO_DUAS);
-                showToast("success", `${res.added} টি ডেমো দোয়া যুক্ত করা হয়েছে।`);
-                onDataChanged();
-              } catch {
-                showToast("error", "ডেমো দোয়া লোড করতে সমস্যা হয়েছে।");
-              } finally {
-                setIsProcessing(false);
-              }
-            }}
-            disabled={isProcessing}
-            className="w-full flex items-center justify-center gap-2 p-2 bg-[#ffb31a]/10 hover:bg-[#ffb31a]/20 text-[#c87d00] dark:text-[#ffb31a] rounded-xl text-xs font-medium border border-[#ffb31a]/25 transition-colors"
-          >
-            <FileJson className="w-3.5 h-3.5 text-[#ffb31a]" />
-            <span>৫টি নমুনা (ডেমো) দোয়া লোড করুন</span>
-          </button>
         </div>
 
-        {/* Import Preview Modal / Sub-section */}
+        {/* Import Preview Confirmation Dialog */}
         {importPreview && (
-          <div className="p-3.5 bg-[#ffb31a]/10 border border-[#ffb31a]/30 rounded-2xl flex flex-col gap-3">
-            <div className="flex items-center gap-2 text-zinc-900 dark:text-zinc-100 text-xs font-bold">
-              <FileJson className="w-4 h-4 text-[#ffb31a]" />
-              <span>ফাইল শনাক্ত: {importPreview.count} টি দোয়া পাওয়া গেছে</span>
+          <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex flex-col gap-2.5 animate-in fade-in">
+            <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+              <FileJson className="w-4 h-4 shrink-0" />
+              <span className="text-xs font-bold font-bengali">
+                ব্যাকআপ প্রিভিউ: {importPreview.filename}
+              </span>
             </div>
             <p className="text-[11px] text-zinc-600 dark:text-zinc-400">
-              ফাইল: <span className="font-mono">{importPreview.filename}</span>
-              <br />
-              আপনি কি বর্তমান দোয়ার সাথে এটি যোগ (Merge) করতে চান নাকি সম্পূর্ণ প্রতিস্থাপন (Replace) করতে চান?
+              ফাইলে মোট <strong>{toBengaliNumber(importPreview.count)}</strong> টি দোয়ার তথ্য পাওয়া গেছে। আপনি কীভাবে ডেটা রিস্টোর করতে চান?
             </p>
-            <div className="flex items-center gap-2 pt-1">
+            <div className="grid grid-cols-2 gap-2 pt-1">
               <button
                 type="button"
-                onClick={handleConfirmMerge}
+                onClick={handleRestoreMerge}
                 disabled={isProcessing}
-                className="flex-1 py-1.5 px-2 bg-[#ffb31a] hover:bg-[#e69c05] text-zinc-950 font-bold rounded-lg text-xs text-center transition-colors"
+                className="py-1.5 px-2 bg-[#ffb31a] hover:bg-[#e69c05] text-zinc-950 font-bold text-xs rounded-xl shadow-xs transition-colors"
               >
                 যুক্ত করুন (Merge)
               </button>
               <button
                 type="button"
-                onClick={handleConfirmReplace}
+                onClick={handleRestoreReplace}
                 disabled={isProcessing}
-                className="flex-1 py-1.5 px-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg text-xs font-medium text-center transition-colors"
+                className="py-1.5 px-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors"
               >
                 প্রতিস্থাপন (Replace)
               </button>
               <button
                 type="button"
                 onClick={() => setImportPreview(null)}
-                className="py-1.5 px-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 text-xs"
+                className="col-span-2 py-1.5 px-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 text-xs"
               >
                 বাতিল
               </button>
@@ -553,7 +546,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             আপনার সকল দোয়ার তথ্য সম্পূর্ণভাবে আপনার এই ডিভাইসের IndexedDB-তে সংরক্ষিত থাকে। কোনো রিমোট সার্ভারে ডেটা পাঠানো হয় না। নিয়মিত ব্যাকআপ ডাউনলোড করে রাখুন।
           </span>
         </div>
-      </div>
+      </main>
 
       {/* Clear All Confirmation Modal */}
       <DeleteConfirmModal
