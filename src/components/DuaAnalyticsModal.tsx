@@ -3,10 +3,11 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { DuaRecord, DuaDailyLog, DuaAggregatedStats } from "@/lib/types";
 import { getDuaAggregatedStats, setDuaCount, getLocalDateString } from "@/lib/db";
-import { toBengaliNumber, formatBengaliDate, getBengaliDayName, getBengaliDayNumber } from "@/lib/formatters";
+import { toBengaliNumber, formatBengaliDate, getBengaliDayNumber } from "@/lib/formatters";
 import { triggerHaptic } from "@/lib/haptics";
 import {
   X,
+  ArrowLeft,
   Flame,
   Calendar,
   BarChart3,
@@ -34,7 +35,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
   onDataChanged,
 }) => {
   const [stats, setStats] = useState<DuaAggregatedStats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [timeRange, setTimeRange] = useState<TimeRangeFilter>("30d");
   const [editingDate, setEditingDate] = useState<string | null>(null);
   const [editCountInput, setEditCountInput] = useState("");
@@ -57,6 +58,18 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
       loadStats();
     }
   }, [isOpen, dua, loadStats]);
+
+  // Lock background scroll when solid tab page is active
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   // Filter logs according to selected time range
   const filteredLogs = useMemo(() => {
@@ -143,27 +156,29 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
   const todayStr = getLocalDateString();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center sm:p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
-      <div
-        className="w-full h-full sm:h-auto sm:max-h-[92vh] max-w-xl bg-surface-card border-0 sm:border border-zinc-200 dark:border-zinc-800 rounded-none sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-150"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="analytics-modal-title"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-zinc-800/80 shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] flex items-center justify-center">
-              <TrendingUp className="w-5 h-5" />
-            </div>
-            <div>
-              <h2
-                id="analytics-modal-title"
-                className="text-base font-bold font-bengali text-zinc-900 dark:text-zinc-100 line-clamp-1"
-              >
-                {dua.title || "দোয়ার আমল হিস্ট্রি"}
-              </h2>
-              <p className="text-xs text-zinc-500 font-bengali">আমল ও ধারাবাহিকতা বিশ্লেষণ</p>
+    <div className="fixed inset-0 z-50 bg-background text-foreground flex flex-col overflow-hidden animate-in fade-in duration-150">
+      {/* Solid Top Navigation Bar */}
+      <header className="sticky top-0 z-20 bg-surface-card border-b border-zinc-200/80 dark:border-zinc-800 shrink-0 px-4 py-3 sm:px-6 shadow-xs">
+        <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="ফিরে যান"
+              className="p-2 rounded-xl text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-2xl bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] flex items-center justify-center shrink-0">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+              <div>
+                <h1 className="text-base sm:text-lg font-bold font-bengali text-zinc-900 dark:text-zinc-100 line-clamp-1">
+                  {dua.title || "দোয়ার আমল হিস্ট্রি"}
+                </h1>
+                <p className="text-xs text-zinc-500 font-bengali">আমল ও ধারাবাহিকতা বিশ্লেষণ</p>
+              </div>
             </div>
           </div>
           <button
@@ -175,19 +190,21 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
             <X className="w-5 h-5" />
           </button>
         </div>
+      </header>
 
-        {/* Modal Scrollable Body */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5 font-bengali">
+      {/* Solid Scrollable Main Page Content */}
+      <main className="flex-1 overflow-y-auto px-4 py-5 sm:py-6 font-bengali">
+        <div className="max-w-2xl mx-auto space-y-6">
           {isLoading ? (
-            <div className="py-20 flex justify-center items-center">
-              <div className="w-7 h-7 border-2 border-[#ffb31a] border-t-transparent rounded-full animate-spin" />
+            <div className="py-24 flex justify-center items-center">
+              <div className="w-8 h-8 border-2 border-[#ffb31a] border-t-transparent rounded-full animate-spin" />
             </div>
           ) : stats ? (
             <>
               {/* 4 Top Summary Metric Cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {/* Total Count */}
-                <div className="p-3.5 bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl flex flex-col justify-between">
+                <div className="p-3.5 bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-2xl flex flex-col justify-between shadow-2xs">
                   <div className="flex items-center justify-between text-zinc-500 text-[11px] font-medium mb-1">
                     <span>মোট আমল</span>
                     <Award className="w-3.5 h-3.5 text-[#ffb31a]" />
@@ -199,7 +216,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
                 </div>
 
                 {/* Streak */}
-                <div className="p-3.5 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-[#ffb31a]/30 rounded-2xl flex flex-col justify-between">
+                <div className="p-3.5 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-[#ffb31a]/30 rounded-2xl flex flex-col justify-between shadow-2xs">
                   <div className="flex items-center justify-between text-[#c87d00] dark:text-[#ffb31a] text-[11px] font-bold mb-1">
                     <span>চলমান ধারা</span>
                     <Flame className="w-3.5 h-3.5 text-orange-500" />
@@ -212,7 +229,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
                 </div>
 
                 {/* This Week */}
-                <div className="p-3.5 bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl flex flex-col justify-between">
+                <div className="p-3.5 bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-2xl flex flex-col justify-between shadow-2xs">
                   <div className="flex items-center justify-between text-zinc-500 text-[11px] font-medium mb-1">
                     <span>এই সপ্তাহে</span>
                     <Calendar className="w-3.5 h-3.5 text-blue-500" />
@@ -224,7 +241,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
                 </div>
 
                 {/* This Month */}
-                <div className="p-3.5 bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl flex flex-col justify-between">
+                <div className="p-3.5 bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-2xl flex flex-col justify-between shadow-2xs">
                   <div className="flex items-center justify-between text-zinc-500 text-[11px] font-medium mb-1">
                     <span>এই মাসে</span>
                     <BarChart3 className="w-3.5 h-3.5 text-emerald-500" />
@@ -237,7 +254,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
               </div>
 
               {/* Visual Activity Bar Chart */}
-              <div className="p-4 bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl">
+              <div className="p-4 sm:p-5 bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-3xl shadow-2xs">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-800 dark:text-zinc-200">
                     <BarChart3 className="w-4 h-4 text-[#ffb31a]" />
@@ -294,22 +311,27 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
                 </div>
               </div>
 
-              {/* Time Range Filter Selector */}
-              <div className="flex items-center justify-between gap-1 p-1 bg-zinc-100 dark:bg-zinc-900 rounded-xl">
-                {[
-                  { id: "7d", label: "গত ৭ দিন" },
-                  { id: "30d", label: "গত ৩০ দিন" },
-                  { id: "6m", label: "৬ মাস" },
-                  { id: "1y", label: "১ বছর" },
-                  { id: "all", label: "সব" },
-                ].map((tab) => (
+              {/* Time Range Filter Pills */}
+              <div className="flex items-center justify-between p-1 bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-2xl shadow-2xs overflow-x-auto text-xs">
+                {(
+                  [
+                    { id: "7d", label: "গত ৭ দিন" },
+                    { id: "30d", label: "গত ৩০ দিন" },
+                    { id: "6m", label: "৬ মাস" },
+                    { id: "1y", label: "১ বছর" },
+                    { id: "all", label: "সব" },
+                  ] as const
+                ).map((tab) => (
                   <button
                     key={tab.id}
                     type="button"
-                    onClick={() => setTimeRange(tab.id as TimeRangeFilter)}
-                    className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                    onClick={() => {
+                      triggerHaptic(30);
+                      setTimeRange(tab.id);
+                    }}
+                    className={`flex-1 py-1.5 px-3 rounded-xl font-semibold transition-all whitespace-nowrap text-center ${
                       timeRange === tab.id
-                        ? "bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-sm"
+                        ? "bg-[#ffb31a] text-zinc-950 shadow-xs"
                         : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
                     }`}
                   >
@@ -318,62 +340,62 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
                 ))}
               </div>
 
-              {/* Day-by-Day Detailed Log History */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs font-bold text-zinc-700 dark:text-zinc-300">
-                  <div className="flex items-center gap-1.5">
-                    <History className="w-4 h-4 text-[#ffb31a]" />
-                    <span>তারিখভিত্তিক আমল তালিকা ({toBengaliNumber(filteredLogs.length)} টি এন্ট্রি)</span>
-                  </div>
+              {/* Day-by-Day Historical Log List */}
+              <div className="space-y-3 pb-8">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-700 dark:text-zinc-300">
+                  <History className="w-4 h-4 text-[#ffb31a]" />
+                  <span>তারিখভিত্তিক আমল তালিকা ({toBengaliNumber(filteredLogs.length)} টি এন্ট্রি)</span>
                 </div>
 
                 {filteredLogs.length === 0 ? (
-                  <div className="py-8 text-center text-xs text-zinc-400">
-                    এই সময়ের মধ্যে এখনো কোনো আমল হিস্ট্রি নেই।
+                  <div className="p-8 text-center bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-2xl text-zinc-400 text-xs">
+                    এই সময়ের মধ্যে কোনো আমলের রেকর্ড পাওয়া যায়নি।
                   </div>
                 ) : (
-                  <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
+                  <div className="space-y-2">
                     {filteredLogs.map((log) => {
                       const isToday = log.date === todayStr;
+                      const formattedDate = formatBengaliDate(log.date);
                       const isEditing = editingDate === log.date;
 
                       return (
                         <div
                           key={log.id}
-                          className={`flex items-center justify-between p-3 rounded-2xl border text-xs transition-colors ${
+                          className={`p-3.5 rounded-2xl border transition-all flex items-center justify-between gap-3 shadow-2xs ${
                             isToday
-                              ? "bg-[#ffb31a]/10 dark:bg-[#ffb31a]/15 border-[#ffb31a]/30"
-                              : "bg-surface-card border-zinc-200/80 dark:border-zinc-800/80 hover:bg-zinc-50 dark:hover:bg-zinc-900/60"
+                              ? "bg-amber-500/5 dark:bg-amber-500/10 border-[#ffb31a]/40"
+                              : "bg-surface-card border-zinc-200/80 dark:border-zinc-800"
                           }`}
                         >
-                          {/* Date and Day Name */}
-                          <div className="flex items-center gap-2.5">
+                          <div className="flex items-center gap-2.5 min-w-0">
                             <div
-                              className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 ${
-                                log.completed || log.count > 0
+                              className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${
+                                log.completed
                                   ? "bg-[#ffb31a]/20 text-[#c87d00] dark:text-[#ffb31a]"
-                                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400"
+                                  : "bg-zinc-200/70 dark:bg-zinc-800 text-zinc-400"
                               }`}
                             >
                               <CheckCircle2 className="w-4 h-4" />
                             </div>
-                            <div>
-                              <div className="font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
-                                <span>{formatBengaliDate(log.date)}</span>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
+                                  {formattedDate}
+                                </span>
                                 {isToday && (
-                                  <span className="px-1.5 py-0.2 bg-[#ffb31a] text-zinc-950 font-bold text-[10px] rounded-md">
+                                  <span className="px-1.5 py-0.2 text-[9px] bg-[#ffb31a] text-zinc-950 font-bold rounded-full">
                                     আজ
                                   </span>
                                 )}
                               </div>
-                              <span className="text-[11px] text-zinc-400 font-mono">
+                              <span className="text-[10px] text-zinc-400 font-mono">
                                 {log.date}
                               </span>
                             </div>
                           </div>
 
                           {/* Count Value or Edit Input */}
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 shrink-0">
                             {isEditing ? (
                               <div className="flex items-center gap-1">
                                 <input
@@ -396,7 +418,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
                                 <button
                                   type="button"
                                   onClick={() => setEditingDate(null)}
-                                  className="p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+                                  className="p-1 bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-lg hover:bg-zinc-300"
                                   title="বাতিল"
                                 >
                                   <X className="w-3.5 h-3.5" />
@@ -430,18 +452,20 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
             </>
           ) : null}
         </div>
+      </main>
 
-        {/* Footer Close */}
-        <div className="p-4 border-t border-zinc-100 dark:border-zinc-800/80 bg-surface-card shrink-0">
+      {/* Solid Sticky Bottom Footer */}
+      <footer className="sticky bottom-0 bg-surface-card border-t border-zinc-200/80 dark:border-zinc-800 p-4 shrink-0 shadow-sm">
+        <div className="max-w-2xl mx-auto">
           <button
             type="button"
             onClick={onClose}
-            className="w-full py-2.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-xl text-xs font-bold font-bengali transition-colors"
+            className="w-full py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-2xl text-xs font-bold font-bengali transition-colors shadow-2xs"
           >
-            বন্ধ করুন
+            বন্ধ করুন / হোমে ফিরে যান
           </button>
         </div>
-      </div>
+      </footer>
     </div>
   );
 };
