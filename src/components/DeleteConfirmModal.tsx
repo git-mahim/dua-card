@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { AlertTriangle, X } from "lucide-react";
+import { AlertTriangle, RotateCcw, X } from "lucide-react";
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;
@@ -12,6 +12,7 @@ interface DeleteConfirmModalProps {
   onConfirm: () => void;
   onCancel: () => void;
   isDestructive?: boolean;
+  iconType?: "danger" | "reset";
 }
 
 export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
@@ -23,6 +24,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
   onConfirm,
   onCancel,
   isDestructive = true,
+  iconType = "danger",
 }) => {
   React.useEffect(() => {
     if (isOpen) {
@@ -55,9 +57,15 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
         className="w-full max-w-sm bg-white dark:bg-[#181818] border border-zinc-200/90 dark:border-zinc-800/90 rounded-[20px] p-5 shadow-2xl text-left flex flex-col gap-4 touch-auto select-auto"
       >
         <div className="flex items-start justify-between">
-          <div className="w-10 h-10 rounded-[12px] bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0">
-            <AlertTriangle className="w-5 h-5" />
-          </div>
+          {iconType === "reset" || !isDestructive ? (
+            <div className="w-10 h-10 rounded-[12px] bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-[#c87d00] dark:text-[#ffb31a] shrink-0">
+              <RotateCcw className="w-5 h-5" />
+            </div>
+          ) : (
+            <div className="w-10 h-10 rounded-[12px] bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+          )}
           <button
             onClick={onCancel}
             className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
@@ -87,7 +95,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
           <button
             type="button"
             onClick={onConfirm}
-            className={`min-h-[44px] px-4 py-2 text-xs font-bold rounded-[12px] text-white transition-all active:scale-95 ${
+            className={`min-h-[44px] px-4 py-2 text-xs font-bold rounded-[12px] transition-all active:scale-95 ${
               isDestructive
                 ? "bg-rose-600 hover:bg-rose-500 text-white"
                 : "bg-[#ffb31a] hover:bg-[#e69c05] text-zinc-950 shadow-xs"

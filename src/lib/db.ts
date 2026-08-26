@@ -361,6 +361,25 @@ export async function toggleTodayCompleted(
 }
 
 /**
+ * Reset all completed logs and counts for today (uncheck all cards)
+ */
+export async function resetAllTodayLogs(
+  dateStr: string = getLocalDateString()
+): Promise<void> {
+  const logs = await db.logs.where("date").equals(dateStr).toArray();
+  const now = Date.now();
+  const resetLogs = logs.map((log) => ({
+    ...log,
+    completed: false,
+    count: 0,
+    updatedAt: now,
+  }));
+  if (resetLogs.length > 0) {
+    await db.logs.bulkPut(resetLogs);
+  }
+}
+
+/**
  * Add or increment count for a dua on a specific date (+33, +100, etc.)
  */
 export async function addDuaCount(

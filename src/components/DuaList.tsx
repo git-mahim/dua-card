@@ -22,7 +22,7 @@ import { DuaRecord, DuaDailyLog } from "@/lib/types";
 import { DuaCard } from "./DuaCard";
 import { toBengaliNumber } from "@/lib/formatters";
 import { triggerHaptic } from "@/lib/haptics";
-import { BookPlus, SearchX, CheckCircle2, Clock } from "lucide-react";
+import { BookPlus, SearchX, CheckCircle2, Clock, RotateCcw } from "lucide-react";
 
 interface DuaListProps {
   duas: DuaRecord[];
@@ -35,6 +35,7 @@ interface DuaListProps {
   onQuickAddCount: (dua: DuaRecord, delta: number) => void;
   onOpenAnalytics: (dua: DuaRecord) => void;
   onExportImage?: (dua: DuaRecord) => void;
+  onResetAllToday?: () => void;
   onMoveUp: (dua: DuaRecord) => void;
   onMoveDown: (dua: DuaRecord) => void;
   onReorder: (newOrderedList: DuaRecord[]) => void;
@@ -56,6 +57,7 @@ export const DuaList: React.FC<DuaListProps> = ({
   onQuickAddCount,
   onOpenAnalytics,
   onExportImage,
+  onResetAllToday,
   onMoveUp,
   onMoveDown,
   onReorder,
@@ -389,6 +391,20 @@ export const DuaList: React.FC<DuaListProps> = ({
             ))}
           </div>
         ))}
+
+      {/* Bottom Action: Reset all completed cards for today */}
+      {duas.length > 0 && onResetAllToday && (
+        <div className="pt-3 pb-16 flex flex-col items-center w-full">
+          <button
+            type="button"
+            onClick={onResetAllToday}
+            className="w-full sm:w-auto min-w-[260px] px-5 py-3.5 rounded-[18px] bg-zinc-100/90 dark:bg-zinc-850/80 hover:bg-amber-500/15 dark:hover:bg-amber-400/15 text-zinc-750 dark:text-zinc-300 hover:text-[#c87d00] dark:hover:text-[#ffb31a] border border-zinc-250/80 dark:border-zinc-750 flex items-center justify-center gap-2 text-xs sm:text-sm font-bold shadow-2xs active:scale-98 transition-all"
+          >
+            <RotateCcw className="w-4 h-4 text-[#ffb31a]" />
+            <span>আজকের সকল আমল রিসেট / আনচেক করুন</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

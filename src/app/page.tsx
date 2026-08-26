@@ -22,6 +22,7 @@ import {
   moveDuaDown,
   getAllTodayLogs,
   toggleTodayCompleted,
+  resetAllTodayLogs,
   addDuaCount,
   setDuaCount,
 } from "@/lib/db";
@@ -55,8 +56,9 @@ export default function HomePage() {
   const [activeAnalyticsDua, setActiveAnalyticsDua] = useState<DuaRecord | null>(null);
   const [activeExportDua, setActiveExportDua] = useState<DuaRecord | null>(null);
 
-  // Deletion modal state
+  // Deletion and Reset modal state
   const [duaToDelete, setDuaToDelete] = useState<DuaRecord | null>(null);
+  const [isResetTodayConfirmOpen, setIsResetTodayConfirmOpen] = useState(false);
 
   // Load saved preferences & font sizes
   useEffect(() => {
@@ -240,6 +242,19 @@ export default function HomePage() {
     await refreshLogs();
   };
 
+  // Reset All Today's Completed Duas
+  const handleConfirmResetAllToday = async () => {
+    try {
+      await resetAllTodayLogs();
+      triggerHaptic(40);
+      await refreshLogs();
+    } catch (e) {
+      console.error("Failed to reset today's logs:", e);
+    } finally {
+      setIsResetTodayConfirmOpen(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-[#ffb31a]/30 selection:text-zinc-900 dark:selection:text-zinc-100 transition-colors duration-200">
       {/* Sticky Header */}
@@ -273,6 +288,7 @@ export default function HomePage() {
             onQuickAddCount={handleQuickAddCount}
             onOpenAnalytics={(dua) => setActiveAnalyticsDua(dua)}
             onExportImage={(dua) => setActiveExportDua(dua)}
+            onResetAllToday={() => setIsResetTodayConfirmOpen(true)}
             onMoveUp={handleMoveUp}
             onMoveDown={handleMoveDown}
             onReorder={handleReorder}
@@ -362,6 +378,19 @@ export default function HomePage() {
         onConfirm={handleConfirmDelete}
         onCancel={() => setDuaToDelete(null)}
         isDestructive={true}
+      />
+
+      {/* Reset All Today's Completed Duas Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={isResetTodayConfirmOpen}
+        title="আজকের সকল আমল রিসেট করবেন?"
+        description="আজকের জন্য সম্পন্ন হওয়া এবং পাঠ করা সকল দোয়া আবার নতুন করে পড়ার জন্য আনচেক হয়ে যাবে।"
+        confirmLabel="হ্যাঁ, আনচেক করুন"
+        cancelLabel="বাতিল"
+        isDestructive={false}
+        iconType="reset"
+        onConfirm={handleConfirmResetAllToday}
+        onCancel={() => setIsResetTodayConfirmOpen(false)}
       />
     </div>
   );
