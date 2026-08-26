@@ -168,3 +168,36 @@ export function getBengaliTodayFormatted(withSuffix: boolean = true): string {
   const year = toBengaliDigits(d.getFullYear());
   return `${dayStr}${suffix} ${month}, ${year}`;
 }
+
+/**
+ * Format a 24-hour time string (HH:MM) into a Bengali localized label
+ * e.g. "06:00" -> "সকাল ৬:০০ টা", "09:30" -> "সকাল ৯:৩০ টা", "14:00" -> "দুপুর ২:০০ টা", "20:00" -> "রাত ৮:০০ টা", "00:00" -> "রাত ১২:০০ টা"
+ */
+export function formatResetTimeToBengali(timeStr: string): string {
+  if (!timeStr || !timeStr.includes(":")) return "সকাল ৬:০০ টা";
+  const [hStr, mStr] = timeStr.split(":");
+  let hour = parseInt(hStr, 10);
+  const min = parseInt(mStr, 10) || 0;
+  if (isNaN(hour)) hour = 6;
+
+  let period = "সকাল";
+  let displayHour = hour;
+
+  if (hour >= 4 && hour < 12) {
+    period = "সকাল";
+    displayHour = hour;
+  } else if (hour >= 12 && hour < 16) {
+    period = "দুপুর";
+    displayHour = hour === 12 ? 12 : hour - 12;
+  } else if (hour >= 16 && hour < 19) {
+    period = "বিকাল";
+    displayHour = hour - 12;
+  } else {
+    period = "রাত";
+    displayHour = hour === 0 ? 12 : (hour > 12 ? hour - 12 : hour);
+  }
+
+  const bh = toBengaliDigits(displayHour);
+  const bm = min === 0 ? "০০" : (min < 10 ? `০${toBengaliDigits(min)}` : toBengaliDigits(min));
+  return `${period} ${bh}:${bm} টা`;
+}

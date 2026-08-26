@@ -13,6 +13,7 @@ import {
   mergeImportedDuas,
   clearDatabase,
   getLocalDateString,
+  getSpiritualDate,
   toggleTodayCompleted,
   addDuaCount,
   setDuaCount,
@@ -166,13 +167,14 @@ describe("IndexedDB Dua Card Database Operations", () => {
     expect(todayLog?.completed).toBe(true);
 
     // Add log for yesterday: 1000
-    const yesterday = new Date();
+    const baseDate = getSpiritualDate();
+    const yesterday = new Date(baseDate);
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = getLocalDateString(yesterday);
     await setDuaCount(d.id, 1000, yesterdayStr);
 
     // Add log for day before yesterday: 500
-    const twoDaysAgo = new Date();
+    const twoDaysAgo = new Date(baseDate);
     twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
     const twoDaysAgoStr = getLocalDateString(twoDaysAgo);
     await setDuaCount(d.id, 500, twoDaysAgoStr);

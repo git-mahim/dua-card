@@ -109,7 +109,29 @@ export default function HomePage() {
 
   useEffect(() => {
     refreshDuas();
-  }, [refreshDuas]);
+
+    const handleResetTimeChange = () => {
+      refreshLogs();
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("dua_daily_reset_time_changed", handleResetTimeChange);
+      window.addEventListener("focus", refreshLogs);
+    }
+
+    // Periodic check every 60 seconds to detect crossing the daily reset time threshold
+    const timer = setInterval(() => {
+      refreshLogs();
+    }, 60 * 1000);
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("dua_daily_reset_time_changed", handleResetTimeChange);
+        window.removeEventListener("focus", refreshLogs);
+      }
+      clearInterval(timer);
+    };
+  }, [refreshDuas, refreshLogs]);
 
   // Create or Update Dua
   const handleSaveDua = async (data: {

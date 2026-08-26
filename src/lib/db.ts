@@ -19,13 +19,70 @@ export class DuaCardDatabase extends Dexie {
 
 export const db = new DuaCardDatabase();
 
+export const DAILY_RESET_TIME_STORAGE_KEY = "dua_daily_reset_time";
+export const DEFAULT_DAILY_RESET_TIME = "06:00";
+
 /**
- * Format local Date object to YYYY-MM-DD
+ * Get configured daily reset time (HH:MM), default "06:00"
  */
-export function getLocalDateString(d: Date = new Date()): string {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
+export function getDailyResetTime(): string {
+  if (typeof window !== "undefined") {
+    try {
+      const saved = localStorage.getItem(DAILY_RESET_TIME_STORAGE_KEY);
+      if (saved && /^\d{2}:\d{2}$/.test(saved)) {
+        return saved;
+      }
+    } catch {}
+  }
+  return DEFAULT_DAILY_RESET_TIME;
+}
+
+/**
+ * Save configured daily reset time (HH:MM) and notify listeners
+ */
+export function setDailyResetTime(timeStr: string): void {
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(DAILY_RESET_TIME_STORAGE_KEY, timeStr);
+      window.dispatchEvent(new Event("dua_daily_reset_time_changed"));
+    } catch {}
+  }
+}
+
+/**
+ * Get effective spiritual Date based on configured daily reset time threshold.
+ */
+export function getSpiritualDate(now: Date = new Date()): Date {
+  const target = new Date(now);
+  const resetTime = getDailyResetTime();
+  const [rHour, rMin] = resetTime.split(":").map((n) => parseInt(n, 10) || 0);
+
+  const resetToday = new Date(
+    target.getFullYear(),
+    target.getMonth(),
+    target.getDate(),
+    rHour,
+    rMin,
+    0,
+    0
+  );
+
+  // If current time is before today's reset time, active session is yesterday
+  if (target.getTime() < resetToday.getTime()) {
+    target.setDate(target.getDate() - 1);
+  }
+  return target;
+}
+
+/**
+ * Compute the active spiritual date string (YYYY-MM-DD) based on custom reset time.
+ * If current time is before the daily reset time, it belongs to the previous day's active session.
+ */
+export function getLocalDateString(d?: Date): string {
+  const targetDate = d ? new Date(d) : getSpiritualDate();
+  const year = targetDate.getFullYear();
+  const month = String(targetDate.getMonth() + 1).padStart(2, "0");
+  const day = String(targetDate.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
 
@@ -385,8 +442,8 @@ export async function getDuaAggregatedStats(duaId: string): Promise<DuaAggregate
     // Sort descending by date
     allLogs.sort((a, b) => b.date.localeCompare(a.date));
 
+    const todayDate = getSpiritualDate();
     const todayStr = getLocalDateString();
-    const todayDate = new Date();
     
     // Start of this week (Sunday)
     const dayOfWeek = todayDate.getDay();

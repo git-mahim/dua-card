@@ -4,8 +4,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { useTheme } from "./ThemeProvider";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
 import { exportAllDataToJson, importDataFromJson, clearAllData } from "@/lib/backup";
-import { getDuaCount, getAllDuas } from "@/lib/db";
-import { toBengaliNumber } from "@/lib/formatters";
+import { getDuaCount, getAllDuas, getDailyResetTime, setDailyResetTime } from "@/lib/db";
+import { toBengaliNumber, formatResetTimeToBengali } from "@/lib/formatters";
 import { triggerHaptic } from "@/lib/haptics";
 import {
   ArrowLeft,
@@ -22,6 +22,7 @@ import {
   FileJson,
   Eye,
   EyeOff,
+  Clock,
 } from "lucide-react";
 
 interface SettingsModalProps {
@@ -106,6 +107,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Daily Reset Time State
+  const [dailyResetTime, setDailyResetTimeState] = useState<string>("06:00");
+
   // Font Size state synced with CSS Variables & LocalStorage
   const [fontSizes, setFontSizes] = useState<FontSizeState>(DEFAULT_FONT_SIZES);
 
@@ -122,6 +126,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       } catch (e) {
         console.error("Failed to load saved font sizes", e);
       }
+      setDailyResetTimeState(getDailyResetTime());
     }
   }, []);
 
@@ -159,9 +164,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     showToast("success", "ফন্ট সাইজ ডিফল্টে রিসেট করা হয়েছে");
   };
 
+  const handleUpdateResetTime = (newTime: string) => {
+    if (!newTime || !/^\d{2}:\d{2}$/.test(newTime)) return;
+    triggerHaptic(30);
+    setDailyResetTimeState(newTime);
+    setDailyResetTime(newTime);
+    showToast(
+      "success",
+      `দৈনিক আমল রিসেট সময় পরিবর্তন করে ${formatResetTimeToBengali(newTime)} করা হয়েছে`
+    );
+  };
+
   useEffect(() => {
     if (isOpen) {
       loadStats();
+      setDailyResetTimeState(getDailyResetTime());
     }
   }, [isOpen]);
 
@@ -355,6 +372,69 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <span>{notification.message}</span>
           </div>
         )}
+
+        {/* Daily Reset Time Configuration */}
+        <div className="p-4 bg-white dark:bg-[#181818] border border-zinc-200/80 dark:border-zinc-800 rounded-[20px] shadow-2xs flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-[11px] bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] flex items-center justify-center shrink-0">
+                <Clock className="w-4 h-4" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-zinc-900 dark:text-zinc-100 block">
+                  দৈনিক আমল রিসেট সময়
+                </label>
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-tight mt-0.5">
+                  প্রতিদিন এই সময়ে দোয়ার স্ট্যাটাস আবার নতুন দিনের জন্য রিসেট হবে
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+                নির্ধারিত সময়:
+              </span>
+              <span className="text-xs font-bold text-[#c87d00] dark:text-[#ffb31a] bg-[#ffb31a]/10 px-2.5 py-1 rounded-[8px] border border-[#ffb31a]/25">
+                {formatResetTimeToBengali(dailyResetTime)}
+              </span>
+            </div>
+
+            {/* Native Time Picker Input */}
+            <div className="relative">
+              <input
+                type="time"
+                value={dailyResetTime}
+                onChange={(e) => handleUpdateResetTime(e.target.value)}
+                className="px-2.5 py-1.5 text-xs font-mono font-bold bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-700 rounded-[10px] cursor-pointer outline-none focus:ring-2 focus:ring-[#ffb31a]/40 transition-all"
+                title="রিসেট সময় পরিবর্তন করুন"
+              />
+            </div>
+          </div>
+
+          {/* Quick Preset Buttons */}
+          <div className="grid grid-cols-3 gap-1.5 pt-1">
+            {[
+              { label: "সকাল ০৬:০০", value: "06:00" },
+              { label: "সকাল ০৯:০০", value: "09:00" },
+              { label: "রাত ১২:০০", value: "00:00" },
+            ].map((preset) => (
+              <button
+                key={preset.value}
+                type="button"
+                onClick={() => handleUpdateResetTime(preset.value)}
+                className={`py-1.5 px-2 rounded-[10px] text-[11px] font-bold transition-all active:scale-95 ${
+                  dailyResetTime === preset.value
+                    ? "bg-[#ffb31a] text-zinc-950 shadow-xs"
+                    : "bg-zinc-100 dark:bg-zinc-800/70 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200/60 dark:border-zinc-800/60"
+                }`}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Card Display Preferences */}
         <div className="p-4 bg-white dark:bg-[#181818] border border-zinc-200/80 dark:border-zinc-800 rounded-[20px] shadow-2xs">

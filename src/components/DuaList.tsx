@@ -64,11 +64,11 @@ export const DuaList: React.FC<DuaListProps> = ({
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabFilter>("all");
 
-  // PointerSensor with responsive 250ms press delay and 5px tolerance
+  // PointerSensor with intentional 650ms press & hold delay and 8px tolerance to prevent accidental reorders
   const pointerSensor = useSensor(PointerSensor, {
     activationConstraint: {
-      delay: 250,
-      tolerance: 5,
+      delay: 650,
+      tolerance: 8,
     },
   });
 
