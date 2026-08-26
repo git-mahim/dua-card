@@ -148,11 +148,13 @@ body {
 .tiptap blockquote {
   border-left: 3.5px solid #ffb31a;
   background-color: #eef0f3;
-  padding: 0.55rem 0.85rem;
+  padding: 0.5rem 0.8rem;
   margin: 0.5rem 0;
   border-top-right-radius: 0.75rem;
   border-bottom-right-radius: 0.75rem;
   color: #18181b;
+  font-size: 12px;
+  line-height: 1.6;
 }
 
 .dark .tiptap blockquote {
