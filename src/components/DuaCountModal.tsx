@@ -152,34 +152,24 @@ export const DuaCountModal: React.FC<DuaCountModalProps> = ({
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <form onSubmit={handleCustomAddSubmit} className="flex items-center gap-2">
             <input
               type="number"
-              min="0"
-              placeholder="যেমন: ১৫০০ বা ১০০০০"
+              min="1"
+              placeholder="যেমন: ২০০০"
               value={customInput}
               onChange={(e) => setCustomInput(e.target.value)}
-              className="flex-1 px-3.5 py-2 text-sm bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ffb31a]/40 font-mono text-zinc-900 dark:text-zinc-100"
+              className="flex-1 min-w-0 px-3.5 py-2 text-sm bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:border-[#ffb31a] font-mono text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 placeholder:font-bengali"
             />
             <button
-              type="button"
-              onClick={handleCustomAddSubmit}
+              type="submit"
               disabled={!customInput || parseInt(customInput, 10) <= 0}
-              className="px-3 py-2 bg-[#ffb31a] hover:bg-[#e69c05] disabled:opacity-40 text-zinc-950 text-xs font-bold font-bengali rounded-xl transition-all shadow-sm active:scale-95 flex items-center gap-1 shrink-0"
+              className="px-3.5 py-2 bg-[#ffb31a] hover:bg-[#e69c05] disabled:bg-zinc-200 dark:disabled:bg-zinc-800 disabled:text-zinc-400 disabled:cursor-not-allowed text-zinc-950 text-xs font-bold font-bengali rounded-xl transition-all shadow-sm active:scale-95 flex items-center gap-1 shrink-0 whitespace-nowrap"
             >
               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>যোগ</span>
+              <span>যোগ করুন</span>
             </button>
-            <button
-              type="button"
-              onClick={handleCustomSetSubmit}
-              disabled={!customInput || parseInt(customInput, 10) < 0}
-              className="px-3 py-2 bg-zinc-900 dark:bg-zinc-100 disabled:opacity-40 text-white dark:text-zinc-900 text-xs font-semibold font-bengali rounded-xl transition-all shadow-sm active:scale-95 flex items-center gap-1 shrink-0"
-            >
-              <Check className="w-3.5 h-3.5" />
-              <span>সেট</span>
-            </button>
-          </div>
+          </form>
         </div>
 
         {/* Footer Done Button */}
