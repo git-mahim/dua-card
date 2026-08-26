@@ -124,7 +124,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
       tabIndex={0}
       onClick={handleCardClick}
       aria-label={dua.title ? `দোয়া: ${dua.title}` : "দোয়া কার্ড"}
-      className={`group relative w-full rounded-3xl p-4 text-left select-none outline-none transition-all duration-300 ease-in-out ${
+      className={`group relative w-full rounded-[20px] p-4 text-left select-none outline-none transition-all duration-300 ease-in-out ${
         isDragOverlay
           ? "border border-[#ffb31a] bg-white dark:bg-[#181818] z-50 pointer-events-none shadow-xl scale-[1.02]"
           : isCompleted
@@ -139,18 +139,18 @@ export const DuaCard: React.FC<DuaCardProps> = ({
       />
 
       {/* Top Bar: Drag Grip, Completed Badge & Three-Dot Menu */}
-      <div className="flex items-center justify-between gap-2 mb-2 no-select">
-        <div className="flex items-center gap-1.5 text-zinc-400 dark:text-zinc-500">
+      <div className="flex items-center justify-between gap-2 mb-3 no-select">
+        <div className="flex items-center gap-2 text-zinc-400 dark:text-zinc-500">
           <GripVertical className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing" />
           
           {/* Status Badge: Completed or Pending (matched exact height, padding & radius of footer buttons) */}
           {isCompleted ? (
-            <span className="px-2.5 py-1 bg-amber-500/15 dark:bg-amber-400/20 text-amber-900 dark:text-amber-300 border border-amber-500/35 dark:border-amber-400/40 rounded-xl text-xs font-bold font-sans tracking-wide inline-flex items-center gap-1.5 shadow-2xs leading-none">
+            <span className="px-2.5 py-1 bg-amber-500/15 dark:bg-amber-400/20 text-amber-900 dark:text-amber-300 border border-amber-500/35 dark:border-amber-400/40 rounded-[11px] text-xs font-bold font-sans tracking-wide inline-flex items-center gap-1.5 shadow-2xs leading-none">
               <Check className="w-3.5 h-3.5 stroke-[2.5] text-amber-700 dark:text-amber-400 shrink-0" />
               <span className="leading-none translate-y-[0.5px]">Completed</span>
             </span>
           ) : (
-            <span className="px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700/80 rounded-xl text-xs font-semibold font-sans tracking-wide inline-flex items-center gap-1.5 shadow-2xs leading-none">
+            <span className="px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700/80 rounded-[11px] text-xs font-semibold font-sans tracking-wide inline-flex items-center gap-1.5 shadow-2xs leading-none">
               <Clock className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 shrink-0" />
               <span className="leading-none translate-y-[0.5px]">Pending</span>
             </span>
@@ -283,7 +283,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
       {/* Bottom Action Footer: 2 Clean, Balanced Buttons (Never Wraps) */}
       {!isDragOverlay && (
         <div
-          className="mt-3 pt-2.5 border-t border-zinc-100 dark:border-zinc-800/60 flex items-center justify-between gap-2"
+          className="mt-3.5 pt-3 border-t border-zinc-100 dark:border-zinc-800/60 flex items-center justify-between gap-2"
           data-no-double-tap="true"
         >
           {/* Left: Direct "আমল হিস্ট্রি" Button */}
@@ -294,7 +294,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                 triggerHaptic(40);
                 onOpenAnalytics(dua);
               }}
-              className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold font-bengali text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 active:scale-95 rounded-xl border transition-all shadow-2xs whitespace-nowrap ${
+              className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold font-bengali text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 active:scale-95 rounded-[11px] border transition-all shadow-2xs whitespace-nowrap ${
                 isCompleted
                   ? "border-[#ffb31a]/40 dark:border-[#ffb31a]/50 bg-surface-card/80 dark:bg-zinc-900/40"
                   : "border-zinc-200/80 dark:border-zinc-800 bg-surface-card/60 dark:bg-zinc-900/40 hover:border-[#ffb31a]/40"
@@ -310,7 +310,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
           <button
             type="button"
             onClick={() => onOpenCountModal && onOpenCountModal(dua)}
-            className={`px-2.5 py-1 rounded-xl text-xs font-bengali font-bold border transition-all active:scale-95 flex items-center gap-1.5 shadow-2xs whitespace-nowrap text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 ${
+            className={`px-3 py-1.5 rounded-[11px] text-xs font-bengali font-bold border transition-all active:scale-95 flex items-center gap-2 shadow-2xs whitespace-nowrap text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 ${
               isCompleted
                 ? "border-[#ffb31a]/40 dark:border-[#ffb31a]/50 bg-surface-card/80 dark:bg-zinc-900/40"
                 : "border-zinc-200/80 dark:border-zinc-800 bg-surface-card/60 dark:bg-zinc-900/40 hover:border-[#ffb31a]/40"

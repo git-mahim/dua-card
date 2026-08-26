@@ -173,17 +173,17 @@ export const DuaList: React.FC<DuaListProps> = ({
   }
 
   return (
-    <div className="w-full flex flex-col gap-3 pb-24">
+    <div className="w-full flex flex-col gap-4 pb-24">
       {/* Smart Status Filter Tabs (সকল দোয়া | বাকি দোয়া | পড়েছি) */}
       {!isSearchActive && (
-        <div className="w-full grid grid-cols-3 gap-1.5 p-1.5 bg-surface-card border border-zinc-200/90 dark:border-zinc-800/90 rounded-2xl shadow-xs font-bengali">
+        <div className="w-full grid grid-cols-3 gap-2 p-1.5 bg-surface-card border border-zinc-200/90 dark:border-zinc-800/90 rounded-[20px] shadow-xs font-bengali">
           <button
             type="button"
             onClick={() => {
               triggerHaptic(25);
               setActiveTab("all");
             }}
-            className={`py-2.5 sm:py-3 px-2 rounded-xl font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
+            className={`min-h-[46px] py-2.5 sm:py-3 px-2 rounded-[12px] font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
               activeTab === "all"
                 ? "bg-[#ffb31a] text-zinc-950 shadow-xs scale-[1.01]"
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/60"
@@ -207,7 +207,7 @@ export const DuaList: React.FC<DuaListProps> = ({
               triggerHaptic(25);
               setActiveTab("pending");
             }}
-            className={`py-2.5 sm:py-3 px-2 rounded-xl font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
+            className={`min-h-[46px] py-2.5 sm:py-3 px-2 rounded-[12px] font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
               activeTab === "pending"
                 ? "bg-[#ffb31a] text-zinc-950 shadow-xs scale-[1.01]"
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/60"
@@ -231,7 +231,7 @@ export const DuaList: React.FC<DuaListProps> = ({
               triggerHaptic(25);
               setActiveTab("completed");
             }}
-            className={`py-2.5 sm:py-3 px-2 rounded-xl font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
+            className={`min-h-[46px] py-2.5 sm:py-3 px-2 rounded-[12px] font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
               activeTab === "completed"
                 ? "bg-[#ffb31a] text-zinc-950 shadow-xs scale-[1.01]"
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/60"
@@ -290,7 +290,7 @@ export const DuaList: React.FC<DuaListProps> = ({
 
       {/* Empty State: None Finished in "Completed" Tab */}
       {!isSearchActive && activeTab === "completed" && displayedDuas.length === 0 && (
-        <div className="w-full flex flex-col items-center justify-center py-12 px-4 text-center bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-3xl p-6 shadow-2xs">
+        <div className="w-full flex flex-col items-center justify-center py-12 px-4 text-center bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-[20px] p-6 shadow-2xs">
           <div className="w-14 h-14 rounded-2xl bg-[#ffb31a]/10 text-[#c87d00] dark:text-[#ffb31a] flex items-center justify-center mb-3">
             <Clock className="w-7 h-7 stroke-[2.5]" />
           </div>
@@ -303,7 +303,7 @@ export const DuaList: React.FC<DuaListProps> = ({
           <button
             type="button"
             onClick={() => setActiveTab("all")}
-            className="px-4 py-2 bg-[#ffb31a] hover:bg-[#e69c05] text-zinc-950 rounded-xl text-xs font-bold font-bengali transition-colors shadow-2xs"
+            className="min-h-[44px] px-4 py-2.5 bg-[#ffb31a] hover:bg-[#e69c05] text-zinc-950 rounded-[12px] text-xs font-bold font-bengali transition-colors shadow-2xs"
           >
             দোয়ার তালিকা দেখুন
           </button>
@@ -324,7 +324,7 @@ export const DuaList: React.FC<DuaListProps> = ({
               items={duas.map((d) => d.id)}
               strategy={verticalListSortingStrategy}
             >
-              <div className="w-full flex flex-col gap-3 touch-pan-y">
+              <div className="w-full flex flex-col gap-4 touch-pan-y">
                 {displayedDuas.map((dua, index) => (
                   <DuaCard
                     key={dua.id}
@@ -363,7 +363,7 @@ export const DuaList: React.FC<DuaListProps> = ({
             </DragOverlay>
           </DndContext>
         ) : (
-          <div className="w-full flex flex-col gap-3">
+          <div className="w-full flex flex-col gap-4">
             {displayedDuas.map((dua, index) => (
               <DuaCard
                 key={dua.id}

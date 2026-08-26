@@ -142,18 +142,18 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-background text-foreground flex flex-col w-full max-w-full overflow-x-hidden overflow-y-auto overscroll-x-none touch-pan-y animate-in fade-in duration-150">
       {/* Solid Sticky Top Navigation Bar */}
-      <header className="sticky top-0 z-20 bg-surface-card border-b border-zinc-200/80 dark:border-zinc-800 shrink-0 px-3 sm:px-6 py-3 w-full max-w-full shadow-xs box-border">
+      <header className="sticky top-0 z-20 bg-surface-card border-b border-zinc-200/80 dark:border-zinc-800 shrink-0 px-4 py-3 w-full max-w-full shadow-xs box-border">
         <div className="max-w-xl mx-auto w-full flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0 flex-1">
             <button
               type="button"
               onClick={onClose}
               aria-label="ফিরে যান"
-              className="p-1.5 sm:p-2 rounded-xl text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
+              className="p-2 rounded-[12px] text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <div className="w-8 h-8 rounded-2xl bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-[11px] bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] flex items-center justify-center shrink-0">
               <TrendingUp className="w-4 h-4" />
             </div>
             <div className="min-w-0 flex-1">
@@ -167,7 +167,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label="বন্ধ করুন"
-            className="p-1.5 sm:p-2 rounded-xl text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
+            className="p-2 rounded-[12px] text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
@@ -175,8 +175,8 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
       </header>
 
       {/* Solid Main Page Content (No Horizontal Overflow) */}
-      <main className="flex-1 w-full max-w-full px-3 sm:px-4 py-4 sm:py-6 font-bengali box-border overflow-x-hidden">
-        <div className="max-w-xl mx-auto w-full space-y-4 sm:space-y-5">
+      <main className="flex-1 w-full max-w-full px-4 py-4 sm:py-6 font-bengali box-border overflow-x-hidden">
+        <div className="max-w-xl mx-auto w-full space-y-5">
           {isLoading ? (
             <div className="py-24 flex justify-center items-center">
               <div className="w-8 h-8 border-2 border-[#ffb31a] border-t-transparent rounded-full animate-spin" />
@@ -184,9 +184,9 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
           ) : stats ? (
             <>
               {/* 4 Top Summary Metric Cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 w-full">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full">
                 {/* Total Count */}
-                <div className="p-3 bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-2xl flex flex-col justify-between shadow-2xs min-w-0">
+                <div className="p-3.5 bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-[16px] flex flex-col justify-between shadow-2xs min-w-0">
                   <div className="flex items-center justify-between text-zinc-500 text-[11px] font-medium mb-1">
                     <span className="truncate">মোট আমল</span>
                     <Award className="w-3.5 h-3.5 text-[#ffb31a] shrink-0" />
@@ -198,7 +198,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
                 </div>
 
                 {/* Streak */}
-                <div className="p-3 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-[#ffb31a]/30 rounded-2xl flex flex-col justify-between shadow-2xs min-w-0">
+                <div className="p-3.5 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-[#ffb31a]/30 rounded-[16px] flex flex-col justify-between shadow-2xs min-w-0">
                   <div className="flex items-center justify-between text-[#c87d00] dark:text-[#ffb31a] text-[11px] font-bold mb-1">
                     <span className="truncate">চলমান ধারা</span>
                     <Flame className="w-3.5 h-3.5 text-orange-500 shrink-0" />
@@ -211,7 +211,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
                 </div>
 
                 {/* This Week */}
-                <div className="p-3 bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-2xl flex flex-col justify-between shadow-2xs min-w-0">
+                <div className="p-3.5 bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-[16px] flex flex-col justify-between shadow-2xs min-w-0">
                   <div className="flex items-center justify-between text-zinc-500 text-[11px] font-medium mb-1">
                     <span className="truncate">এই সপ্তাহে</span>
                     <Calendar className="w-3.5 h-3.5 text-blue-500 shrink-0" />
@@ -223,7 +223,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
                 </div>
 
                 {/* This Month */}
-                <div className="p-3 bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-2xl flex flex-col justify-between shadow-2xs min-w-0">
+                <div className="p-3.5 bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-[16px] flex flex-col justify-between shadow-2xs min-w-0">
                   <div className="flex items-center justify-between text-zinc-500 text-[11px] font-medium mb-1">
                     <span className="truncate">এই মাসে</span>
                     <BarChart3 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
@@ -236,7 +236,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
               </div>
 
               {/* Visual Activity Bar Chart (Last 14 Days / 2 Weeks) */}
-              <div className="p-3.5 sm:p-4 bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-2xl shadow-2xs w-full min-w-0 overflow-hidden box-border">
+              <div className="p-4 bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-[20px] shadow-2xs w-full min-w-0 overflow-hidden box-border">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-800 dark:text-zinc-200">
                     <BarChart3 className="w-4 h-4 text-[#ffb31a]" />

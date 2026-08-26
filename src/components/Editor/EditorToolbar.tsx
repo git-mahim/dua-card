@@ -62,7 +62,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
   ];
 
   return (
-    <div className="w-full flex flex-col gap-2 p-2 sm:p-2.5 bg-surface-card/95 dark:bg-[#161616]/95 backdrop-blur-xl border border-zinc-200/90 dark:border-zinc-800/90 rounded-2xl shadow-xl font-bengali">
+    <div className="w-full flex flex-col gap-2 p-2.5 bg-surface-card/95 dark:bg-[#161616]/95 backdrop-blur-xl border border-zinc-200/90 dark:border-zinc-800/90 rounded-[20px] shadow-xl font-bengali">
       {/* Top Row: Cohesive Segmented Semantic Style Selectors */}
       <div className="grid grid-cols-4 gap-1.5 no-select">
         {semanticButtons.map((btn) => {
@@ -73,7 +73,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
               key={btn.key}
               type="button"
               onClick={() => handleStyleChange(btn.key)}
-              className={`flex items-center justify-center gap-1.5 py-2 px-1 sm:px-2.5 rounded-xl text-xs font-bold font-bengali transition-all duration-150 active:scale-95 text-center ${
+              className={`flex items-center justify-center gap-1.5 py-2 px-1 sm:px-2.5 rounded-[12px] text-xs font-bold font-bengali transition-all duration-150 active:scale-95 text-center ${
                 isActive
                   ? "bg-[#ffb31a] text-zinc-950 shadow-xs ring-1 ring-[#ffb31a] scale-[1.01]"
                   : "bg-zinc-100/80 dark:bg-zinc-850/60 text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60 border border-zinc-200/70 dark:border-zinc-800/80"
@@ -91,14 +91,14 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
       {/* Bottom Row: Refined Formatting Tools with Segmented Pill Groups (Italic and Strike removed) */}
       <div className="flex items-center justify-between pt-1.5 border-t border-zinc-200/70 dark:border-zinc-800/70">
         {/* Formatting & Blockquote Group */}
-        <div className="flex items-center gap-0.5 bg-zinc-100/80 dark:bg-zinc-850/60 p-0.5 rounded-xl border border-zinc-200/60 dark:border-zinc-800/60">
+        <div className="flex items-center gap-0.5 bg-zinc-100/80 dark:bg-zinc-850/60 p-0.5 rounded-[12px] border border-zinc-200/60 dark:border-zinc-800/60">
           <button
             type="button"
             onClick={() => {
               triggerHaptic(15);
               editor.chain().focus().toggleBold().run();
             }}
-            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-all active:scale-90 ${
+            className={`w-8 h-8 rounded-[10px] flex items-center justify-center text-xs font-bold transition-all active:scale-90 ${
               editor.isActive("bold")
                 ? "bg-[#ffb31a] text-zinc-950 font-extrabold shadow-2xs"
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60"
@@ -115,7 +115,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
               triggerHaptic(15);
               editor.chain().focus().toggleBlockquote().run();
             }}
-            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all active:scale-90 ${
+            className={`w-8 h-8 rounded-[10px] flex items-center justify-center transition-all active:scale-90 ${
               editor.isActive("blockquote")
                 ? "bg-[#ffb31a] text-zinc-950 shadow-2xs"
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60"
@@ -128,14 +128,14 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
         </div>
 
         {/* List & Divider Group */}
-        <div className="flex items-center gap-0.5 bg-zinc-100/80 dark:bg-zinc-850/60 p-0.5 rounded-xl border border-zinc-200/60 dark:border-zinc-800/60">
+        <div className="flex items-center gap-0.5 bg-zinc-100/80 dark:bg-zinc-850/60 p-0.5 rounded-[12px] border border-zinc-200/60 dark:border-zinc-800/60">
           <button
             type="button"
             onClick={() => {
               triggerHaptic(15);
               editor.chain().focus().toggleBulletList().run();
             }}
-            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all active:scale-90 ${
+            className={`w-8 h-8 rounded-[10px] flex items-center justify-center transition-all active:scale-90 ${
               editor.isActive("bulletList")
                 ? "bg-[#ffb31a] text-zinc-950 shadow-2xs"
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60"
@@ -152,7 +152,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
               triggerHaptic(15);
               editor.chain().focus().toggleOrderedList().run();
             }}
-            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all active:scale-90 ${
+            className={`w-8 h-8 rounded-[10px] flex items-center justify-center transition-all active:scale-90 ${
               editor.isActive("orderedList")
                 ? "bg-[#ffb31a] text-zinc-950 shadow-2xs"
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60"
@@ -169,7 +169,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
               triggerHaptic(15);
               editor.chain().focus().setHorizontalRule().run();
             }}
-            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60 transition-all active:scale-90"
+            className="w-8 h-8 rounded-[10px] flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60 transition-all active:scale-90"
             title="বিভাজক রেখা (Divider)"
             aria-label="বিভাজক রেখা"
           >
@@ -178,7 +178,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
         </div>
 
         {/* Undo / Redo Group */}
-        <div className="flex items-center gap-0.5 bg-zinc-100/80 dark:bg-zinc-850/60 p-0.5 rounded-xl border border-zinc-200/60 dark:border-zinc-800/60">
+        <div className="flex items-center gap-0.5 bg-zinc-100/80 dark:bg-zinc-850/60 p-0.5 rounded-[12px] border border-zinc-200/60 dark:border-zinc-800/60">
           <button
             type="button"
             onClick={() => {
@@ -186,7 +186,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
               editor.chain().focus().undo().run();
             }}
             disabled={!editor.can().undo()}
-            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60 disabled:opacity-30 disabled:pointer-events-none transition-all active:scale-90"
+            className="w-8 h-8 rounded-[10px] flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60 disabled:opacity-30 disabled:pointer-events-none transition-all active:scale-90"
             title="পূর্বে যান (Undo)"
             aria-label="পূর্বাবস্থায় ফেরান"
           >
@@ -200,7 +200,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
               editor.chain().focus().redo().run();
             }}
             disabled={!editor.can().redo()}
-            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60 disabled:opacity-30 disabled:pointer-events-none transition-all active:scale-90"
+            className="w-8 h-8 rounded-[10px] flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60 disabled:opacity-30 disabled:pointer-events-none transition-all active:scale-90"
             title="পুনরায় করুন (Redo)"
             aria-label="পুনরায় করুন"
           >

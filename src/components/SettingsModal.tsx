@@ -263,13 +263,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       </header>
 
       {/* Main Settings Page Container */}
-      <main className="flex-1 w-full max-w-md mx-auto px-4 py-4 pb-24 flex flex-col gap-4">
+      <main className="flex-1 w-full max-w-md mx-auto px-4 py-4 pb-24 flex flex-col gap-5">
         {/* Toast Alert */}
         {notification && (
           <div
             role="status"
             aria-live="polite"
-            className={`p-3 rounded-xl text-xs flex items-center gap-2 animate-in fade-in slide-in-from-top-1 ${
+            className={`p-3.5 rounded-[14px] text-xs flex items-center gap-2 animate-in fade-in slide-in-from-top-1 ${
               notification.type === "success"
                 ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
                 : "bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800"
@@ -285,10 +285,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         )}
 
         {/* Card Display Preferences */}
-        <div className="p-3 bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-2xl">
+        <div className="p-4 bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-[20px]">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <div className="w-8 h-8 rounded-xl bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-[11px] bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] flex items-center justify-center shrink-0">
                 {hideVirtueOnHome ? (
                   <EyeOff className="w-4 h-4" />
                 ) : (
@@ -337,9 +337,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <button
               type="button"
               onClick={() => setTheme("light")}
-              className={`flex items-center justify-center gap-2 p-2.5 rounded-xl text-xs font-medium border transition-all ${
+              className={`min-h-[44px] flex items-center justify-center gap-2 p-2.5 rounded-[12px] text-xs font-medium border transition-all ${
                 theme === "light"
-                  ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border-transparent shadow-sm font-bold"
+                  ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border-transparent shadow-xs font-bold"
                   : "bg-zinc-50 dark:bg-zinc-900/60 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               }`}
             >
@@ -349,9 +349,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <button
               type="button"
               onClick={() => setTheme("dark")}
-              className={`flex items-center justify-center gap-2 p-2.5 rounded-xl text-xs font-medium border transition-all ${
+              className={`min-h-[44px] flex items-center justify-center gap-2 p-2.5 rounded-[12px] text-xs font-medium border transition-all ${
                 theme === "dark"
-                  ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border-transparent shadow-sm font-bold"
+                  ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border-transparent shadow-xs font-bold"
                   : "bg-zinc-50 dark:bg-zinc-900/60 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               }`}
             >
@@ -362,8 +362,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         {/* Font & Size Preferences */}
-        <div className="flex flex-col gap-2 p-3 bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-2xl">
-          <div className="flex items-center justify-between pb-1 border-b border-zinc-200/60 dark:border-zinc-800/60">
+        <div className="flex flex-col gap-2.5 p-4 bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-[20px]">
+          <div className="flex items-center justify-between pb-1.5 border-b border-zinc-200/60 dark:border-zinc-800/60">
             <div className="flex items-center gap-2">
               <Type className="w-4 h-4 text-[#ffb31a]" />
               <label className="text-xs font-bold font-bengali text-zinc-900 dark:text-zinc-100">
@@ -373,7 +373,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <button
               type="button"
               onClick={handleResetFontSizes}
-              className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-200/70 dark:bg-zinc-800 hover:bg-zinc-300/80 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg text-[11px] font-bold font-bengali transition-all active:scale-95 border border-zinc-200/90 dark:border-zinc-700/90 shadow-2xs"
+              className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-200/70 dark:bg-zinc-800 hover:bg-zinc-300/80 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-[10px] text-[11px] font-bold font-bengali transition-all active:scale-95 border border-zinc-200/90 dark:border-zinc-700/90 shadow-2xs"
               title="ডিফল্ট ফন্ট সাইজে ফিরে যান"
             >
               <RotateCcw className="w-3 h-3 text-[#ffb31a]" />
@@ -385,7 +385,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             {FONT_CONFIGS.map((item) => {
               const currentSize = fontSizes[item.key];
               return (
-                <div key={item.key} className="flex flex-col gap-1.5 py-2 first:pt-1 last:pb-0">
+                <div key={item.key} className="flex flex-col gap-1.5 py-2.5 first:pt-1 last:pb-0">
                   {/* Top Row: Element Label, Pixel Counter, S M L Buttons */}
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold font-bengali text-zinc-800 dark:text-zinc-200">
@@ -396,7 +396,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         {toBengaliNumber(currentSize)}px
                       </span>
                       {/* S M L Preset Buttons */}
-                      <div className="flex items-center bg-zinc-200/70 dark:bg-zinc-800 rounded-lg p-0.5 border border-zinc-200/80 dark:border-zinc-700/80">
+                      <div className="flex items-center bg-zinc-200/70 dark:bg-zinc-800 rounded-[10px] p-0.5 border border-zinc-200/80 dark:border-zinc-700/80">
                         {(["s", "m", "l"] as const).map((preset) => {
                           const presetVal = item.presets[preset];
                           const isActive = currentSize === presetVal;
@@ -405,7 +405,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                               key={preset}
                               type="button"
                               onClick={() => handleUpdateFontSize(item.key, presetVal)}
-                              className={`px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase transition-all ${
+                              className={`px-2 py-0.5 rounded-[8px] text-[10px] font-extrabold uppercase transition-all ${
                                 isActive
                                   ? "bg-[#ffb31a] text-zinc-950 shadow-xs scale-105"
                                   : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100"
@@ -440,7 +440,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         {/* Backup and Restore */}
-        <div className="flex flex-col gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
+        <div className="flex flex-col gap-2 pt-1">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
               ব্যাকআপ ও রিস্টোর
@@ -456,7 +456,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               type="button"
               onClick={handleExport}
               disabled={isProcessing || totalDuasCount === 0}
-              className="flex items-center justify-center gap-2 p-2.5 bg-zinc-100 dark:bg-zinc-900/80 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-xl text-xs font-medium border border-zinc-200/80 dark:border-zinc-800 transition-colors disabled:opacity-40"
+              className="min-h-[44px] flex items-center justify-center gap-2 p-2.5 bg-zinc-100 dark:bg-zinc-900/80 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-[12px] text-xs font-medium border border-zinc-200/80 dark:border-zinc-800 transition-colors disabled:opacity-40"
             >
               <Download className="w-3.5 h-3.5" />
               <span>ব্যাকআপ এক্সপোর্ট</span>
@@ -467,7 +467,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={isProcessing}
-              className="flex items-center justify-center gap-2 p-2.5 bg-zinc-100 dark:bg-zinc-900/80 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-xl text-xs font-medium border border-zinc-200/80 dark:border-zinc-800 transition-colors disabled:opacity-40"
+              className="min-h-[44px] flex items-center justify-center gap-2 p-2.5 bg-zinc-100 dark:bg-zinc-900/80 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-[12px] text-xs font-medium border border-zinc-200/80 dark:border-zinc-800 transition-colors disabled:opacity-40"
             >
               <Upload className="w-3.5 h-3.5" />
               <span>ব্যাকআপ রিস্টোর</span>
@@ -485,7 +485,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* Import Preview Confirmation Dialog */}
         {importPreview && (
-          <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex flex-col gap-2.5 animate-in fade-in">
+          <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-[20px] flex flex-col gap-2.5 animate-in fade-in">
             <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
               <FileJson className="w-4 h-4 shrink-0" />
               <span className="text-xs font-bold font-bengali">
@@ -500,7 +500,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 type="button"
                 onClick={handleRestoreMerge}
                 disabled={isProcessing}
-                className="py-1.5 px-2 bg-[#ffb31a] hover:bg-[#e69c05] text-zinc-950 font-bold text-xs rounded-xl shadow-xs transition-colors"
+                className="min-h-[44px] py-1.5 px-2 bg-[#ffb31a] hover:bg-[#e69c05] text-zinc-950 font-bold text-xs rounded-[12px] shadow-xs transition-colors"
               >
                 যুক্ত করুন (Merge)
               </button>
@@ -508,7 +508,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 type="button"
                 onClick={handleRestoreReplace}
                 disabled={isProcessing}
-                className="py-1.5 px-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors"
+                className="min-h-[44px] py-1.5 px-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-[12px] shadow-xs transition-colors"
               >
                 প্রতিস্থাপন (Replace)
               </button>
@@ -532,7 +532,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             type="button"
             onClick={() => setShowClearConfirm(true)}
             disabled={isProcessing || totalDuasCount === 0}
-            className="w-full flex items-center justify-center gap-2 p-2.5 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 text-xs font-medium hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-colors disabled:opacity-40"
+            className="min-h-[44px] w-full flex items-center justify-center gap-2 p-2.5 rounded-[12px] border border-rose-200 dark:border-rose-900/60 bg-rose-50/50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 text-xs font-medium hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-colors disabled:opacity-40"
           >
             <Trash2 className="w-3.5 h-3.5" />
             <span>সকল সংরক্ষিত দোয়া মুছে ফেলুন</span>
@@ -540,7 +540,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         {/* Privacy Note */}
-        <div className="p-3 bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200/60 dark:border-zinc-800/60 rounded-xl text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed flex items-start gap-2">
+        <div className="p-4 bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200/60 dark:border-zinc-800/60 rounded-[20px] text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed flex items-start gap-2">
           <ShieldCheck className="w-4 h-4 text-[#ffb31a] shrink-0 mt-0.5" />
           <span>
             আপনার সকল দোয়ার তথ্য সম্পূর্ণভাবে আপনার এই ডিভাইসের IndexedDB-তে সংরক্ষিত থাকে। কোনো রিমোট সার্ভারে ডেটা পাঠানো হয় না। নিয়মিত ব্যাকআপ ডাউনলোড করে রাখুন।

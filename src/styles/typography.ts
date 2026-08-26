@@ -2,8 +2,7 @@
  * Centralized Typography Configuration for Dua Card
  * 
  * Predefined semantic text styles ensuring uniform typographic hierarchy 
- * across editor, cards, and reader view with crisp line-heights and 
- * comfortable block-level spacing between sections.
+ * across editor, cards, and reader view with calibrated 4px/8px design system spacing.
  */
 
 export interface TypographyStyle {
@@ -26,8 +25,8 @@ export const SEMANTIC_STYLES: Record<string, TypographyStyle> = {
     description: "দোয়ার প্রধান শিরোনাম - বড় ও বোল্ড",
     fontSize: "text-[19px] sm:text-[21px]",
     fontWeight: "font-bold",
-    lineHeight: "leading-[1.3]",
-    className: "dua-title text-[19px] sm:text-[21px] font-bold leading-[1.3] text-zinc-900 dark:text-zinc-100 mb-3 sm:mb-3.5 font-bengali tracking-normal",
+    lineHeight: "leading-[1.35]",
+    className: "dua-title text-[19px] sm:text-[21px] font-bold leading-[1.35] text-zinc-900 dark:text-zinc-100 mb-3.5 sm:mb-4 font-bengali tracking-normal",
   },
   "dua-pronunciation": {
     id: "dua-pronunciation",
@@ -37,7 +36,7 @@ export const SEMANTIC_STYLES: Record<string, TypographyStyle> = {
     fontSize: "text-[16px] sm:text-[17px]",
     fontWeight: "font-medium",
     lineHeight: "leading-[1.5]",
-    className: "dua-pronunciation text-[16px] sm:text-[17px] font-medium leading-[1.5] text-zinc-800 dark:text-zinc-200 mb-3 font-bengali",
+    className: "dua-pronunciation text-[16px] sm:text-[17px] font-medium leading-[1.5] text-zinc-800 dark:text-zinc-200 mb-3.5 font-bengali",
   },
   "dua-meaning": {
     id: "dua-meaning",
@@ -47,7 +46,7 @@ export const SEMANTIC_STYLES: Record<string, TypographyStyle> = {
     fontSize: "text-[14.5px] sm:text-[15.5px]",
     fontWeight: "font-normal",
     lineHeight: "leading-[1.5]",
-    className: "dua-meaning text-[14.5px] sm:text-[15.5px] font-normal leading-[1.5] text-zinc-900 dark:text-zinc-100 pl-3.5 pr-3 py-2.5 my-3 border-l-[3.5px] border-[#ffb31a] bg-[#ffb31a]/10 dark:bg-[#ffb31a]/15 rounded-r-xl font-bengali",
+    className: "dua-meaning text-[14.5px] sm:text-[15.5px] font-normal leading-[1.5] text-zinc-900 dark:text-zinc-100 pl-3.5 pr-3 py-3 my-3.5 border-l-[3.5px] border-[#ffb31a] bg-[#ffb31a]/10 dark:bg-[#ffb31a]/15 rounded-r-[12px] font-bengali",
   },
   "dua-paragraph": {
     id: "dua-paragraph",
@@ -57,6 +56,6 @@ export const SEMANTIC_STYLES: Record<string, TypographyStyle> = {
     fontSize: "text-[14.5px] sm:text-[15.5px]",
     fontWeight: "font-normal",
     lineHeight: "leading-[1.5]",
-    className: "dua-paragraph text-[14.5px] sm:text-[15.5px] font-normal leading-[1.5] text-zinc-700 dark:text-zinc-300 mb-2.5 font-bengali",
+    className: "dua-paragraph text-[14.5px] sm:text-[15.5px] font-normal leading-[1.5] text-zinc-700 dark:text-zinc-300 mt-3 mb-2.5 font-bengali",
   },
 };

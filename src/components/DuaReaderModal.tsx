@@ -129,7 +129,7 @@ export const DuaReaderModal: React.FC<DuaReaderModalProps> = ({
           <button
             type="button"
             onClick={() => onEdit(dua)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-medium font-bengali rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-sm"
+            className="min-h-[40px] flex items-center gap-2 px-3.5 py-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-medium font-bengali rounded-[12px] hover:opacity-90 active:scale-95 transition-all shadow-xs"
           >
             <Edit3 className="w-3.5 h-3.5" />
             <span>সম্পাদনা</span>
@@ -142,7 +142,7 @@ export const DuaReaderModal: React.FC<DuaReaderModalProps> = ({
               onClick={() => setShowMenu(!showMenu)}
               aria-label="আরও অপশন"
               aria-expanded={showMenu}
-              className="p-2 rounded-xl text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              className="p-2 rounded-[12px] text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
             >
               <MoreVertical className="w-4 h-4" />
             </button>
@@ -153,7 +153,7 @@ export const DuaReaderModal: React.FC<DuaReaderModalProps> = ({
                   className="fixed inset-0 z-40"
                   onClick={() => setShowMenu(false)}
                 />
-                <div className="absolute right-0 top-8 z-50 w-36 bg-white dark:bg-[#1a1a1a] border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-lg py-1 text-xs font-bengali animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute right-0 top-8 z-50 w-36 bg-white dark:bg-[#1a1a1a] border border-zinc-200 dark:border-zinc-800 rounded-[14px] shadow-lg py-1 text-xs font-bengali animate-in fade-in zoom-in-95 duration-100">
                   {onMoveUp && (
                     <button
                       type="button"
