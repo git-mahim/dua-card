@@ -143,9 +143,9 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
   const todayStr = getLocalDateString();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center sm:p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className="w-full max-w-lg max-h-[92vh] bg-surface-card border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-150"
+        className="w-full h-full sm:h-auto sm:max-h-[92vh] max-w-xl bg-surface-card border-0 sm:border border-zinc-200 dark:border-zinc-800 rounded-none sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-150"
         role="dialog"
         aria-modal="true"
         aria-labelledby="analytics-modal-title"
