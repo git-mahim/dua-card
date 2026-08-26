@@ -10,7 +10,7 @@ interface StructuredDuaViewerProps {
 }
 
 /**
- * Render inline text with marks (bold, italic)
+ * Render inline text with marks (bold, italic, strike, code)
  */
 function renderInlineContent(nodes?: JSONContent[]): React.ReactNode {
   if (!nodes || !Array.isArray(nodes)) return null;
@@ -25,6 +25,17 @@ function renderInlineContent(nodes?: JSONContent[]): React.ReactNode {
             element = <strong key={`b-${index}`}>{element}</strong>;
           } else if (mark.type === "italic") {
             element = <em key={`i-${index}`}>{element}</em>;
+          } else if (mark.type === "strike") {
+            element = <s key={`s-${index}`}>{element}</s>;
+          } else if (mark.type === "code") {
+            element = (
+              <code
+                key={`c-${index}`}
+                className="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-xs font-mono text-amber-600 dark:text-amber-400"
+              >
+                {element}
+              </code>
+            );
           }
         }
       }
@@ -36,7 +47,7 @@ function renderInlineContent(nodes?: JSONContent[]): React.ReactNode {
 }
 
 /**
- * Safely render TipTap JSON content with semantic typography classes
+ * Safely render TipTap JSON content with semantic typography classes and full block support
  */
 export const StructuredDuaViewer: React.FC<StructuredDuaViewerProps> = ({
   content,
@@ -70,6 +81,7 @@ export const StructuredDuaViewer: React.FC<StructuredDuaViewerProps> = ({
   return (
     <div className="dua-content-root font-bengali text-left select-text">
       {blocks.map((block, index) => {
+        // 1. Paragraphs (with semantic styles: title, pronunciation, meaning, virtue, paragraph)
         if (block.type === "paragraph") {
           const styleKey = block.attrs?.semanticStyle || "dua-paragraph";
           const typography = SEMANTIC_STYLES[styleKey] || SEMANTIC_STYLES["dua-paragraph"];
@@ -103,11 +115,33 @@ export const StructuredDuaViewer: React.FC<StructuredDuaViewerProps> = ({
           );
         }
 
+        // 2. Blockquotes (কোটেশন / উদ্ধৃতি)
+        if (block.type === "blockquote") {
+          return (
+            <blockquote
+              key={index}
+              className="border-l-[3.5px] border-[#ffb31a] bg-zinc-100/70 dark:bg-zinc-900/60 pl-3.5 pr-3 py-2 my-2 rounded-r-xl text-zinc-700 dark:text-zinc-300 text-[13.5px] leading-relaxed shadow-2xs"
+            >
+              {block.content?.map((subBlock, subIdx) => {
+                if (subBlock.type === "paragraph") {
+                  return (
+                    <p key={subIdx} className="m-0">
+                      {renderInlineContent(subBlock.content)}
+                    </p>
+                  );
+                }
+                return <div key={subIdx}>{renderInlineContent(subBlock.content)}</div>;
+              })}
+            </blockquote>
+          );
+        }
+
+        // 3. Bullet Lists (বুলেট তালিকা)
         if (block.type === "bulletList") {
           return (
             <ul key={index} className="list-disc pl-5 my-2 space-y-1 text-sm text-zinc-800 dark:text-zinc-200">
               {block.content?.map((item, itemIdx) => (
-                <li key={itemIdx}>
+                <li key={itemIdx} className="leading-relaxed">
                   {item.content?.map((subBlock, subIdx) => (
                     <span key={subIdx}>
                       {renderInlineContent(subBlock.content)}
@@ -116,6 +150,42 @@ export const StructuredDuaViewer: React.FC<StructuredDuaViewerProps> = ({
                 </li>
               ))}
             </ul>
+          );
+        }
+
+        // 4. Ordered Lists (নম্বর তালিকা)
+        if (block.type === "orderedList") {
+          return (
+            <ol key={index} className="list-decimal pl-5 my-2 space-y-1 text-sm text-zinc-800 dark:text-zinc-200">
+              {block.content?.map((item, itemIdx) => (
+                <li key={itemIdx} className="leading-relaxed">
+                  {item.content?.map((subBlock, subIdx) => (
+                    <span key={subIdx}>
+                      {renderInlineContent(subBlock.content)}
+                    </span>
+                  ))}
+                </li>
+              ))}
+            </ol>
+          );
+        }
+
+        // 5. Horizontal Divider (বিভাজক রেখা)
+        if (block.type === "horizontalRule") {
+          return (
+            <hr key={index} className="my-3 border-t border-zinc-200 dark:border-zinc-800" />
+          );
+        }
+
+        // 6. Code Block (কোড ব্লক)
+        if (block.type === "codeBlock") {
+          return (
+            <pre
+              key={index}
+              className="my-2 p-3 bg-zinc-100 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 rounded-xl font-mono text-xs overflow-x-auto border border-zinc-200 dark:border-zinc-800"
+            >
+              <code>{renderInlineContent(block.content)}</code>
+            </pre>
           );
         }
 

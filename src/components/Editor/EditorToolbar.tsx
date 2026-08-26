@@ -4,8 +4,6 @@ import React from "react";
 import { type Editor } from "@tiptap/react";
 import {
   Bold,
-  Italic,
-  Strikethrough,
   List,
   ListOrdered,
   Quote,
@@ -90,9 +88,9 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
         })}
       </div>
 
-      {/* Bottom Row: Refined Formatting Tools with Segmented Pill Groups */}
+      {/* Bottom Row: Refined Formatting Tools with Segmented Pill Groups (Italic and Strike removed) */}
       <div className="flex items-center justify-between pt-1.5 border-t border-zinc-200/70 dark:border-zinc-800/70">
-        {/* Style & Blockquote Group */}
+        {/* Formatting & Blockquote Group */}
         <div className="flex items-center gap-0.5 bg-zinc-100/80 dark:bg-zinc-850/60 p-0.5 rounded-xl border border-zinc-200/60 dark:border-zinc-800/60">
           <button
             type="button"
@@ -115,40 +113,6 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
             type="button"
             onClick={() => {
               triggerHaptic(15);
-              editor.chain().focus().toggleItalic().run();
-            }}
-            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all active:scale-90 ${
-              editor.isActive("italic")
-                ? "bg-[#ffb31a] text-zinc-950 shadow-2xs"
-                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60"
-            }`}
-            title="ইটালিক (Italic)"
-            aria-label="ইটালিক"
-          >
-            <Italic className="w-3.5 h-3.5" />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              triggerHaptic(15);
-              editor.chain().focus().toggleStrike().run();
-            }}
-            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all active:scale-90 ${
-              editor.isActive("strike")
-                ? "bg-[#ffb31a] text-zinc-950 shadow-2xs"
-                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60"
-            }`}
-            title="স্ট্রাইকথ্রু (Strikethrough)"
-            aria-label="স্ট্রাইকথ্রু"
-          >
-            <Strikethrough className="w-3.5 h-3.5" />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              triggerHaptic(15);
               editor.chain().focus().toggleBlockquote().run();
             }}
             className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all active:scale-90 ${
@@ -156,7 +120,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
                 ? "bg-[#ffb31a] text-zinc-950 shadow-2xs"
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60"
             }`}
-            title="উদ্ধৃতি (Blockquote)"
+            title="উদ্ধৃতি / কোটেশন (Blockquote)"
             aria-label="উদ্ধৃতি"
           >
             <Quote className="w-3.5 h-3.5" />
