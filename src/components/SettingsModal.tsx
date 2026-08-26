@@ -62,6 +62,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   // Destructive delete confirmation
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
