@@ -9,7 +9,6 @@ import { DuaCountModal } from "@/components/DuaCountModal";
 import { DuaAnalyticsModal } from "@/components/DuaAnalyticsModal";
 import { SettingsModal } from "@/components/SettingsModal";
 import { DeleteConfirmModal } from "@/components/DeleteConfirmModal";
-import { InstallPwaPrompt } from "@/components/InstallPwaPrompt";
 import { DuaRecord, DuaDailyLog } from "@/lib/types";
 import {
   getAllDuas,
@@ -229,9 +228,7 @@ export default function HomePage() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 w-full max-w-md mx-auto px-4 pt-4 pb-20">
-        {/* PWA Install Banner */}
-        <InstallPwaPrompt />
+      <main className="flex-1 w-full max-w-md mx-auto px-4 pt-3 pb-20">
 
         {isLoading ? (
           <div className="w-full flex justify-center items-center py-24">
