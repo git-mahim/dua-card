@@ -174,27 +174,27 @@ export const DuaList: React.FC<DuaListProps> = ({
 
   return (
     <div className="w-full flex flex-col gap-3 pb-24">
-      {/* Smart Status Filter Tabs (সকল দোয়া | বাকি দোয়া | সম্পূর্ণ) */}
+      {/* Smart Status Filter Tabs (সকল দোয়া | বাকি দোয়া | পড়েছি) */}
       {!isSearchActive && (
-        <div className="w-full grid grid-cols-3 gap-1 p-1 bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-2xl shadow-2xs text-xs font-bengali">
+        <div className="w-full grid grid-cols-3 gap-1.5 p-1.5 bg-surface-card border border-zinc-200/90 dark:border-zinc-800/90 rounded-2xl shadow-xs text-xs font-bengali">
           <button
             type="button"
             onClick={() => {
               triggerHaptic(25);
               setActiveTab("all");
             }}
-            className={`py-1.5 px-2 rounded-xl font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
+            className={`py-2.5 sm:py-3 px-2 rounded-xl font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
               activeTab === "all"
-                ? "bg-[#ffb31a] text-zinc-950 shadow-xs"
-                : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+                ? "bg-[#ffb31a] text-zinc-950 shadow-xs scale-[1.01]"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/60"
             }`}
           >
             <span>সকল দোয়া</span>
             <span
-              className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold ${
+              className={`text-[11px] font-mono px-2 py-0.5 rounded-full font-bold leading-none translate-y-[0.5px] ${
                 activeTab === "all"
                   ? "bg-black/15 text-zinc-950"
-                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500"
+                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200/60 dark:border-zinc-700/60"
               }`}
             >
               {toBengaliNumber(duas.length)}
@@ -207,18 +207,18 @@ export const DuaList: React.FC<DuaListProps> = ({
               triggerHaptic(25);
               setActiveTab("pending");
             }}
-            className={`py-1.5 px-2 rounded-xl font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
+            className={`py-2.5 sm:py-3 px-2 rounded-xl font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
               activeTab === "pending"
-                ? "bg-[#ffb31a] text-zinc-950 shadow-xs"
-                : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+                ? "bg-[#ffb31a] text-zinc-950 shadow-xs scale-[1.01]"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/60"
             }`}
           >
             <span>বাকি দোয়া</span>
             <span
-              className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold ${
+              className={`text-[11px] font-mono px-2 py-0.5 rounded-full font-bold leading-none translate-y-[0.5px] ${
                 activeTab === "pending"
                   ? "bg-black/15 text-zinc-950"
-                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500"
+                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200/60 dark:border-zinc-700/60"
               }`}
             >
               {toBengaliNumber(pendingCount)}
@@ -231,18 +231,18 @@ export const DuaList: React.FC<DuaListProps> = ({
               triggerHaptic(25);
               setActiveTab("completed");
             }}
-            className={`py-1.5 px-2 rounded-xl font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
+            className={`py-2.5 sm:py-3 px-2 rounded-xl font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
               activeTab === "completed"
-                ? "bg-[#ffb31a] text-zinc-950 shadow-xs"
-                : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+                ? "bg-[#ffb31a] text-zinc-950 shadow-xs scale-[1.01]"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/60"
             }`}
           >
             <span>পড়েছি</span>
             <span
-              className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold ${
+              className={`text-[11px] font-mono px-2 py-0.5 rounded-full font-bold leading-none translate-y-[0.5px] ${
                 activeTab === "completed"
                   ? "bg-black/15 text-zinc-950"
-                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500"
+                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200/60 dark:border-zinc-700/60"
               }`}
             >
               {toBengaliNumber(completedCount)}
