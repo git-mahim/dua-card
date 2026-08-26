@@ -152,7 +152,7 @@ export const DuaEditorModal: React.FC<DuaEditorModalProps> = ({
       </header>
 
       {/* Editor Body */}
-      <main className="flex-1 w-full max-w-lg mx-auto px-3 sm:px-4 py-3 flex flex-col justify-between min-h-0">
+      <main className="flex-1 w-full max-w-lg mx-auto px-3 sm:px-4 pt-3 pb-8 sm:pb-10 flex flex-col justify-between min-h-0">
         {errorMsg && (
           <div className="p-3 mb-2 bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-bengali flex items-center gap-2 shrink-0">
             <AlertCircle className="w-4 h-4 shrink-0" />

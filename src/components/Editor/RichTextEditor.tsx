@@ -122,8 +122,8 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <EditorContent editor={editor} className="flex-1 w-full flex flex-col" />
       </div>
 
-      {/* Sticky Bottom Formatting Toolbar */}
-      <div className="sticky bottom-0 z-20 w-full pt-1">
+      {/* Sticky Bottom Formatting Toolbar (Lifted gracefully above bottom bezel) */}
+      <div className="sticky bottom-3 sm:bottom-5 z-20 w-full pt-1 mb-2">
         <EditorToolbar editor={editor} />
       </div>
     </div>
