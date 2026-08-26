@@ -126,8 +126,8 @@ export const DuaCard: React.FC<DuaCardProps> = ({
         isDragOverlay
           ? "border-[#ffb31a] bg-white dark:bg-[#181818] z-50 pointer-events-none shadow-xl scale-[1.02]"
           : isCompleted
-          ? "opacity-35 hover:opacity-90 bg-surface-card border-zinc-200/90 dark:border-zinc-800/80 hover:border-[#ffb31a]/40 shadow-xs"
-          : "opacity-100 bg-surface-card hover:bg-surface-cardHover border-zinc-200/90 dark:border-zinc-800/80 hover:border-[#ffb31a]/40 shadow-xs"
+          ? "opacity-40 hover:opacity-95 grayscale-[30%] bg-zinc-100/70 dark:bg-zinc-900/60 border-dashed border-zinc-300/80 dark:border-zinc-700/80 shadow-xs"
+          : "opacity-100 bg-surface-card hover:bg-surface-cardHover border-solid border-zinc-200/90 dark:border-zinc-800/80 hover:border-[#ffb31a]/40 shadow-xs"
       }`}
     >
       {/* Double Tap Success Animation Overlay */}
