@@ -22,8 +22,17 @@ import {
   FileJson,
   EyeOff,
   Eye,
+  Type,
 } from "lucide-react";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
+import {
+  FONT_CONFIGS,
+  FontSizeSettings,
+  DEFAULT_FONT_SIZES,
+  loadSavedFontSizes,
+  saveFontSizes,
+} from "@/lib/fontSize";
+import { toBengaliNumber } from "@/lib/formatters";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -63,8 +72,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Font size configuration state
+  const [fontSizes, setFontSizes] = useState<FontSizeSettings>(DEFAULT_FONT_SIZES);
+
   useEffect(() => {
     if (isOpen) {
+      setFontSizes(loadSavedFontSizes());
       document.body.style.overflow = "hidden";
       document.documentElement.style.overflow = "hidden";
       document.body.style.touchAction = "none";
@@ -79,6 +92,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       document.body.style.touchAction = "";
     };
   }, [isOpen]);
+
+  const handleUpdateFontSize = (key: keyof FontSizeSettings, size: number) => {
+    setFontSizes((prev) => {
+      const updated = { ...prev, [key]: size };
+      saveFontSizes(updated);
+      return updated;
+    });
+  };
+
+  const handleResetFontSizes = () => {
+    setFontSizes(DEFAULT_FONT_SIZES);
+    saveFontSizes(DEFAULT_FONT_SIZES);
+  };
 
   if (!isOpen) return null;
 
@@ -316,6 +342,83 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <Moon className="w-3.5 h-3.5" />
               <span>ডার্ক মোড</span>
             </button>
+          </div>
+        </div>
+
+        {/* Font & Size Preferences */}
+        <div className="flex flex-col gap-2 p-3 bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-2xl">
+          <div className="flex items-center justify-between pb-1 border-b border-zinc-200/60 dark:border-zinc-800/60">
+            <div className="flex items-center gap-2">
+              <Type className="w-4 h-4 text-[#ffb31a]" />
+              <label className="text-xs font-bold font-bengali text-zinc-900 dark:text-zinc-100">
+                ফন্ট ও সাইজ
+              </label>
+            </div>
+            <button
+              type="button"
+              onClick={handleResetFontSizes}
+              className="text-[11px] font-bengali text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
+              title="ডিফল্ট ফন্ট সাইজে ফিরে যান"
+            >
+              ডিফল্ট রিসেট
+            </button>
+          </div>
+
+          <div className="flex flex-col divide-y divide-zinc-200/60 dark:divide-zinc-800/60">
+            {FONT_CONFIGS.map((item) => {
+              const currentSize = fontSizes[item.key];
+              return (
+                <div key={item.key} className="flex flex-col gap-1.5 py-2 first:pt-1 last:pb-0">
+                  {/* Top Row: Element Label, Pixel Counter, S M L Buttons */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold font-bengali text-zinc-800 dark:text-zinc-200">
+                      {item.label}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-mono font-bold text-zinc-500 dark:text-zinc-400">
+                        {toBengaliNumber(currentSize)}px
+                      </span>
+                      {/* S M L Preset Buttons */}
+                      <div className="flex items-center bg-zinc-200/70 dark:bg-zinc-800 rounded-lg p-0.5 border border-zinc-200/80 dark:border-zinc-700/80">
+                        {(["s", "m", "l"] as const).map((preset) => {
+                          const presetVal = item.presets[preset];
+                          const isActive = currentSize === presetVal;
+                          return (
+                            <button
+                              key={preset}
+                              type="button"
+                              onClick={() => handleUpdateFontSize(item.key, presetVal)}
+                              className={`px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase transition-all ${
+                                isActive
+                                  ? "bg-[#ffb31a] text-zinc-950 shadow-xs scale-105"
+                                  : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100"
+                              }`}
+                            >
+                              {preset}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom Row: Smooth Slider */}
+                  <div className="flex items-center gap-2 pt-0.5">
+                    <input
+                      type="range"
+                      min={item.min}
+                      max={item.max}
+                      step="1"
+                      value={currentSize}
+                      onChange={(e) =>
+                        handleUpdateFontSize(item.key, parseInt(e.target.value, 10))
+                      }
+                      className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-[#ffb31a]"
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 

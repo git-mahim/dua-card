@@ -27,6 +27,8 @@ import {
 import { Plus } from "lucide-react";
 import { JSONContent } from "@tiptap/react";
 
+import { applyFontSizesToDOM, loadSavedFontSizes } from "@/lib/fontSize";
+
 const HIDE_VIRTUE_STORAGE_KEY = "dua_card_hide_virtue_home";
 
 export default function HomePage() {
@@ -54,9 +56,10 @@ export default function HomePage() {
   // Deletion modal state
   const [duaToDelete, setDuaToDelete] = useState<DuaRecord | null>(null);
 
-  // Load saved preference
+  // Load saved preferences & font sizes
   useEffect(() => {
     if (typeof window !== "undefined") {
+      applyFontSizesToDOM(loadSavedFontSizes());
       const saved = localStorage.getItem(HIDE_VIRTUE_STORAGE_KEY);
       if (saved === "true") {
         setHideVirtueOnHome(true);

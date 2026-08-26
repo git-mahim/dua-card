@@ -11,6 +11,12 @@
   --surface-card-hover: #f4f4f5;
   --surface-border: #e4e4e7;
   --font-bengali-stack: var(--font-noto-sans-bengali), var(--font-hind-siliguri), 'Noto Sans Bengali', 'Hind Siliguri', 'Kalpurush', 'SolaimanLipi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Dynamic Dua Font Size Variables (Customizable from Settings) */
+  --dua-font-title: 20px;
+  --dua-font-pronunciation: 16px;
+  --dua-font-meaning: 15px;
+  --dua-font-general: 15px;
 }
 
 .dark {
@@ -71,28 +77,31 @@ body {
   pointer-events: none;
 }
 
-/* Semantic custom classes inside editor */
+/* Semantic custom classes inside cards, reader, and editor */
+.dua-title,
 .tiptap .dua-title,
 .dua-title-render {
-  font-size: 1.25rem;
+  font-size: var(--dua-font-title, 20px) !important;
   font-weight: 700;
   line-height: 1.3;
   margin-bottom: 0.85rem;
   color: inherit;
 }
 
+.dua-pronunciation,
 .tiptap .dua-pronunciation,
 .dua-pronunciation-render {
-  font-size: 1.05rem;
+  font-size: var(--dua-font-pronunciation, 16px) !important;
   font-weight: 500;
   line-height: 1.5;
   margin-bottom: 0.75rem;
   color: inherit;
 }
 
+.dua-meaning,
 .tiptap .dua-meaning,
 .dua-meaning-render {
-  font-size: 0.95rem;
+  font-size: var(--dua-font-meaning, 15px) !important;
   font-weight: 400;
   line-height: 1.5;
   padding: 0.55rem 0.85rem;
@@ -104,15 +113,18 @@ body {
   border-bottom-right-radius: 0.65rem;
 }
 
+.dark .dua-meaning,
 .dark .tiptap .dua-meaning,
 .dark .dua-meaning-render {
   background-color: rgba(255, 179, 26, 0.12);
   border-left-color: #ffb31a;
 }
 
+.dua-paragraph,
 .tiptap .dua-paragraph,
-.dua-paragraph-render {
-  font-size: 0.95rem;
+.dua-paragraph-render,
+.dua-virtue {
+  font-size: var(--dua-font-general, 15px) !important;
   font-weight: 400;
   line-height: 1.5;
   margin-bottom: 0.65rem;
