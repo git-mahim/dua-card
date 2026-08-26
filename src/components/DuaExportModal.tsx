@@ -191,10 +191,10 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
 
         {/* Live Export Preview Container */}
         <div className="w-full max-h-[52vh] overflow-y-auto rounded-2xl border border-zinc-200/90 dark:border-zinc-800 p-2 sm:p-3 bg-zinc-200/50 dark:bg-zinc-950 flex items-center justify-center">
-          {/* Outer Frame with Clean Aesthetic Margins (Captured by html-to-image) */}
+          {/* Outer Frame with Zero Border Radius (Captured by html-to-image) */}
           <div
             ref={cardFrameRef}
-            className={`w-full max-w-[480px] p-4 sm:p-5 rounded-[26px] transition-colors ${
+            className={`w-full max-w-[480px] p-4 sm:p-5 rounded-none transition-colors ${
               themeMode === "light"
                 ? "bg-gradient-to-br from-[#f8f5ee] via-[#efe8da] to-[#e4dbc7] text-zinc-950"
                 : "dark bg-gradient-to-br from-[#0c0c0c] via-[#141414] to-[#1e1e1e] text-zinc-50"
