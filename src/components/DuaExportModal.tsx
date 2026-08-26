@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { toPng } from "html-to-image";
 import { DuaRecord } from "@/lib/types";
 import { StructuredDuaViewer } from "./StructuredDuaViewer";
+import { getBengaliTodayFormatted } from "@/lib/formatters";
 import { triggerHaptic } from "@/lib/haptics";
 import { Download, Share2, X, Check, Loader2, Sparkles } from "lucide-react";
 
@@ -21,7 +22,7 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
   const [isExporting, setIsExporting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [themeMode, setThemeMode] = useState<"light" | "dark">("light");
-  const cardRef = useRef<HTMLDivElement>(null);
+  const cardFrameRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -43,12 +44,12 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
   if (!isOpen || !dua) return null;
 
   const generateImageBlob = async (): Promise<Blob | null> => {
-    if (!cardRef.current) return null;
+    if (!cardFrameRef.current) return null;
     
-    // High-resolution 2.5x pixel ratio for crisp sharing
-    const dataUrl = await toPng(cardRef.current, {
-      quality: 0.98,
-      pixelRatio: 2.5,
+    // High-resolution 3.0x pixel ratio (Ultra Retina 4K sharpness)
+    const dataUrl = await toPng(cardFrameRef.current, {
+      quality: 1,
+      pixelRatio: 3,
       cacheBust: true,
       skipFonts: false,
     });
@@ -129,7 +130,7 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md bg-white dark:bg-[#181818] border border-zinc-200/90 dark:border-zinc-800/90 rounded-[24px] p-4 sm:p-5 shadow-2xl flex flex-col gap-4 text-left my-auto"
+        className="w-full max-w-lg bg-white dark:bg-[#181818] border border-zinc-200/90 dark:border-zinc-800/90 rounded-[24px] p-4 sm:p-5 shadow-2xl flex flex-col gap-4 text-left my-auto"
       >
         {/* Header Bar */}
         <div className="flex items-center justify-between">
@@ -142,7 +143,7 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
                 ইমেজ হিসেবে সেভ ও শেয়ার
               </h2>
               <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                সুন্দর মার্জিন ও হাই কোয়ালিটি কার্ড প্রিভিউ
+                চারপাশে সুন্দর মার্জিন ও হাই-রেজোলিউশন ফ্রেম
               </p>
             </div>
           </div>
@@ -160,7 +161,7 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
         {/* Theme Selector Pill for Image */}
         <div className="flex items-center justify-between px-1">
           <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
-            ইমেজ স্টাইল:
+            ইমেজ থিম নির্বাচন:
           </span>
           <div className="flex items-center bg-zinc-100 dark:bg-zinc-800/80 p-0.5 rounded-[10px] border border-zinc-200/80 dark:border-zinc-700">
             <button
@@ -172,7 +173,7 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
                   : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
               }`}
             >
-              লাইট থিম
+              লাইট মোড
             </button>
             <button
               type="button"
@@ -183,47 +184,58 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
                   : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
               }`}
             >
-              ডার্ক থিম
+              ডার্ক মোড
             </button>
           </div>
         </div>
 
-        {/* Live Export Card Canvas (With generous aesthetic margins) */}
-        <div className="w-full max-h-[50vh] overflow-y-auto rounded-2xl border border-zinc-200/90 dark:border-zinc-800 p-2 bg-zinc-100 dark:bg-zinc-950 flex items-center justify-center">
+        {/* Live Export Preview Container */}
+        <div className="w-full max-h-[52vh] overflow-y-auto rounded-2xl border border-zinc-200/90 dark:border-zinc-800 p-2 sm:p-3 bg-zinc-200/50 dark:bg-zinc-950 flex items-center justify-center">
+          {/* Outer Frame with Generous Aesthetic Margins (Captured by html-to-image) */}
           <div
-            ref={cardRef}
-            className={`w-full max-w-sm rounded-[22px] p-6 sm:p-7 flex flex-col justify-between gap-4 transition-colors ${
+            ref={cardFrameRef}
+            className={`w-full max-w-[480px] p-6 sm:p-8 rounded-[28px] transition-colors ${
               themeMode === "light"
-                ? "bg-[#faf8f5] text-zinc-950 border border-amber-200/60 shadow-md"
-                : "bg-[#141414] text-zinc-50 border border-zinc-800 shadow-xl"
+                ? "bg-gradient-to-br from-[#f8f5ee] via-[#efe8da] to-[#e4dbc7] text-zinc-950"
+                : "dark bg-gradient-to-br from-[#0c0c0c] via-[#141414] to-[#1e1e1e] text-zinc-50"
             }`}
           >
-            {/* Top decorative header in exported image */}
-            <div className="flex items-center justify-between pb-2 border-b border-amber-500/20">
-              <span className="text-[11px] font-bold text-[#c87d00] dark:text-[#ffb31a] tracking-wider uppercase">
-                🌙 দৈনিক দোয়া
-              </span>
-              <span className="text-[10px] text-zinc-400 font-medium">
-                {new Date().toLocaleDateString("bn-BD")}
-              </span>
-            </div>
+            {/* The Floating Dua Card Inside */}
+            <div
+              className={`w-full rounded-[22px] p-5 sm:p-6 flex flex-col justify-between gap-4 transition-colors ${
+                themeMode === "light"
+                  ? "bg-white text-zinc-950 border border-[#e8dfcf] shadow-xl shadow-amber-950/5"
+                  : "bg-[#181818] text-zinc-50 border border-zinc-800/90 shadow-2xl shadow-black/50"
+              }`}
+            >
+              {/* Top decorative header inside card */}
+              <div className="flex items-center justify-between pb-2.5 border-b border-amber-500/25">
+                <span className="text-[11px] font-bold text-[#c87d00] dark:text-[#ffb31a] tracking-wider uppercase flex items-center gap-1.5">
+                  <span>🌙</span>
+                  <span>দৈনিক দোয়া</span>
+                </span>
+                <span className="text-[10.5px] text-zinc-500 dark:text-zinc-400 font-medium">
+                  {getBengaliTodayFormatted(true)}
+                </span>
+              </div>
 
-            {/* Dua Content with Full Bengali Typography */}
-            <div className="py-2">
-              <StructuredDuaViewer
-                content={dua.richTextContent}
-                isTruncated={false}
-              />
-            </div>
+              {/* Dua Content with Full Bengali Typography Hierarchy */}
+              <div className="py-1">
+                <StructuredDuaViewer
+                  content={dua.richTextContent}
+                  isTruncated={false}
+                />
+              </div>
 
-            {/* Bottom Brand Watermark */}
-            <div className="pt-3 border-t border-amber-500/20 flex items-center justify-between text-[11px] text-zinc-400 font-bengali">
-              <span className="font-semibold text-zinc-500 dark:text-zinc-400">
-                ✨ দোয়া কার্ড
-              </span>
-              <span className="text-[10px] text-zinc-400">
-                Dua Card App
-              </span>
+              {/* Bottom Footer with requested branding */}
+              <div className="pt-3 border-t border-amber-500/20 flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400 font-bengali">
+                <span className="font-bold text-zinc-700 dark:text-zinc-300">
+                  ✨ দোয়া কার্ড
+                </span>
+                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">
+                  Build and Design by Apurbo Khan
+                </span>
+              </div>
             </div>
           </div>
         </div>

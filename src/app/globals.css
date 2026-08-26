@@ -124,6 +124,7 @@ body {
 .dark .dua-meaning-render {
   background-color: rgba(255, 179, 26, 0.12);
   border-left-color: #ffb31a;
+  color: #fafafa !important;
 }
 
 .dua-paragraph,
@@ -134,6 +135,14 @@ body {
   font-weight: 400;
   line-height: 1.5;
   margin-bottom: 0.65rem;
+  color: inherit;
+}
+
+.dark .dua-paragraph,
+.dark .tiptap .dua-paragraph,
+.dark .dua-paragraph-render,
+.dark .dua-virtue {
+  color: #e4e4e7 !important;
 }
 
 .tiptap blockquote {
