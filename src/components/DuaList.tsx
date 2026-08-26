@@ -392,13 +392,16 @@ export const DuaList: React.FC<DuaListProps> = ({
           </div>
         ))}
 
-      {/* Bottom Action: Reset all completed cards for today */}
+      {/* Bottom Action: Reset all completed cards */}
       {duas.length > 0 && onResetAllToday && (
-        <div className="pt-3 pb-16 flex flex-col items-center w-full">
+        <div className="pt-4 pb-20 flex flex-col items-center w-full relative z-10">
           <button
             type="button"
-            onClick={onResetAllToday}
-            className="w-full sm:w-auto min-w-[200px] px-6 py-3 rounded-[16px] bg-zinc-100/90 dark:bg-zinc-850/80 hover:bg-amber-500/15 dark:hover:bg-amber-400/15 text-zinc-800 dark:text-zinc-200 hover:text-[#c87d00] dark:hover:text-[#ffb31a] border border-zinc-300 dark:border-zinc-700 flex items-center justify-center gap-2 text-xs sm:text-sm font-bold shadow-xs active:scale-95 transition-all"
+            onClick={(e) => {
+              e.stopPropagation();
+              onResetAllToday();
+            }}
+            className="w-full sm:w-auto min-w-[200px] px-6 py-3.5 rounded-[16px] bg-zinc-100 dark:bg-zinc-800 hover:bg-amber-500/20 dark:hover:bg-amber-400/20 text-zinc-900 dark:text-zinc-100 hover:text-[#c87d00] dark:hover:text-[#ffb31a] border border-zinc-300 dark:border-zinc-700 flex items-center justify-center gap-2 text-xs sm:text-sm font-bold shadow-xs active:scale-95 transition-all cursor-pointer select-none"
           >
             <RotateCcw className="w-4 h-4 text-[#ffb31a]" />
             <span>রিসেট বাটন</span>

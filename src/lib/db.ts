@@ -361,38 +361,13 @@ export async function toggleTodayCompleted(
 }
 
 /**
- * Reset all completed logs and counts for today (uncheck all cards)
+ * Reset all completed logs and counts (uncheck all cards)
  */
-export async function resetAllTodayLogs(
-  dateStr: string = getLocalDateString()
-): Promise<void> {
+export async function resetAllTodayLogs(): Promise<void> {
   try {
-    const spiritualDate = getSpiritualDate();
-    const spiritualDateStr = getLocalDateString(spiritualDate);
-    const nowRaw = new Date();
-    const nowRawStr = `${nowRaw.getFullYear()}-${String(nowRaw.getMonth() + 1).padStart(2, "0")}-${String(nowRaw.getDate()).padStart(2, "0")}`;
-
-    const targetDates = new Set([dateStr, spiritualDateStr, nowRawStr]);
-
-    const allLogs = await db.logs.toArray();
-    const toDeleteIds: string[] = [];
-
-    for (const log of allLogs) {
-      if (
-        targetDates.has(log.date) ||
-        Array.from(targetDates).some((d) => log.id.endsWith(`_${d}`))
-      ) {
-        toDeleteIds.push(log.id);
-      }
-    }
-
-    if (toDeleteIds.length > 0) {
-      await db.logs.bulkDelete(toDeleteIds);
-    } else {
-      await db.logs.where("date").equals(dateStr).delete();
-    }
+    await db.logs.clear();
   } catch (error) {
-    console.error("Failed to reset today's logs:", error);
+    console.error("Failed to reset logs:", error);
   }
 }
 
