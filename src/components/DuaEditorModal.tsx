@@ -116,21 +116,21 @@ export const DuaEditorModal: React.FC<DuaEditorModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex flex-col bg-background text-foreground animate-in fade-in duration-150 overflow-y-auto"
+      className="fixed inset-0 z-50 flex flex-col bg-background text-foreground animate-in fade-in duration-150 overflow-y-auto font-bengali"
     >
       {/* Top Action Header */}
-      <header className="sticky top-0 z-10 w-full bg-background/95 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-4 py-3 flex items-center justify-between max-w-lg mx-auto">
+      <header className="sticky top-0 z-10 w-full bg-white/85 dark:bg-[#121212]/85 backdrop-blur-xl border-b border-zinc-200/60 dark:border-zinc-800/60 px-4 py-3 flex items-center justify-between max-w-lg mx-auto">
         <button
           type="button"
           onClick={onClose}
           disabled={isSaving}
           aria-label="বাতিল করুন"
-          className="p-2 -ml-2 rounded-xl text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+          className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-50 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-all active:scale-95 shrink-0"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
 
-        <h2 className="text-sm font-bold font-bengali text-zinc-900 dark:text-zinc-100">
+        <h2 className="text-sm font-bold font-bengali text-zinc-900 dark:text-zinc-50">
           {dua ? "দোয়া সম্পাদনা" : "নতুন দোয়া যুক্ত করুন"}
         </h2>
 
@@ -138,10 +138,10 @@ export const DuaEditorModal: React.FC<DuaEditorModalProps> = ({
           type="button"
           onClick={handleSave}
           disabled={isSaving}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#ffb31a] hover:bg-[#e69c05] active:scale-95 text-zinc-950 text-xs font-bold font-bengali rounded-xl transition-all disabled:opacity-50 shadow-sm"
+          className="min-h-[38px] flex items-center gap-1.5 px-4 py-1.5 bg-[#ffb31a] hover:bg-[#e69c05] active:scale-95 text-zinc-950 text-xs font-bold font-bengali rounded-[12px] transition-all disabled:opacity-50 shadow-xs"
         >
           {isSaving ? (
-            <div className="w-3.5 h-3.5 border-2 border-zinc-900 border-t-transparent rounded-full animate-spin" />
+            <div className="w-3.5 h-3.5 border-2 border-zinc-950 border-t-transparent rounded-full animate-spin" />
           ) : (
             <>
               <Check className="w-3.5 h-3.5 stroke-[2.5]" />

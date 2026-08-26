@@ -69,25 +69,25 @@ export const DuaCountModal: React.FC<DuaCountModalProps> = ({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-150 h-[100dvh] w-screen overscroll-none touch-none select-none box-border"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-150 h-[100dvh] w-screen overscroll-none touch-none select-none box-border font-bengali"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm bg-surface-card border border-zinc-200 dark:border-zinc-800 rounded-[20px] p-5 shadow-2xl flex flex-col gap-4 animate-in zoom-in-95 duration-150 touch-auto select-auto"
+        className="w-full max-w-sm bg-white dark:bg-[#181818] border border-zinc-200/90 dark:border-zinc-800/90 rounded-[22px] p-5 shadow-2xl flex flex-col gap-4 animate-in zoom-in-95 duration-150 touch-auto select-auto"
         role="dialog"
         aria-modal="true"
         aria-labelledby="count-modal-title"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800/80 pb-3">
+        <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-850 pb-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-[11px] bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-[11px] bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] flex items-center justify-center shrink-0">
               <Sparkles className="w-4 h-4" />
             </div>
-            <div>
+            <div className="min-w-0 flex-1">
               <h3
                 id="count-modal-title"
-                className="text-sm font-bold font-bengali text-zinc-900 dark:text-zinc-100 line-clamp-1"
+                className="text-sm font-bold font-bengali text-zinc-900 dark:text-zinc-50 truncate"
               >
                 {dua.title || "দৈনিক আমল কাউন্টার"}
               </h3>
@@ -98,15 +98,15 @@ export const DuaCountModal: React.FC<DuaCountModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label="বন্ধ করুন"
-            className="p-1.5 rounded-[10px] text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            className="w-8 h-8 rounded-[10px] flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Current Total Display */}
-        <div className="flex flex-col items-center justify-center py-3 bg-[#ffb31a]/10 dark:bg-[#ffb31a]/15 border border-[#ffb31a]/25 rounded-[14px]">
-          <span className="text-[11px] font-bengali text-zinc-600 dark:text-zinc-400 mb-1">
+        <div className="flex flex-col items-center justify-center py-3.5 bg-[#ffb31a]/10 dark:bg-[#ffb31a]/15 border border-[#ffb31a]/25 rounded-[16px]">
+          <span className="text-[11px] font-bengali text-zinc-600 dark:text-zinc-400 mb-1 font-medium">
             আজকে সর্বমোট পাঠ
           </span>
           <div className="text-3xl font-extrabold font-mono text-zinc-950 dark:text-[#ffb31a] tracking-tight">
@@ -151,7 +151,7 @@ export const DuaCountModal: React.FC<DuaCountModalProps> = ({
               placeholder="যেমন: ২০০০"
               value={customInput}
               onChange={(e) => setCustomInput(e.target.value)}
-              className="flex-1 min-w-0 min-h-[44px] px-3.5 py-2 text-sm bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-[12px] focus:outline-none focus:border-[#ffb31a] font-mono text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 placeholder:font-bengali [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="flex-1 min-w-0 min-h-[44px] px-3.5 py-2 text-sm bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[#ffb31a]/40 focus:border-[#ffb31a] font-mono text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 placeholder:font-bengali [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all"
             />
             <button
               type="submit"

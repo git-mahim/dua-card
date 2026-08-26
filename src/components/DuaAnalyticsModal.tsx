@@ -60,68 +60,74 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
-      document.body.style.touchAction = "pan-y";
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
     } else {
       document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
       document.body.style.touchAction = "";
     }
     return () => {
       document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
       document.body.style.touchAction = "";
     };
   }, [isOpen]);
 
-  // Always show maximum 14 days (2 weeks) of logs
+  // Filter logs strictly to the last 14 days (2 weeks)
   const twoWeeksLogs = useMemo(() => {
     if (!stats || !stats.logs) return [];
     return stats.logs.slice(0, 14);
   }, [stats]);
 
-  // Prepare data for the mini bar chart (14 days = 2 weeks)
-  const chartDays = useMemo(() => {
-    const daysToShow = 14;
-    const result: {
-      date: string;
+  // Visual 14-day Activity Bar Chart dataset
+  const { chartDays, maxChartCount } = useMemo(() => {
+    const today = new Date();
+    const days: Array<{
+      dateStr: string;
       dayNumber: string;
       fullDateLabel: string;
       count: number;
+      completed: boolean;
       isToday: boolean;
-    }[] = [];
-    const todayStr = getLocalDateString();
-    const logMap = new Map<string, DuaDailyLog>();
+    }> = [];
 
+    const logMap = new Map<string, DuaDailyLog>();
     if (stats?.logs) {
-      for (const l of stats.logs) {
-        logMap.set(l.date, l);
-      }
+      stats.logs.forEach((log) => logMap.set(log.date, log));
     }
 
-    const current = new Date();
-    for (let i = daysToShow - 1; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(current.getDate() - i);
-      const dStr = getLocalDateString(d);
-      const entry = logMap.get(dStr);
-      result.push({
-        date: dStr,
-        dayNumber: getBengaliDayNumber(dStr),
-        fullDateLabel: formatBengaliDate(dStr),
-        count: entry ? entry.count : 0,
-        isToday: dStr === todayStr,
+    // Build exactly 14 days chronologically from 13 days ago to today
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      const dateStr = `${yyyy}-${mm}-${dd}`;
+
+      const log = logMap.get(dateStr);
+      const count = log ? log.count : 0;
+      const completed = log ? log.completed : false;
+
+      days.push({
+        dateStr,
+        dayNumber: getBengaliDayNumber(dateStr),
+        fullDateLabel: formatBengaliDate(dateStr),
+        count,
+        completed,
+        isToday: i === 0,
       });
     }
-    return result;
+
+    const maxVal = days.reduce((max, d) => Math.max(max, d.count), 0);
+    return { chartDays: days, maxChartCount: maxVal > 0 ? maxVal : 10 };
   }, [stats]);
 
-  const maxChartCount = useMemo(() => {
-    const counts = chartDays.map((d) => d.count);
-    const max = Math.max(1, ...counts);
-    return max;
-  }, [chartDays]);
-
-  const handleStartEdit = (date: string, currentVal: number) => {
+  const handleStartEdit = (date: string, currentCount: number) => {
+    triggerHaptic(20);
     setEditingDate(date);
-    setEditCountInput(currentVal.toString());
+    setEditCountInput(String(currentCount));
   };
 
   const handleSaveEdit = async (date: string) => {
@@ -140,16 +146,16 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
   const todayStr = getLocalDateString();
 
   return (
-    <div className="fixed inset-0 z-50 bg-background text-foreground flex flex-col w-full max-w-full overflow-x-hidden overflow-y-auto overscroll-x-none touch-pan-y animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 bg-background text-foreground flex flex-col w-full max-w-full overflow-x-hidden overflow-y-auto overscroll-x-none touch-pan-y animate-in fade-in duration-150 font-bengali">
       {/* Solid Sticky Top Navigation Bar */}
-      <header className="sticky top-0 z-20 bg-surface-card border-b border-zinc-200/80 dark:border-zinc-800 shrink-0 px-4 py-3 w-full max-w-full shadow-xs box-border">
+      <header className="sticky top-0 z-20 bg-white/85 dark:bg-[#121212]/85 backdrop-blur-xl border-b border-zinc-200/60 dark:border-zinc-800/60 shrink-0 px-4 py-3 w-full max-w-full shadow-xs box-border">
         <div className="max-w-xl mx-auto w-full flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0 flex-1">
             <button
               type="button"
               onClick={onClose}
               aria-label="ফিরে যান"
-              className="p-2 rounded-[12px] text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-50 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-all active:scale-95 shrink-0"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -157,7 +163,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
               <TrendingUp className="w-4 h-4" />
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-sm sm:text-base font-bold font-bengali text-zinc-900 dark:text-zinc-100 truncate">
+              <h1 className="text-sm sm:text-base font-bold font-bengali text-zinc-900 dark:text-zinc-50 truncate">
                 {dua.title || "দোয়ার আমল হিস্ট্রি"}
               </h1>
               <p className="text-[11px] text-zinc-500 font-bengali truncate">আমল ও ধারাবাহিকতা বিশ্লেষণ</p>
@@ -167,14 +173,14 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label="বন্ধ করুন"
-            className="p-2 rounded-[12px] text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
       </header>
 
-      {/* Solid Main Page Content (No Horizontal Overflow) */}
+      {/* Solid Main Page Content */}
       <main className="flex-1 w-full max-w-full px-4 py-4 sm:py-6 font-bengali box-border overflow-x-hidden">
         <div className="max-w-xl mx-auto w-full space-y-5">
           {isLoading ? (
@@ -186,7 +192,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
               {/* 4 Top Summary Metric Cards */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full">
                 {/* Total Count */}
-                <div className="p-3.5 bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-[16px] flex flex-col justify-between shadow-2xs min-w-0">
+                <div className="p-3.5 bg-white dark:bg-[#181818] border border-zinc-200/80 dark:border-zinc-800 rounded-[18px] flex flex-col justify-between shadow-2xs min-w-0">
                   <div className="flex items-center justify-between text-zinc-500 text-[11px] font-medium mb-1">
                     <span className="truncate">মোট আমল</span>
                     <Award className="w-3.5 h-3.5 text-[#ffb31a] shrink-0" />
@@ -198,7 +204,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
                 </div>
 
                 {/* Streak */}
-                <div className="p-3.5 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-[#ffb31a]/30 rounded-[16px] flex flex-col justify-between shadow-2xs min-w-0">
+                <div className="p-3.5 bg-amber-500/10 dark:bg-amber-400/15 border border-[#ffb31a]/30 rounded-[18px] flex flex-col justify-between shadow-2xs min-w-0">
                   <div className="flex items-center justify-between text-[#c87d00] dark:text-[#ffb31a] text-[11px] font-bold mb-1">
                     <span className="truncate">চলমান ধারা</span>
                     <Flame className="w-3.5 h-3.5 text-orange-500 shrink-0" />
@@ -211,7 +217,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
                 </div>
 
                 {/* This Week */}
-                <div className="p-3.5 bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-[16px] flex flex-col justify-between shadow-2xs min-w-0">
+                <div className="p-3.5 bg-white dark:bg-[#181818] border border-zinc-200/80 dark:border-zinc-800 rounded-[18px] flex flex-col justify-between shadow-2xs min-w-0">
                   <div className="flex items-center justify-between text-zinc-500 text-[11px] font-medium mb-1">
                     <span className="truncate">এই সপ্তাহে</span>
                     <Calendar className="w-3.5 h-3.5 text-blue-500 shrink-0" />
@@ -223,7 +229,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
                 </div>
 
                 {/* This Month */}
-                <div className="p-3.5 bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-[16px] flex flex-col justify-between shadow-2xs min-w-0">
+                <div className="p-3.5 bg-white dark:bg-[#181818] border border-zinc-200/80 dark:border-zinc-800 rounded-[18px] flex flex-col justify-between shadow-2xs min-w-0">
                   <div className="flex items-center justify-between text-zinc-500 text-[11px] font-medium mb-1">
                     <span className="truncate">এই মাসে</span>
                     <BarChart3 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
@@ -236,7 +242,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
               </div>
 
               {/* Visual Activity Bar Chart (Last 14 Days / 2 Weeks) */}
-              <div className="p-4 bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-[20px] shadow-2xs w-full min-w-0 overflow-hidden box-border">
+              <div className="p-4 bg-white dark:bg-[#181818] border border-zinc-200/80 dark:border-zinc-800 rounded-[20px] shadow-2xs w-full min-w-0 overflow-hidden box-border">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-800 dark:text-zinc-200">
                     <BarChart3 className="w-4 h-4 text-[#ffb31a]" />
@@ -306,7 +312,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
                 </div>
 
                 {twoWeeksLogs.length === 0 ? (
-                  <div className="p-8 text-center bg-surface-card border border-zinc-200/80 dark:border-zinc-800 rounded-2xl text-zinc-400 text-xs">
+                  <div className="p-8 text-center bg-white dark:bg-[#181818] border border-zinc-200/80 dark:border-zinc-800 rounded-2xl text-zinc-400 text-xs">
                     এই সময়ের মধ্যে কোনো আমলের রেকর্ড পাওয়া যায়নি।
                   </div>
                 ) : (
@@ -322,7 +328,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
                           className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-2 shadow-2xs w-full min-w-0 box-border ${
                             isToday
                               ? "bg-amber-500/5 dark:bg-amber-500/10 border-[#ffb31a]/40"
-                              : "bg-surface-card border-zinc-200/80 dark:border-zinc-800"
+                              : "bg-white dark:bg-[#181818] border-zinc-200/80 dark:border-zinc-800"
                           }`}
                         >
                           <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -413,12 +419,12 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
       </main>
 
       {/* Solid Sticky Bottom Footer */}
-      <footer className="sticky bottom-0 bg-surface-card border-t border-zinc-200/80 dark:border-zinc-800 p-3 sm:p-4 shrink-0 shadow-sm w-full max-w-full box-border">
+      <footer className="sticky bottom-0 bg-white/90 dark:bg-[#121212]/90 backdrop-blur-xl border-t border-zinc-200/60 dark:border-zinc-800/60 p-3 sm:p-4 shrink-0 shadow-sm w-full max-w-full box-border">
         <div className="max-w-xl mx-auto w-full">
           <button
             type="button"
             onClick={onClose}
-            className="w-full py-2.5 sm:py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-2xl text-xs font-bold font-bengali transition-colors shadow-2xs"
+            className="w-full min-h-[44px] py-2.5 sm:py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-[14px] text-xs font-bold font-bengali transition-colors shadow-2xs"
           >
             বন্ধ করুন / হোমে ফিরে যান
           </button>

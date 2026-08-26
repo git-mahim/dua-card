@@ -176,28 +176,28 @@ export const DuaList: React.FC<DuaListProps> = ({
     <div className="w-full flex flex-col gap-4 pb-24">
       {/* Smart Status Filter Tabs (সকল দোয়া | বাকি দোয়া | পড়েছি) */}
       {!isSearchActive && (
-        <div className="w-full grid grid-cols-3 gap-2 p-1.5 bg-surface-card border border-zinc-200/90 dark:border-zinc-800/90 rounded-[20px] shadow-xs font-bengali">
+        <div className="w-full grid grid-cols-3 gap-1.5 p-1.5 bg-zinc-100/90 dark:bg-zinc-900/90 border border-zinc-200/60 dark:border-zinc-800/60 rounded-[18px] shadow-2xs font-bengali">
           <button
             type="button"
             onClick={() => {
               triggerHaptic(25);
               setActiveTab("all");
             }}
-            className={`min-h-[46px] py-2.5 sm:py-3 px-2 rounded-[12px] font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
+            className={`min-h-[44px] py-2 px-1.5 rounded-[14px] font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
               activeTab === "all"
-                ? "bg-[#ffb31a] text-zinc-950 shadow-xs scale-[1.01]"
-                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/60"
+                ? "bg-white dark:bg-zinc-800 text-zinc-950 dark:text-zinc-50 shadow-xs scale-[1.01]"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-white/50 dark:hover:bg-zinc-800/40"
             }`}
           >
-            <span className="text-[13.5px] sm:text-[15px]">সকল দোয়া</span>
+            <span className="text-[13.5px] sm:text-[14.5px]">সকল দোয়া</span>
             <span
-              className={`font-mono text-[13px] sm:text-[14px] font-bold leading-none translate-y-[0.5px] ${
+              className={`font-mono text-[11px] sm:text-[12px] font-bold leading-none px-1.5 py-0.5 rounded-full ${
                 activeTab === "all"
-                  ? "text-zinc-950 opacity-90"
-                  : "text-zinc-500 dark:text-zinc-400 opacity-80"
+                  ? "bg-[#ffb31a]/20 text-[#c87d00] dark:text-[#ffb31a]"
+                  : "bg-zinc-200/70 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400"
               }`}
             >
-              ({toBengaliNumber(duas.length)})
+              {toBengaliNumber(duas.length)}
             </span>
           </button>
 
@@ -207,21 +207,21 @@ export const DuaList: React.FC<DuaListProps> = ({
               triggerHaptic(25);
               setActiveTab("pending");
             }}
-            className={`min-h-[46px] py-2.5 sm:py-3 px-2 rounded-[12px] font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
+            className={`min-h-[44px] py-2 px-1.5 rounded-[14px] font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
               activeTab === "pending"
-                ? "bg-[#ffb31a] text-zinc-950 shadow-xs scale-[1.01]"
-                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/60"
+                ? "bg-white dark:bg-zinc-800 text-zinc-950 dark:text-zinc-50 shadow-xs scale-[1.01]"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-white/50 dark:hover:bg-zinc-800/40"
             }`}
           >
-            <span className="text-[13.5px] sm:text-[15px]">বাকি দোয়া</span>
+            <span className="text-[13.5px] sm:text-[14.5px]">বাকি দোয়া</span>
             <span
-              className={`font-mono text-[13px] sm:text-[14px] font-bold leading-none translate-y-[0.5px] ${
+              className={`font-mono text-[11px] sm:text-[12px] font-bold leading-none px-1.5 py-0.5 rounded-full ${
                 activeTab === "pending"
-                  ? "text-zinc-950 opacity-90"
-                  : "text-zinc-500 dark:text-zinc-400 opacity-80"
+                  ? "bg-[#ffb31a]/20 text-[#c87d00] dark:text-[#ffb31a]"
+                  : "bg-zinc-200/70 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400"
               }`}
             >
-              ({toBengaliNumber(pendingCount)})
+              {toBengaliNumber(pendingCount)}
             </span>
           </button>
 
@@ -231,21 +231,21 @@ export const DuaList: React.FC<DuaListProps> = ({
               triggerHaptic(25);
               setActiveTab("completed");
             }}
-            className={`min-h-[46px] py-2.5 sm:py-3 px-2 rounded-[12px] font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
+            className={`min-h-[44px] py-2 px-1.5 rounded-[14px] font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
               activeTab === "completed"
-                ? "bg-[#ffb31a] text-zinc-950 shadow-xs scale-[1.01]"
-                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/60"
+                ? "bg-white dark:bg-zinc-800 text-zinc-950 dark:text-zinc-50 shadow-xs scale-[1.01]"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-white/50 dark:hover:bg-zinc-800/40"
             }`}
           >
-            <span className="text-[13.5px] sm:text-[15px]">পড়েছি</span>
+            <span className="text-[13.5px] sm:text-[14.5px]">পড়েছি</span>
             <span
-              className={`font-mono text-[13px] sm:text-[14px] font-bold leading-none translate-y-[0.5px] ${
+              className={`font-mono text-[11px] sm:text-[12px] font-bold leading-none px-1.5 py-0.5 rounded-full ${
                 activeTab === "completed"
-                  ? "text-zinc-950 opacity-90"
-                  : "text-zinc-500 dark:text-zinc-400 opacity-80"
+                  ? "bg-[#ffb31a]/20 text-[#c87d00] dark:text-[#ffb31a]"
+                  : "bg-zinc-200/70 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400"
               }`}
             >
-              ({toBengaliNumber(completedCount)})
+              {toBengaliNumber(completedCount)}
             </span>
           </button>
         </div>

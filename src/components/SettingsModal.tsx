@@ -2,110 +2,177 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useTheme } from "./ThemeProvider";
+import { DeleteConfirmModal } from "./DeleteConfirmModal";
+import { exportAllDataToJson, importDataFromJson, clearAllData } from "@/lib/backup";
+import { getDuaCount, getAllDuas } from "@/lib/db";
+import { toBengaliNumber } from "@/lib/formatters";
+import { triggerHaptic } from "@/lib/haptics";
 import {
-  exportBackupFile,
-  validateBackupJson,
-  restoreBackupMerge,
-  restoreBackupReplace,
-} from "@/lib/backup";
-import { DuaRecord } from "@/lib/types";
-import {
-  X,
   ArrowLeft,
+  Sun,
+  Moon,
+  Type,
   Download,
   Upload,
-  Moon,
-  Sun,
   Trash2,
-  ShieldCheck,
   CheckCircle2,
   AlertCircle,
-  FileJson,
-  EyeOff,
-  Eye,
-  Type,
+  ShieldCheck,
   RotateCcw,
+  FileJson,
+  Eye,
+  EyeOff,
 } from "lucide-react";
-import { DeleteConfirmModal } from "./DeleteConfirmModal";
-import {
-  FONT_CONFIGS,
-  FontSizeSettings,
-  DEFAULT_FONT_SIZES,
-  loadSavedFontSizes,
-  saveFontSizes,
-} from "@/lib/fontSize";
-import { toBengaliNumber } from "@/lib/formatters";
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onDataChanged: () => void;
-  onClearAllData: () => Promise<void>;
-  totalDuasCount: number;
+  onDataImported: () => void;
   hideVirtueOnHome: boolean;
-  onToggleHideVirtue: (enabled: boolean) => void;
+  onToggleHideVirtue: (hide: boolean) => void;
 }
+
+// Configurable Typography Elements
+const FONT_CONFIGS = [
+  {
+    key: "dua-title" as const,
+    label: "দোয়ার শিরোনাম",
+    min: 16,
+    max: 32,
+    defaultSize: 20,
+    presets: { s: 18, m: 20, l: 24 },
+  },
+  {
+    key: "dua-pronunciation" as const,
+    label: "উচ্চারণ / আরবি",
+    min: 14,
+    max: 28,
+    defaultSize: 17,
+    presets: { s: 15, m: 17, l: 20 },
+  },
+  {
+    key: "dua-meaning" as const,
+    label: "দোয়ার অনুবাদ",
+    min: 13,
+    max: 24,
+    defaultSize: 15,
+    presets: { s: 14, m: 15, l: 18 },
+  },
+  {
+    key: "dua-paragraph" as const,
+    label: "শিক্ষা ও সহায়ক নোট",
+    min: 13,
+    max: 24,
+    defaultSize: 15,
+    presets: { s: 14, m: 15, l: 18 },
+  },
+];
+
+type FontSizeState = {
+  "dua-title": number;
+  "dua-pronunciation": number;
+  "dua-meaning": number;
+  "dua-paragraph": number;
+};
+
+const DEFAULT_FONT_SIZES: FontSizeState = {
+  "dua-title": 20,
+  "dua-pronunciation": 17,
+  "dua-meaning": 15,
+  "dua-paragraph": 15,
+};
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
-  onDataChanged,
-  onClearAllData,
-  totalDuasCount,
+  onDataImported,
   hideVirtueOnHome,
   onToggleHideVirtue,
 }) => {
   const { theme, setTheme } = useTheme();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const [totalDuasCount, setTotalDuasCount] = useState<number>(0);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [notification, setNotification] = useState<{
     type: "success" | "error";
     message: string;
   } | null>(null);
 
-  // Import preview state
   const [importPreview, setImportPreview] = useState<{
-    duas: DuaRecord[];
     count: number;
     filename: string;
+    jsonString: string;
   } | null>(null);
 
-  // Destructive delete confirmation
-  const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Font size configuration state
-  const [fontSizes, setFontSizes] = useState<FontSizeSettings>(DEFAULT_FONT_SIZES);
+  // Font Size state synced with CSS Variables & LocalStorage
+  const [fontSizes, setFontSizes] = useState<FontSizeState>(DEFAULT_FONT_SIZES);
 
   useEffect(() => {
-    if (isOpen) {
-      setFontSizes(loadSavedFontSizes());
-      document.body.style.overflow = "hidden";
-      document.documentElement.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("dua_font_sizes");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          const merged = { ...DEFAULT_FONT_SIZES, ...parsed };
+          setFontSizes(merged);
+          applyFontSizesToDom(merged);
+        }
+      } catch (e) {
+        console.error("Failed to load saved font sizes", e);
+      }
     }
-    return () => {
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
-    };
-  }, [isOpen]);
+  }, []);
 
-  const handleUpdateFontSize = (key: keyof FontSizeSettings, size: number) => {
-    setFontSizes((prev) => {
-      const updated = { ...prev, [key]: size };
-      saveFontSizes(updated);
-      return updated;
-    });
+  const applyFontSizesToDom = (sizes: FontSizeState) => {
+    if (typeof document !== "undefined") {
+      const root = document.documentElement;
+      root.style.setProperty("--dua-title-size", `${sizes["dua-title"]}px`);
+      root.style.setProperty("--dua-pronunciation-size", `${sizes["dua-pronunciation"]}px`);
+      root.style.setProperty("--dua-meaning-size", `${sizes["dua-meaning"]}px`);
+      root.style.setProperty("--dua-paragraph-size", `${sizes["dua-paragraph"]}px`);
+    }
+  };
+
+  const handleUpdateFontSize = (key: keyof FontSizeState, size: number) => {
+    triggerHaptic(15);
+    const updated = { ...fontSizes, [key]: size };
+    setFontSizes(updated);
+    applyFontSizesToDom(updated);
+    try {
+      localStorage.setItem("dua_font_sizes", JSON.stringify(updated));
+    } catch (e) {
+      console.error("Failed to save font sizes", e);
+    }
   };
 
   const handleResetFontSizes = () => {
+    triggerHaptic(30);
     setFontSizes(DEFAULT_FONT_SIZES);
-    saveFontSizes(DEFAULT_FONT_SIZES);
+    applyFontSizesToDom(DEFAULT_FONT_SIZES);
+    try {
+      localStorage.setItem("dua_font_sizes", JSON.stringify(DEFAULT_FONT_SIZES));
+    } catch (e) {
+      console.error("Failed to reset font sizes", e);
+    }
+    showToast("success", "ফন্ট সাইজ ডিফল্টে রিসেট করা হয়েছে");
   };
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (isOpen) {
+      loadStats();
+    }
+  }, [isOpen]);
+
+  const loadStats = async () => {
+    try {
+      const count = await getDuaCount();
+      setTotalDuasCount(count);
+    } catch (e) {
+      console.error("Failed to load stats", e);
+    }
+  };
 
   const showToast = (type: "success" | "error", message: string) => {
     setNotification({ type, message });
@@ -114,152 +181,157 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }, 4000);
   };
 
-  // Handle Export Backup
   const handleExport = async () => {
     try {
       setIsProcessing(true);
-      const res = await exportBackupFile();
-      if (res.success) {
-        showToast("success", `ব্যাকআপ ফাইল সফলভাবে ডাউনলোড হয়েছে (${res.recordCount} টি দোয়া)`);
-      } else {
-        showToast("error", res.error || "ব্যাকআপ এক্সপোর্ট করতে সমস্যা হয়েছে");
-      }
-    } catch {
-      showToast("error", "একটি অপ্রত্যাশিত ত্রুটি ঘটেছে");
+      triggerHaptic(40);
+      const json = await exportAllDataToJson();
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const now = new Date();
+      const dateStr = now.toISOString().slice(0, 10);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `dua-card-backup-${dateStr}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      showToast("success", "সম্পূর্ণ ব্যাকআপ ফাইল সফলভাবে ডাউনলোড হয়েছে");
+    } catch (err) {
+      console.error("Export error:", err);
+      showToast("error", "ব্যাকআপ ফাইল তৈরি করতে ব্যর্থ হয়েছে");
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // Handle Import File Selected
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       try {
         const text = event.target?.result as string;
-        const validation = validateBackupJson(text);
+        const parsed = JSON.parse(text);
 
-        if (!validation.isValid) {
-          showToast(
-            "error",
-            `ফাইলটি সঠিক নয়: ${validation.errors.join(", ")}`
-          );
-          return;
+        let count = 0;
+        if (parsed.duas && Array.isArray(parsed.duas)) {
+          count = parsed.duas.length;
+        } else if (Array.isArray(parsed)) {
+          count = parsed.length;
+        } else {
+          throw new Error("Invalid backup JSON format");
         }
 
-        const payload = validation.payload!;
         setImportPreview({
-          duas: payload.duas,
-          count: payload.duas.length,
+          count,
           filename: file.name,
+          jsonString: text,
         });
-      } catch {
-        showToast("error", "ফাইল পড়তে ব্যর্থ হয়েছে। সঠিক JSON ফাইল নির্বাচন করুন।");
-      } finally {
-        // Reset input so same file can be selected again
-        if (fileInputRef.current) fileInputRef.current.value = "";
+      } catch (err) {
+        console.error("Import file parse error:", err);
+        showToast("error", "অবৈধ ব্যাকআপ ফাইল। সঠিক JSON ফাইল নির্বাচন করুন");
       }
     };
-
     reader.readAsText(file);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
-  // Execute Merge Restore
   const handleRestoreMerge = async () => {
     if (!importPreview) return;
     try {
       setIsProcessing(true);
-      const res = await restoreBackupMerge(importPreview.duas);
-      if (res.success) {
-        showToast(
-          "success",
-          `সফলভাবে যুক্ত হয়েছে (${res.importedCount} টি নতুন, ${res.updatedCount} টি আপডেট)।`
-        );
-        setImportPreview(null);
-        onDataChanged();
-      } else {
-        showToast("error", "রিস্টোর ব্যর্থ হয়েছে।");
-      }
-    } catch {
-      showToast("error", "রিস্টোর প্রক্রিয়া ব্যর্থ হয়েছে।");
+      triggerHaptic(50);
+      const res = await importDataFromJson(importPreview.jsonString, {
+        overwriteExisting: false,
+      });
+      setImportPreview(null);
+      await loadStats();
+      onDataImported();
+      showToast(
+        "success",
+        `সফলভাবে ${toBengaliNumber(res.duasImported)} টি নতুন দোয়া ব্যাকআপ থেকে যুক্ত করা হয়েছে`
+      );
+    } catch (err) {
+      console.error("Restore merge error:", err);
+      showToast("error", "ডেটা রিস্টোর করতে সমস্যা হয়েছে");
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // Execute Replace Restore
   const handleRestoreReplace = async () => {
     if (!importPreview) return;
     try {
       setIsProcessing(true);
-      const res = await restoreBackupReplace(importPreview.duas);
-      if (res.success) {
-        showToast(
-          "success",
-          `সকল তথ্য প্রতিস্থাপিত হয়েছে (${importPreview.count} টি দোয়া)।`
-        );
-        setImportPreview(null);
-        onDataChanged();
-      } else {
-        showToast("error", "প্রতিস্থাপন ব্যর্থ হয়েছে।");
-      }
-    } catch {
-      showToast("error", "প্রতিস্থাপন ব্যর্থ হয়েছে।");
+      triggerHaptic(50);
+      const res = await importDataFromJson(importPreview.jsonString, {
+        overwriteExisting: true,
+      });
+      setImportPreview(null);
+      await loadStats();
+      onDataImported();
+      showToast(
+        "success",
+        `পুরনো ডেটা প্রতিস্থাপন করে ${toBengaliNumber(res.duasImported)} টি দোয়া রিস্টোর করা হয়েছে`
+      );
+    } catch (err) {
+      console.error("Restore replace error:", err);
+      showToast("error", "ডেটা প্রতিস্থাপন করতে সমস্যা হয়েছে");
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // Execute Delete All Data
   const handleConfirmClearAll = async () => {
     try {
       setIsProcessing(true);
-      await onClearAllData();
+      triggerHaptic(60);
+      await clearAllData();
       setShowClearConfirm(false);
-      showToast("success", "সকল লোকাল ডেটা মুছে ফেলা হয়েছে।");
-      onDataChanged();
-    } catch {
-      showToast("error", "ডেটা মুছতে সমস্যা হয়েছে।");
+      await loadStats();
+      onDataImported();
+      showToast("success", "সকল সংরক্ষিত দোয়ার ডেটা সফলভাবে মুছে ফেলা হয়েছে");
+    } catch (err) {
+      console.error("Clear all error:", err);
+      showToast("error", "ডেটা মুছে ফেলতে সমস্যা হয়েছে");
     } finally {
       setIsProcessing(false);
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex flex-col bg-background text-foreground animate-in fade-in duration-150 overflow-y-auto overscroll-y-contain w-full max-w-full font-bengali select-text"
+      aria-labelledby="settings-title"
+      className="fixed inset-0 z-50 flex flex-col bg-background text-foreground animate-in fade-in duration-150 overflow-y-auto font-bengali"
     >
-      {/* Sticky Top Header */}
-      <header className="sticky top-0 z-20 w-full bg-background/95 backdrop-blur-md border-b border-zinc-200/80 dark:border-zinc-800/80 px-4 py-3">
-        <div className="max-w-md mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="ফিরে যান"
-              className="p-1.5 -ml-1 rounded-xl text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100 font-bengali">
-              সেটিংস ও ডেটা ব্যবস্থাপনা
-            </h2>
-          </div>
+      {/* Top Header / Navigation Bar */}
+      <header className="sticky top-0 z-10 w-full bg-white/85 dark:bg-[#121212]/85 backdrop-blur-xl border-b border-zinc-200/60 dark:border-zinc-800/60 px-4 py-3 flex items-center justify-between max-w-md mx-auto">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="ফিরে যান"
+          className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-50 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-all active:scale-95 shrink-0"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
 
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="বন্ধ করুন"
-            className="p-1.5 rounded-xl text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+        <h1
+          id="settings-title"
+          className="text-base font-bold font-bengali text-zinc-900 dark:text-zinc-50"
+        >
+          সেটিংস ও ব্যাকআপ
+        </h1>
+
+        <div className="w-9 h-9" />
       </header>
 
       {/* Main Settings Page Container */}
@@ -278,14 +350,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             {notification.type === "success" ? (
               <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
             ) : (
-              <AlertCircle className="w-4 h-4 shrink-0" />
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
             )}
             <span>{notification.message}</span>
           </div>
         )}
 
         {/* Card Display Preferences */}
-        <div className="p-4 bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-[20px]">
+        <div className="p-4 bg-white dark:bg-[#181818] border border-zinc-200/80 dark:border-zinc-800 rounded-[20px] shadow-2xs">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <div className="w-8 h-8 rounded-[11px] bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] flex items-center justify-center shrink-0">
@@ -340,7 +412,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               className={`min-h-[44px] flex items-center justify-center gap-2 p-2.5 rounded-[12px] text-xs font-medium border transition-all ${
                 theme === "light"
                   ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border-transparent shadow-xs font-bold"
-                  : "bg-zinc-50 dark:bg-zinc-900/60 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  : "bg-white dark:bg-[#181818] text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               }`}
             >
               <Sun className="w-3.5 h-3.5 text-[#ffb31a]" />
@@ -352,7 +424,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               className={`min-h-[44px] flex items-center justify-center gap-2 p-2.5 rounded-[12px] text-xs font-medium border transition-all ${
                 theme === "dark"
                   ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border-transparent shadow-xs font-bold"
-                  : "bg-zinc-50 dark:bg-zinc-900/60 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  : "bg-white dark:bg-[#181818] text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               }`}
             >
               <Moon className="w-3.5 h-3.5" />
@@ -362,8 +434,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         {/* Font & Size Preferences */}
-        <div className="flex flex-col gap-2.5 p-4 bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-[20px]">
-          <div className="flex items-center justify-between pb-1.5 border-b border-zinc-200/60 dark:border-zinc-800/60">
+        <div className="flex flex-col gap-2.5 p-4 bg-white dark:bg-[#181818] border border-zinc-200/80 dark:border-zinc-800 rounded-[20px] shadow-2xs">
+          <div className="flex items-center justify-between pb-1.5 border-b border-zinc-100 dark:border-zinc-800">
             <div className="flex items-center gap-2">
               <Type className="w-4 h-4 text-[#ffb31a]" />
               <label className="text-xs font-bold font-bengali text-zinc-900 dark:text-zinc-100">
@@ -373,7 +445,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <button
               type="button"
               onClick={handleResetFontSizes}
-              className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-200/70 dark:bg-zinc-800 hover:bg-zinc-300/80 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-[10px] text-[11px] font-bold font-bengali transition-all active:scale-95 border border-zinc-200/90 dark:border-zinc-700/90 shadow-2xs"
+              className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-[10px] text-[11px] font-bold font-bengali transition-all active:scale-95 border border-zinc-200 dark:border-zinc-700/80 shadow-2xs"
               title="ডিফল্ট ফন্ট সাইজে ফিরে যান"
             >
               <RotateCcw className="w-3 h-3 text-[#ffb31a]" />
@@ -381,7 +453,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </button>
           </div>
 
-          <div className="flex flex-col divide-y divide-zinc-200/60 dark:divide-zinc-800/60">
+          <div className="flex flex-col divide-y divide-zinc-100 dark:divide-zinc-800/60">
             {FONT_CONFIGS.map((item) => {
               const currentSize = fontSizes[item.key];
               return (
@@ -396,7 +468,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         {toBengaliNumber(currentSize)}px
                       </span>
                       {/* S M L Preset Buttons */}
-                      <div className="flex items-center bg-zinc-200/70 dark:bg-zinc-800 rounded-[10px] p-0.5 border border-zinc-200/80 dark:border-zinc-700/80">
+                      <div className="flex items-center bg-zinc-100 dark:bg-zinc-800 rounded-[10px] p-0.5 border border-zinc-200/80 dark:border-zinc-700/80">
                         {(["s", "m", "l"] as const).map((preset) => {
                           const presetVal = item.presets[preset];
                           const isActive = currentSize === presetVal;
@@ -456,7 +528,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               type="button"
               onClick={handleExport}
               disabled={isProcessing || totalDuasCount === 0}
-              className="min-h-[44px] flex items-center justify-center gap-2 p-2.5 bg-zinc-100 dark:bg-zinc-900/80 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-[12px] text-xs font-medium border border-zinc-200/80 dark:border-zinc-800 transition-colors disabled:opacity-40"
+              className="min-h-[44px] flex items-center justify-center gap-2 p-2.5 bg-white dark:bg-[#181818] hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-[12px] text-xs font-medium border border-zinc-200/80 dark:border-zinc-800 transition-colors disabled:opacity-40 shadow-2xs"
             >
               <Download className="w-3.5 h-3.5" />
               <span>ব্যাকআপ এক্সপোর্ট</span>
@@ -467,7 +539,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={isProcessing}
-              className="min-h-[44px] flex items-center justify-center gap-2 p-2.5 bg-zinc-100 dark:bg-zinc-900/80 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-[12px] text-xs font-medium border border-zinc-200/80 dark:border-zinc-800 transition-colors disabled:opacity-40"
+              className="min-h-[44px] flex items-center justify-center gap-2 p-2.5 bg-white dark:bg-[#181818] hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-[12px] text-xs font-medium border border-zinc-200/80 dark:border-zinc-800 transition-colors disabled:opacity-40 shadow-2xs"
             >
               <Upload className="w-3.5 h-3.5" />
               <span>ব্যাকআপ রিস্টোর</span>
