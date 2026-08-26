@@ -92,7 +92,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     editorProps: {
       attributes: {
         class:
-          "tiptap flex-1 w-full min-h-[320px] sm:min-h-[420px] p-4 sm:p-5 outline-none font-bengali text-zinc-900 dark:text-zinc-100 leading-relaxed cursor-text",
+          "tiptap flex-1 w-full min-h-[120px] p-3.5 sm:p-4 outline-none font-bengali text-zinc-900 dark:text-zinc-100 leading-relaxed cursor-text",
       },
     },
     onUpdate({ editor }) {
@@ -116,14 +116,14 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   }, [editor, initialContent]);
 
   return (
-    <div className="w-full flex-1 flex flex-col justify-between h-full gap-3">
-      {/* Editor Main Canvas (Expansive Full Height) */}
-      <div className="flex-1 w-full bg-surface-card border border-zinc-200 dark:border-zinc-800/80 rounded-2xl shadow-sm overflow-hidden flex flex-col focus-within:ring-2 focus-within:ring-[#ffb31a]/40 transition-all">
+    <div className="w-full flex-1 min-h-0 flex flex-col justify-between h-full gap-2">
+      {/* Editor Main Canvas (Gracefully scrollable inside available screen space) */}
+      <div className="flex-1 min-h-[120px] w-full bg-white dark:bg-[#181818] border border-zinc-200 dark:border-zinc-800/80 rounded-2xl shadow-xs overflow-y-auto flex flex-col focus-within:ring-2 focus-within:ring-[#ffb31a]/40 transition-all">
         <EditorContent editor={editor} className="flex-1 w-full flex flex-col" />
       </div>
 
-      {/* Sticky Bottom Formatting Toolbar (Lifted gracefully above bottom bezel) */}
-      <div className="sticky bottom-3 sm:bottom-5 z-20 w-full pt-1 mb-2">
+      {/* Formatting Toolbar (Docked cleanly above virtual keyboard) */}
+      <div className="shrink-0 w-full pt-0.5">
         <EditorToolbar editor={editor} />
       </div>
     </div>

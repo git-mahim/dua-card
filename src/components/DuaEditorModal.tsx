@@ -44,6 +44,31 @@ export const DuaEditorModal: React.FC<DuaEditorModalProps> = ({
 
   const [isSaving, setIsSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+
+  // Dynamic Visual Viewport listener for seamless mobile virtual keyboard docking
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleResize = () => {
+      if (typeof window !== "undefined" && window.visualViewport) {
+        setViewportHeight(window.visualViewport.height);
+      }
+    };
+
+    if (typeof window !== "undefined" && window.visualViewport) {
+      setViewportHeight(window.visualViewport.height);
+      window.visualViewport.addEventListener("resize", handleResize);
+      window.visualViewport.addEventListener("scroll", handleResize);
+    }
+
+    return () => {
+      if (typeof window !== "undefined" && window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", handleResize);
+        window.visualViewport.removeEventListener("scroll", handleResize);
+      }
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     if (dua) {
@@ -116,10 +141,14 @@ export const DuaEditorModal: React.FC<DuaEditorModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex flex-col bg-background text-foreground animate-in fade-in duration-150 overflow-y-auto font-bengali"
+      style={{
+        height: viewportHeight ? `${viewportHeight}px` : "100dvh",
+        maxHeight: viewportHeight ? `${viewportHeight}px` : "100dvh",
+      }}
+      className="fixed inset-x-0 top-0 z-50 flex flex-col bg-background text-foreground animate-in fade-in duration-150 overflow-hidden font-bengali box-border"
     >
       {/* Top Action Header */}
-      <header className="sticky top-0 z-10 w-full bg-white/85 dark:bg-[#121212]/85 backdrop-blur-xl border-b border-zinc-200/60 dark:border-zinc-800/60 px-4 py-3 flex items-center justify-between max-w-lg mx-auto">
+      <header className="sticky top-0 z-10 w-full bg-white/85 dark:bg-[#121212]/85 backdrop-blur-xl border-b border-zinc-200/60 dark:border-zinc-800/60 px-4 py-2.5 sm:py-3 flex items-center justify-between max-w-lg mx-auto shrink-0">
         <button
           type="button"
           onClick={onClose}
@@ -138,7 +167,7 @@ export const DuaEditorModal: React.FC<DuaEditorModalProps> = ({
           type="button"
           onClick={handleSave}
           disabled={isSaving}
-          className="min-h-[38px] flex items-center gap-1.5 px-4 py-1.5 bg-[#ffb31a] hover:bg-[#e69c05] active:scale-95 text-zinc-950 text-xs font-bold font-bengali rounded-[12px] transition-all disabled:opacity-50 shadow-xs"
+          className="min-h-[36px] sm:min-h-[38px] flex items-center gap-1.5 px-4 py-1.5 bg-[#ffb31a] hover:bg-[#e69c05] active:scale-95 text-zinc-950 text-xs font-bold font-bengali rounded-[12px] transition-all disabled:opacity-50 shadow-xs shrink-0"
         >
           {isSaving ? (
             <div className="w-3.5 h-3.5 border-2 border-zinc-950 border-t-transparent rounded-full animate-spin" />
@@ -151,10 +180,10 @@ export const DuaEditorModal: React.FC<DuaEditorModalProps> = ({
         </button>
       </header>
 
-      {/* Editor Body */}
-      <main className="flex-1 w-full max-w-lg mx-auto px-3 sm:px-4 pt-3 pb-8 sm:pb-10 flex flex-col justify-between min-h-0">
+      {/* Editor Main Section (Strictly constrained to visual viewport so toolbar rests on virtual keyboard) */}
+      <main className="flex-1 min-h-0 w-full max-w-lg mx-auto px-3 sm:px-4 pt-2 pb-2 flex flex-col justify-between overflow-hidden">
         {errorMsg && (
-          <div className="p-3 mb-2 bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-bengali flex items-center gap-2 shrink-0">
+          <div className="p-2.5 mb-2 bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-bengali flex items-center gap-2 shrink-0">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{errorMsg}</span>
           </div>
