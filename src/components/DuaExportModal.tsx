@@ -191,25 +191,25 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
 
         {/* Live Export Preview Container */}
         <div className="w-full max-h-[52vh] overflow-y-auto rounded-2xl border border-zinc-200/90 dark:border-zinc-800 p-2 sm:p-3 bg-zinc-200/50 dark:bg-zinc-950 flex items-center justify-center">
-          {/* Outer Frame with Calibrated Balanced Margins (Captured by html-to-image) */}
+          {/* Outer Frame with Clean Aesthetic Margins (Captured by html-to-image) */}
           <div
             ref={cardFrameRef}
-            className={`w-full max-w-[480px] px-3.5 sm:px-4 py-4 sm:py-5 rounded-[24px] transition-colors ${
+            className={`w-full max-w-[480px] p-4 sm:p-5 rounded-[26px] transition-colors ${
               themeMode === "light"
                 ? "bg-gradient-to-br from-[#f8f5ee] via-[#efe8da] to-[#e4dbc7] text-zinc-950"
                 : "dark bg-gradient-to-br from-[#0c0c0c] via-[#141414] to-[#1e1e1e] text-zinc-50"
             }`}
           >
-            {/* The Floating Dua Card Inside */}
+            {/* The Floating Dua Card Inside (Full comfortable padding & uncompromised layout) */}
             <div
-              className={`w-full rounded-[18px] p-4.5 sm:p-5.5 flex flex-col justify-between gap-3.5 transition-colors ${
+              className={`w-full rounded-[22px] p-6 sm:p-7 flex flex-col justify-between gap-4 transition-colors ${
                 themeMode === "light"
-                  ? "bg-white text-zinc-950 border border-[#e8dfcf] shadow-lg shadow-amber-950/5"
-                  : "bg-[#181818] text-zinc-50 border border-zinc-800/90 shadow-xl shadow-black/50"
+                  ? "bg-white text-zinc-950 border border-[#e8dfcf] shadow-xl shadow-amber-950/5"
+                  : "bg-[#181818] text-zinc-50 border border-zinc-800/90 shadow-2xl shadow-black/50"
               }`}
             >
               {/* Top decorative header inside card */}
-              <div className="flex items-center justify-between pb-2 border-b border-amber-500/25">
+              <div className="flex items-center justify-between pb-2.5 border-b border-amber-500/25">
                 <span className="text-[11px] font-bold text-[#c87d00] dark:text-[#ffb31a] tracking-wider uppercase flex items-center gap-1.5">
                   <span>🌙</span>
                   <span>দৈনিক দোয়া</span>
@@ -220,20 +220,20 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
               </div>
 
               {/* Dua Content with Full Bengali Typography Hierarchy */}
-              <div className="py-0.5">
+              <div className="py-1">
                 <StructuredDuaViewer
                   content={dua.richTextContent}
                   isTruncated={false}
                 />
               </div>
 
-              {/* Bottom Footer with requested branding */}
-              <div className="pt-2.5 border-t border-amber-500/20 flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400 font-bengali">
+              {/* Bottom Footer with English branding */}
+              <div className="pt-3 border-t border-amber-500/20 flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400 font-bengali">
                 <span className="font-bold text-zinc-700 dark:text-zinc-300">
                   ✨ দোয়া কার্ড
                 </span>
-                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">
-                  Build by অপূর্ব খান
+                <span className="text-[10.5px] text-zinc-500 dark:text-zinc-400 font-medium">
+                  Build by Apurbo Khan
                 </span>
               </div>
             </div>
