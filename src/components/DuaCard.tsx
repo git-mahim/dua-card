@@ -136,7 +136,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
         isDragOverlay
           ? "border border-[#ffb31a] bg-white dark:bg-[#181818] z-50 pointer-events-none shadow-xl scale-[1.02]"
           : isCompleted
-          ? "opacity-65 hover:opacity-100 bg-zinc-50/70 dark:bg-zinc-900/40 border border-zinc-200/70 dark:border-zinc-800/70 shadow-none"
+          ? "opacity-85 hover:opacity-100 bg-amber-500/[0.03] dark:bg-amber-400/[0.04] border border-[#ffb31a]/70 dark:border-[#ffb31a]/60 shadow-2xs"
           : "opacity-100 bg-white dark:bg-[#181818] border border-zinc-200/80 dark:border-zinc-800/80 hover:border-[#ffb31a]/40 dark:hover:border-[#ffb31a]/30 shadow-xs"
       }`}
     >
