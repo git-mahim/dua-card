@@ -1,10 +1,9 @@
 "use client";
 
 import React from "react";
-import { Search, Settings, Moon, Sun, Monitor } from "lucide-react";
+import { Search, Settings, Moon, Sun } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { OfflineBadge } from "./OfflineBadge";
-import { ThemeMode } from "@/lib/types";
 
 interface HeaderProps {
   searchQuery: string;
@@ -24,12 +23,7 @@ export const Header: React.FC<HeaderProps> = ({
   const { theme, setTheme } = useTheme();
 
   const toggleTheme = () => {
-    const nextTheme: Record<ThemeMode, ThemeMode> = {
-      dark: "light",
-      light: "system",
-      system: "dark",
-    };
-    setTheme(nextTheme[theme]);
+    setTheme(theme === "dark" ? "light" : "dark");
   };
 
   return (
@@ -59,17 +53,19 @@ export const Header: React.FC<HeaderProps> = ({
               <Search className="w-4 h-4" />
             </button>
 
-            {/* Theme Toggle Button */}
+            {/* Direct Light / Dark Theme Toggle Button */}
             <button
               type="button"
               onClick={toggleTheme}
-              aria-label={`বর্তমান থিম: ${theme}`}
+              aria-label={`বর্তমান থিম: ${theme === "dark" ? "ডার্ক মোড" : "লাইট মোড"}`}
               className="p-2 rounded-xl text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-colors"
-              title={`Theme: ${theme}`}
+              title={theme === "dark" ? "লাইট মোড চালু করুন" : "ডার্ক মোড চালু করুন"}
             >
-              {theme === "dark" && <Moon className="w-4 h-4" />}
-              {theme === "light" && <Sun className="w-4 h-4" />}
-              {theme === "system" && <Monitor className="w-4 h-4" />}
+              {theme === "dark" ? (
+                <Sun className="w-4 h-4 text-[#ffb31a]" />
+              ) : (
+                <Moon className="w-4 h-4 text-zinc-700" />
+              )}
             </button>
 
             {/* Settings Button */}

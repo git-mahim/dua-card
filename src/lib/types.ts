@@ -41,7 +41,7 @@ export interface BackupPayload {
   logs?: DuaDailyLog[];
 }
 
-export type ThemeMode = "light" | "dark" | "system";
+export type ThemeMode = "light" | "dark";
 
 export interface SearchFilterState {
   query: string;

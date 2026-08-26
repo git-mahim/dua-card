@@ -15,7 +15,6 @@ import {
   Upload,
   Moon,
   Sun,
-  Monitor,
   Trash2,
   ShieldCheck,
   CheckCircle2,
@@ -290,42 +289,30 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
             থিম নির্বাচন
           </label>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => setTheme("light")}
               className={`flex items-center justify-center gap-2 p-2.5 rounded-xl text-xs font-medium border transition-all ${
                 theme === "light"
-                  ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border-transparent shadow-sm"
-                  : "bg-zinc-50 dark:bg-zinc-900/60 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800"
+                  ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border-transparent shadow-sm font-bold"
+                  : "bg-zinc-50 dark:bg-zinc-900/60 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               }`}
             >
-              <Sun className="w-3.5 h-3.5" />
-              <span>লাইট</span>
+              <Sun className="w-3.5 h-3.5 text-[#ffb31a]" />
+              <span>লাইট মোড</span>
             </button>
             <button
               type="button"
               onClick={() => setTheme("dark")}
               className={`flex items-center justify-center gap-2 p-2.5 rounded-xl text-xs font-medium border transition-all ${
                 theme === "dark"
-                  ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border-transparent shadow-sm"
-                  : "bg-zinc-50 dark:bg-zinc-900/60 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800"
+                  ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border-transparent shadow-sm font-bold"
+                  : "bg-zinc-50 dark:bg-zinc-900/60 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               }`}
             >
               <Moon className="w-3.5 h-3.5" />
-              <span>ডার্ক</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setTheme("system")}
-              className={`flex items-center justify-center gap-2 p-2.5 rounded-xl text-xs font-medium border transition-all ${
-                theme === "system"
-                  ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border-transparent shadow-sm"
-                  : "bg-zinc-50 dark:bg-zinc-900/60 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800"
-              }`}
-            >
-              <Monitor className="w-3.5 h-3.5" />
-              <span>সিস্টেম</span>
+              <span>ডার্ক মোড</span>
             </button>
           </div>
         </div>
