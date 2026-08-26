@@ -17,6 +17,7 @@ import {
   Edit3,
   TrendingUp,
   Plus,
+  Check,
   CheckCircle2,
   Sparkles,
 } from "lucide-react";
@@ -136,13 +137,18 @@ export const DuaCard: React.FC<DuaCardProps> = ({
         onAnimationEnd={() => setShowCheckAnim(false)}
       />
 
-      {/* Top Bar: Drag Grip, Date, Completion Status & Three-Dot Menu */}
+      {/* Top Bar: Drag Grip, Completed Badge & Three-Dot Menu */}
       <div className="flex items-center justify-between gap-2 mb-2 no-select">
         <div className="flex items-center gap-1.5 text-zinc-400 dark:text-zinc-500">
           <GripVertical className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing" />
-          <span className="text-[10px] font-mono tracking-wider">
-            {formatBengaliDateShort(dua.createdAt)}
-          </span>
+          
+          {/* Completed Badge (shown only when completed) */}
+          {isCompleted && (
+            <span className="px-2 py-0.5 bg-[#ffb31a]/20 text-[#b36f00] dark:text-[#ffb31a] border border-[#ffb31a]/40 rounded-full text-[10px] font-bold font-sans tracking-wide inline-flex items-center gap-1 shadow-2xs leading-none">
+              <Check className="w-3 h-3 stroke-[2.5] shrink-0" />
+              <span className="leading-none translate-y-[0.5px]">Completed</span>
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-1.5" data-no-double-tap="true">
