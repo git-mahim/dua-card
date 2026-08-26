@@ -398,10 +398,10 @@ export const DuaList: React.FC<DuaListProps> = ({
           <button
             type="button"
             onClick={onResetAllToday}
-            className="w-full sm:w-auto min-w-[260px] px-5 py-3.5 rounded-[18px] bg-zinc-100/90 dark:bg-zinc-850/80 hover:bg-amber-500/15 dark:hover:bg-amber-400/15 text-zinc-750 dark:text-zinc-300 hover:text-[#c87d00] dark:hover:text-[#ffb31a] border border-zinc-250/80 dark:border-zinc-750 flex items-center justify-center gap-2 text-xs sm:text-sm font-bold shadow-2xs active:scale-98 transition-all"
+            className="w-full sm:w-auto min-w-[200px] px-6 py-3 rounded-[16px] bg-zinc-100/90 dark:bg-zinc-850/80 hover:bg-amber-500/15 dark:hover:bg-amber-400/15 text-zinc-800 dark:text-zinc-200 hover:text-[#c87d00] dark:hover:text-[#ffb31a] border border-zinc-300 dark:border-zinc-700 flex items-center justify-center gap-2 text-xs sm:text-sm font-bold shadow-xs active:scale-95 transition-all"
           >
             <RotateCcw className="w-4 h-4 text-[#ffb31a]" />
-            <span>আজকের সকল আমল রিসেট / আনচেক করুন</span>
+            <span>রিসেট বাটন</span>
           </button>
         </div>
       )}

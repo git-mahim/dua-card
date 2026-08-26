@@ -366,16 +366,10 @@ export async function toggleTodayCompleted(
 export async function resetAllTodayLogs(
   dateStr: string = getLocalDateString()
 ): Promise<void> {
-  const logs = await db.logs.where("date").equals(dateStr).toArray();
-  const now = Date.now();
-  const resetLogs = logs.map((log) => ({
-    ...log,
-    completed: false,
-    count: 0,
-    updatedAt: now,
-  }));
-  if (resetLogs.length > 0) {
-    await db.logs.bulkPut(resetLogs);
+  const spiritualDate = getSpiritualDate();
+  await db.logs.where("date").equals(dateStr).delete();
+  if (spiritualDate !== dateStr) {
+    await db.logs.where("date").equals(spiritualDate).delete();
   }
 }
 
