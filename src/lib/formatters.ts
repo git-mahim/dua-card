@@ -66,6 +66,17 @@ export function getBengaliDayNumber(dateStr: string): string {
 }
 
 /**
+ * Format timestamp into short Bengali date e.g. "২৬ আগস্ট"
+ */
+export function formatBengaliDateShort(timestamp: number): string {
+  if (!timestamp) return "";
+  const d = new Date(timestamp);
+  const month = BENGALI_MONTHS[d.getMonth()] || "আগস্ট";
+  const day = toBengaliNumber(d.getDate());
+  return `${day} ${month}`;
+}
+
+/**
  * Parse YYYY-MM-DD into Bengali localized date
  * e.g. 2026-08-26 -> বুধবার, ২৬ আগস্ট
  */

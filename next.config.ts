@@ -4,10 +4,10 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   devIndicators: false,
-  allowedDevOrigins: ["localhost:3000", "192.168.0.193:3000"],
+  allowedDevOrigins: ["localhost:3000", "192.168.0.193:3000", "192.168.0.193", "localhost", "127.0.0.1"],
   experimental: {
     serverActions: {
-      allowedOrigins: ["localhost:3000", "192.168.0.193:3000"],
+      allowedOrigins: ["localhost:3000", "192.168.0.193:3000", "192.168.0.193", "localhost", "127.0.0.1"],
     },
   },
   async headers() {

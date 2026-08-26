@@ -6,7 +6,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { DuaRecord, DuaDailyLog } from "@/lib/types";
 import { StructuredDuaViewer } from "./StructuredDuaViewer";
 import { DoubleTapCheckAnimation } from "./DoubleTapCheckAnimation";
-import { toBengaliNumber } from "@/lib/formatters";
+import { toBengaliNumber, formatBengaliDateShort } from "@/lib/formatters";
 import { triggerHaptic } from "@/lib/haptics";
 import {
   MoreVertical,
@@ -140,11 +140,8 @@ export const DuaCard: React.FC<DuaCardProps> = ({
       <div className="flex items-center justify-between gap-2 mb-2 no-select">
         <div className="flex items-center gap-1.5 text-zinc-400 dark:text-zinc-500">
           <GripVertical className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing" />
-          <span className="text-[10px] uppercase font-mono tracking-wider">
-            {new Date(dua.createdAt).toLocaleDateString("bn-BD", {
-              month: "short",
-              day: "numeric",
-            })}
+          <span className="text-[10px] font-mono tracking-wider">
+            {formatBengaliDateShort(dua.createdAt)}
           </span>
         </div>
 
