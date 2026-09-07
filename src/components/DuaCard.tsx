@@ -179,9 +179,9 @@ export const DuaCard: React.FC<DuaCardProps> = ({
           {typeof orderIndex === "number" && (
             <span
               className="px-2 py-0.5 rounded-[8px] bg-zinc-100 dark:bg-zinc-800/90 text-zinc-600 dark:text-zinc-400 font-mono text-[11px] font-bold border border-zinc-200/80 dark:border-zinc-700/80 shadow-2xs select-none"
-              title={language === "bn" ? `ক্রমিক নম্বর: ${formatNumber(orderIndex)}` : `Order: #${orderIndex}`}
+              title={language === "bn" ? `ক্রমিক নম্বর: ${formatNumber(orderIndex)}` : `Order: ${orderIndex}`}
             >
-              #{formatNumber(orderIndex)}
+              {formatNumber(orderIndex)}
             </span>
           )}
         </div>
