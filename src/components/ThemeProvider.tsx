@@ -49,7 +49,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       root.classList.remove("light");
       root.style.colorScheme = "dark";
       setResolvedTheme("dark");
-      updateThemeMeta("#121212");
+      updateThemeMeta("#000000");
     } else {
       root.classList.remove("dark");
       root.classList.add("light");
@@ -84,22 +84,31 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     // 1. Update element background colors & colorScheme directly
     root.style.colorScheme = isDark ? "dark" : "light";
-    root.style.backgroundColor = color;
+    root.style.backgroundColor = isDark ? "#000000" : "#ffffff";
     if (document.body) {
-      document.body.style.backgroundColor = color;
+      document.body.style.backgroundColor = isDark ? "#000000" : "#ffffff";
     }
 
-    // 2. Remove all old theme-color meta tags
+    // 2. Update color-scheme meta tag
+    let colorSchemeMeta = document.querySelector('meta[name="color-scheme"]');
+    if (!colorSchemeMeta) {
+      colorSchemeMeta = document.createElement("meta");
+      colorSchemeMeta.setAttribute("name", "color-scheme");
+      document.head.appendChild(colorSchemeMeta);
+    }
+    colorSchemeMeta.setAttribute("content", isDark ? "dark" : "light");
+
+    // 3. Remove all old theme-color meta tags
     const oldMetas = document.querySelectorAll('meta[name="theme-color"]');
     oldMetas.forEach((meta) => meta.remove());
 
-    // 3. Append plain theme-color meta tag
+    // 4. Append plain theme-color meta tag
     const meta = document.createElement("meta");
     meta.setAttribute("name", "theme-color");
     meta.setAttribute("content", color);
     document.head.appendChild(meta);
 
-    // 4. Append explicit media query overrides so Android Chrome system theme cannot force white bar
+    // 5. Append explicit media query overrides so Android Chrome system theme cannot force white bar
     const metaLight = document.createElement("meta");
     metaLight.setAttribute("name", "theme-color");
     metaLight.setAttribute("media", "(prefers-color-scheme: light)");
@@ -112,7 +121,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     metaDark.setAttribute("content", color);
     document.head.appendChild(metaDark);
 
-    // 5. Update apple-mobile-web-app-status-bar-style for iOS
+    // 6. Update apple-mobile-web-app-status-bar-style for iOS
     let appleMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
     if (!appleMeta) {
       appleMeta = document.createElement("meta");

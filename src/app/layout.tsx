@@ -67,14 +67,23 @@ export default function RootLayout({
                   document.documentElement.classList.remove('light');
                   document.documentElement.classList.add('dark');
                   document.documentElement.style.colorScheme = 'dark';
-                  document.documentElement.style.backgroundColor = '#121212';
+                  document.documentElement.style.backgroundColor = '#000000';
                 } else {
                   document.documentElement.classList.remove('dark');
                   document.documentElement.classList.add('light');
                   document.documentElement.style.colorScheme = 'light';
                   document.documentElement.style.backgroundColor = '#ffffff';
                 }
-                var activeColor = isDark ? '#121212' : '#ffffff';
+                var activeColor = isDark ? '#000000' : '#ffffff';
+
+                var csMeta = document.querySelector('meta[name="color-scheme"]');
+                if (!csMeta) {
+                  csMeta = document.createElement('meta');
+                  csMeta.setAttribute('name', 'color-scheme');
+                  document.head.appendChild(csMeta);
+                }
+                csMeta.setAttribute('content', isDark ? 'dark' : 'light');
+
                 var metas = document.querySelectorAll('meta[name="theme-color"]');
                 metas.forEach(function(m) { m.remove(); });
 
