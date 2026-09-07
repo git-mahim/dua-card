@@ -174,11 +174,11 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                   ? `ক্রমিক ${formatNumber(orderIndex ?? 1)} - স্থান পরিবর্তন করতে ধরে রাখুন`
                   : `Order ${orderIndex} - Drag to reorder`
               }
-              className="touch-none cursor-grab active:cursor-grabbing flex items-center gap-1 px-2.5 py-1 rounded-[10px] bg-zinc-100/90 dark:bg-zinc-850/80 hover:bg-zinc-200/80 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border border-zinc-200/70 dark:border-zinc-750 transition-colors select-none group/drag shadow-2xs"
+              className="touch-none cursor-grab active:cursor-grabbing flex items-center gap-1 px-2.5 py-1 rounded-[10px] bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 transition-colors select-none group/drag shadow-2xs"
             >
-              <GripVertical className="w-3.5 h-3.5 text-zinc-400 group-hover/drag:text-zinc-600 dark:group-hover/drag:text-zinc-300 stroke-[2.2]" />
+              <GripVertical className="w-3.5 h-3.5 text-zinc-400 group-hover/drag:text-zinc-600 dark:group-hover/drag:text-zinc-200 stroke-[2.2]" />
               {typeof orderIndex === "number" && (
-                <span className="font-mono text-[11px] font-bold text-zinc-700 dark:text-zinc-300">
+                <span className="font-mono text-[11px] font-bold text-zinc-800 dark:text-zinc-100">
                   {formatNumber(orderIndex)}
                 </span>
               )}
@@ -367,7 +367,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
       {/* Bottom Action Footer */}
       {!isDragOverlay && (
         <div
-          className="mt-3.5 py-3 border-t border-zinc-100/90 dark:border-zinc-800/60 flex items-center justify-between gap-2"
+          className="mt-3.5 py-3 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between gap-2"
           data-no-double-tap="true"
         >
           {/* Left: Quick Counter Stepper Pill */}
@@ -377,18 +377,24 @@ export const DuaCard: React.FC<DuaCardProps> = ({
               onClick={() => onOpenCountModal && onOpenCountModal(dua)}
               className={`min-h-[34px] px-3 py-1 rounded-[11px] text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95 shadow-2xs whitespace-nowrap ${
                 isCompleted
-                  ? "bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] border border-[#ffb31a]/35 hover:bg-[#ffb31a]/25"
-                  : "bg-zinc-100/90 dark:bg-zinc-850/80 hover:bg-[#ffb31a]/12 hover:border-[#ffb31a]/30 text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-100 border border-zinc-200/70 dark:border-zinc-750"
+                  ? "bg-[#ffb31a]/15 dark:bg-[#ffb31a]/20 text-[#c87d00] dark:text-[#ffb31a] border border-[#ffb31a]/35 dark:border-[#ffb31a]/50 hover:bg-[#ffb31a]/25"
+                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700 hover:border-[#ffb31a]/40 border border-zinc-200/80 dark:border-zinc-700"
               }`}
               title={language === "bn" ? "আমল সংখ্যা বিস্তারিত দেখুন বা পরিবর্তন করুন" : "Add or update recitation count"}
             >
-              <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">{t("todayCount")}:</span>
-              <span className={`font-mono font-bold text-[13px] ${
-                isCompleted ? "text-zinc-950 dark:text-[#ffb31a]" : "text-zinc-900 dark:text-zinc-100"
+              <span className={`text-[11px] font-medium ${
+                isCompleted ? "text-amber-800 dark:text-amber-200" : "text-zinc-600 dark:text-zinc-300"
+              }`}>
+                {t("todayCount")}:
+              </span>
+              <span className={`font-mono font-extrabold text-[14px] ${
+                isCompleted ? "text-zinc-950 dark:text-[#ffb31a]" : "text-zinc-950 dark:text-white"
               }`}>
                 {formatNumber(currentCount)}
               </span>
-              <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-normal">
+              <span className={`text-[10.5px] font-medium ${
+                isCompleted ? "text-amber-800 dark:text-amber-200" : "text-zinc-500 dark:text-zinc-400"
+              }`}>
                 {t("timesSuffix")}
               </span>
             </button>
@@ -401,7 +407,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                   onQuickAddCount(dua, 1);
                 }}
                 aria-label={language === "bn" ? "১ বার যোগ করুন" : "Quick add 1"}
-                className="w-[34px] h-[34px] rounded-[10px] bg-[#ffb31a]/15 hover:bg-[#ffb31a]/25 text-[#c87d00] dark:text-[#ffb31a] border border-[#ffb31a]/30 flex items-center justify-center transition-all active:scale-90 shadow-2xs font-bold text-xs"
+                className="w-[34px] h-[34px] rounded-[10px] bg-[#ffb31a]/15 dark:bg-[#ffb31a]/25 hover:bg-[#ffb31a]/25 dark:hover:bg-[#ffb31a]/35 text-[#c87d00] dark:text-[#ffb31a] border border-[#ffb31a]/35 dark:border-[#ffb31a]/50 flex items-center justify-center transition-all active:scale-90 shadow-2xs font-bold text-xs"
                 title={language === "bn" ? "দ্রুত ১ বার যোগ করুন (+১)" : "Quick +1"}
               >
                 <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -417,7 +423,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                 triggerHaptic(40);
                 onOpenAnalytics(dua);
               }}
-              className="min-h-[34px] px-2.5 py-1 text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-850 active:scale-95 rounded-[10px] border border-transparent hover:border-zinc-200/70 dark:hover:border-zinc-800 transition-all flex items-center gap-1.5 whitespace-nowrap"
+              className="min-h-[34px] px-2.5 py-1 text-xs font-semibold text-zinc-700 dark:text-zinc-200 hover:text-zinc-950 dark:hover:text-white bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200/80 dark:hover:bg-zinc-700 active:scale-95 rounded-[11px] border border-zinc-200/80 dark:border-zinc-700 transition-all flex items-center gap-1.5 whitespace-nowrap shadow-2xs"
               title={language === "bn" ? "আমল হিস্ট্রি ও বিস্তারিত চার্ট দেখুন" : "View recitation history and analytics"}
             >
               <TrendingUp className="w-3.5 h-3.5 text-[#ffb31a]" />

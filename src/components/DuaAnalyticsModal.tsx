@@ -171,7 +171,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
               type="button"
               onClick={onClose}
               aria-label={language === "bn" ? "ফিরে যান" : "Back"}
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-50 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-all active:scale-95 shrink-0"
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-700 dark:text-zinc-200 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200/80 dark:border-zinc-700 transition-all active:scale-95 shrink-0 shadow-2xs"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -191,9 +191,9 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label={language === "bn" ? "বন্ধ করুন" : "Close"}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-500 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white bg-zinc-100/70 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200/60 dark:border-zinc-700 transition-all shrink-0 active:scale-90"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
       </header>

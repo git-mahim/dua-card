@@ -424,12 +424,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       className="fixed inset-0 z-50 flex flex-col bg-background text-foreground animate-in fade-in duration-150 overflow-y-auto font-bengali"
     >
       {/* Top Header / Navigation Bar */}
-      <header className="sticky top-0 z-10 w-full bg-white/85 dark:bg-[#121212]/85 backdrop-blur-xl border-b border-zinc-200/60 dark:border-zinc-800/60 px-4 py-3 flex items-center justify-between max-w-md mx-auto">
+      <header className="sticky top-0 z-30 w-full bg-white/95 dark:bg-[#121212]/95 backdrop-blur-xl border-b border-zinc-200/80 dark:border-zinc-800/80 px-4 py-3 flex items-center justify-between max-w-md mx-auto">
         <button
           type="button"
           onClick={onClose}
           aria-label={language === "bn" ? "ফিরে যান" : "Go Back"}
-          className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-50 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-all active:scale-95 shrink-0"
+          className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-700 dark:text-zinc-200 bg-zinc-100/80 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200/60 dark:border-zinc-700/60 transition-all active:scale-95 shrink-0 shadow-2xs"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>

@@ -130,8 +130,8 @@ export const DragOnlySlider: React.FC<DragOnlySliderProps> = ({
           }}
           className={`absolute -translate-x-1/2 w-6 h-6 rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center transition-transform duration-75 ${
             isDragging
-              ? "scale-125 ring-4 ring-[#ffb31a]/40 bg-[#ffb31a] shadow-md z-20"
-              : "hover:scale-110 bg-white dark:bg-zinc-900 border-2 border-[#ffb31a] shadow-xs z-10"
+              ? "scale-125 ring-4 ring-[#ffb31a]/40 bg-[#ffb31a] shadow-md z-[2]"
+              : "hover:scale-110 bg-white dark:bg-zinc-900 border-2 border-[#ffb31a] shadow-xs z-[1]"
           }`}
           title="ধরে ডানে-বামে টানুন"
         >
