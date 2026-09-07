@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "Dua Card",
   },
   icons: {
@@ -40,6 +40,10 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   colorScheme: "dark light",
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#121212" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+  ],
   interactiveWidget: "resizes-content",
 };
 
@@ -67,14 +71,14 @@ export default function RootLayout({
                   document.documentElement.classList.remove('light');
                   document.documentElement.classList.add('dark');
                   document.documentElement.style.colorScheme = 'dark';
-                  document.documentElement.style.backgroundColor = '#000000';
+                  document.documentElement.style.backgroundColor = '#121212';
                 } else {
                   document.documentElement.classList.remove('dark');
                   document.documentElement.classList.add('light');
                   document.documentElement.style.colorScheme = 'light';
                   document.documentElement.style.backgroundColor = '#ffffff';
                 }
-                var activeColor = isDark ? '#000000' : '#ffffff';
+                var activeColor = isDark ? '#121212' : '#ffffff';
 
                 var csMeta = document.querySelector('meta[name="color-scheme"]');
                 if (!csMeta) {
@@ -85,24 +89,14 @@ export default function RootLayout({
                 csMeta.setAttribute('content', isDark ? 'dark' : 'light');
 
                 var metas = document.querySelectorAll('meta[name="theme-color"]');
-                metas.forEach(function(m) { m.remove(); });
-
-                var m1 = document.createElement('meta');
-                m1.setAttribute('name', 'theme-color');
-                m1.setAttribute('content', activeColor);
-                document.head.appendChild(m1);
-
-                var m2 = document.createElement('meta');
-                m2.setAttribute('name', 'theme-color');
-                m2.setAttribute('media', '(prefers-color-scheme: light)');
-                m2.setAttribute('content', activeColor);
-                document.head.appendChild(m2);
-
-                var m3 = document.createElement('meta');
-                m3.setAttribute('name', 'theme-color');
-                m3.setAttribute('media', '(prefers-color-scheme: dark)');
-                m3.setAttribute('content', activeColor);
-                document.head.appendChild(m3);
+                if (metas.length > 0) {
+                  metas.forEach(function(m) { m.setAttribute('content', activeColor); });
+                } else {
+                  var m1 = document.createElement('meta');
+                  m1.setAttribute('name', 'theme-color');
+                  m1.setAttribute('content', activeColor);
+                  document.head.appendChild(m1);
+                }
 
                 var appleMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
                 if (appleMeta) {
