@@ -56,34 +56,34 @@ const FONT_CONFIGS = [
   {
     key: "dua-title" as const,
     label: "দোয়ার শিরোনাম",
-    min: 16,
+    min: 8,
     max: 32,
     defaultSize: 20,
-    presets: { s: 18, m: 20, l: 24 },
+    presets: { s: 16, m: 20, l: 24 },
   },
   {
     key: "dua-pronunciation" as const,
     label: "উচ্চারণ / আরবি",
-    min: 14,
+    min: 8,
     max: 28,
     defaultSize: 17,
-    presets: { s: 15, m: 17, l: 20 },
+    presets: { s: 14, m: 17, l: 20 },
   },
   {
     key: "dua-meaning" as const,
     label: "দোয়ার অনুবাদ",
-    min: 13,
+    min: 8,
     max: 24,
-    defaultSize: 15,
-    presets: { s: 14, m: 15, l: 18 },
+    defaultSize: 13,
+    presets: { s: 10, m: 13, l: 16 },
   },
   {
     key: "dua-paragraph" as const,
     label: "শিক্ষা ও সহায়ক নোট",
-    min: 13,
+    min: 8,
     max: 24,
-    defaultSize: 15,
-    presets: { s: 14, m: 15, l: 18 },
+    defaultSize: 12,
+    presets: { s: 10, m: 12, l: 15 },
   },
 ];
 
@@ -97,8 +97,8 @@ type FontSizeState = {
 const DEFAULT_FONT_SIZES: FontSizeState = {
   "dua-title": 20,
   "dua-pronunciation": 17,
-  "dua-meaning": 15,
-  "dua-paragraph": 15,
+  "dua-meaning": 13,
+  "dua-paragraph": 12,
 };
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -860,30 +860,30 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               {
                 key: "dua-title" as const,
                 label: t("duaTitleFont"),
-                min: 16,
+                min: 8,
                 max: 32,
-                presets: { s: 18, m: 20, l: 24 },
+                presets: { s: 16, m: 19, l: 24 },
               },
               {
                 key: "dua-pronunciation" as const,
                 label: t("duaArabicFont"),
-                min: 14,
+                min: 8,
                 max: 28,
-                presets: { s: 15, m: 17, l: 20 },
+                presets: { s: 14, m: 17, l: 20 },
               },
               {
                 key: "dua-meaning" as const,
                 label: t("duaMeaningFont"),
-                min: 13,
+                min: 8,
                 max: 24,
-                presets: { s: 14, m: 15, l: 18 },
+                presets: { s: 10, m: 13, l: 16 },
               },
               {
                 key: "dua-paragraph" as const,
                 label: t("duaVirtueFont"),
-                min: 13,
+                min: 8,
                 max: 24,
-                presets: { s: 14, m: 15, l: 18 },
+                presets: { s: 10, m: 12, l: 15 },
               },
             ].map((item) => {
               const currentSize = fontSizes[item.key];
