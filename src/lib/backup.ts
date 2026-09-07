@@ -11,6 +11,7 @@ export const DuaRecordSchema = z.object({
   updatedAt: z.number().default(Date.now()),
   sortOrder: z.number().default(0),
   schemaVersion: z.number().default(1),
+  isProtected: z.boolean().optional().default(false),
 });
 
 export const DuaDailyLogSchema = z.object({
@@ -181,3 +182,63 @@ export async function restoreBackupMerge(
     return { success: false, added: 0, skipped: 0 };
   }
 }
+
+/**
+ * Export all data to JSON string
+ */
+export async function exportAllDataToJson(): Promise<string> {
+  const duas = await getAllDuas();
+  let logs: DuaDailyLog[] = [];
+  try {
+    logs = await db.logs.toArray();
+  } catch (e) {
+    console.error("Failed to read logs for export:", e);
+  }
+
+  const payload: BackupPayload = {
+    metadata: {
+      appName: "Dua Card",
+      version: "1.0.0",
+      schemaVersion: 1,
+      exportedAt: new Date().toISOString(),
+      totalRecords: duas.length,
+    },
+    duas,
+    logs,
+  };
+
+  return JSON.stringify(payload, null, 2);
+}
+
+/**
+ * Import data from JSON string
+ */
+export async function importDataFromJson(
+  jsonString: string,
+  options: { overwriteExisting: boolean }
+): Promise<{ duasImported: number }> {
+  const validated = validateBackupJson(jsonString);
+  if (!validated.success || !validated.data) {
+    throw new Error(validated.error || "Invalid backup data");
+  }
+
+  const { duas, logs } = validated.data;
+  if (options.overwriteExisting) {
+    const res = await restoreBackupReplace(duas, logs);
+    if (!res.success) throw new Error("Replace restore failed");
+    return { duasImported: duas.length };
+  } else {
+    const res = await restoreBackupMerge(duas, logs);
+    if (!res.success) throw new Error("Merge restore failed");
+    return { duasImported: res.added };
+  }
+}
+
+/**
+ * Clear all data from local database
+ */
+export async function clearAllData(): Promise<void> {
+  const { clearDatabase } = await import("./db");
+  await clearDatabase();
+}
+

@@ -10,9 +10,11 @@ import { DuaAnalyticsModal } from "@/components/DuaAnalyticsModal";
 import { SettingsModal } from "@/components/SettingsModal";
 import { DeleteConfirmModal } from "@/components/DeleteConfirmModal";
 import { DuaExportModal } from "@/components/DuaExportModal";
+import { LoginModal } from "@/components/LoginModal";
 import { DuaRecord, DuaDailyLog } from "@/lib/types";
 import {
   getAllDuas,
+  ensureCoreDuas,
   createDua,
   updateDua,
   deleteDua,
@@ -26,19 +28,30 @@ import {
   addDuaCount,
   setDuaCount,
 } from "@/lib/db";
+import {
+  checkAuthStatus,
+  triggerCloudSync,
+  notifyDataChangedAndScheduleSync,
+} from "@/lib/clientSync";
 import { Plus } from "lucide-react";
 import { JSONContent } from "@tiptap/react";
 
 import { applyFontSizesToDOM, loadSavedFontSizes } from "@/lib/fontSize";
+import { triggerHaptic } from "@/lib/haptics";
+import { useLanguage } from "@/lib/i18n";
 
+const HIDE_TITLE_STORAGE_KEY = "dua_card_hide_title_home";
 const HIDE_VIRTUE_STORAGE_KEY = "dua_card_hide_virtue_home";
 
 export default function HomePage() {
+  const { language, t } = useLanguage();
   const [duas, setDuas] = useState<DuaRecord[]>([]);
   const [todayLogs, setTodayLogs] = useState<Record<string, DuaDailyLog>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
 
-  // Card view preferences (Hide virtue on home cards)
+  // Card view preferences (Hide title and virtue on home cards)
+  const [hideTitleOnHome, setHideTitleOnHome] = useState(false);
   const [hideVirtueOnHome, setHideVirtueOnHome] = useState(false);
 
   // Search state
@@ -63,12 +76,23 @@ export default function HomePage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       applyFontSizesToDOM(loadSavedFontSizes());
-      const saved = localStorage.getItem(HIDE_VIRTUE_STORAGE_KEY);
-      if (saved === "true") {
+      const savedTitle = localStorage.getItem(HIDE_TITLE_STORAGE_KEY);
+      if (savedTitle === "true") {
+        setHideTitleOnHome(true);
+      }
+      const savedVirtue = localStorage.getItem(HIDE_VIRTUE_STORAGE_KEY);
+      if (savedVirtue === "true") {
         setHideVirtueOnHome(true);
       }
     }
   }, []);
+
+  const handleToggleHideTitle = (enabled: boolean) => {
+    setHideTitleOnHome(enabled);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(HIDE_TITLE_STORAGE_KEY, enabled ? "true" : "false");
+    }
+  };
 
   const handleToggleHideVirtue = (enabled: boolean) => {
     setHideVirtueOnHome(enabled);
@@ -87,20 +111,10 @@ export default function HomePage() {
     }
   }, []);
 
-  // Fetch all duas from IndexedDB
+  // Fetch all duas from IndexedDB (with 5 core authentic duas guaranteed)
   const refreshDuas = useCallback(async () => {
     try {
-      let list = await getAllDuas();
-      if (
-        list.length === 0 &&
-        typeof window !== "undefined" &&
-        !localStorage.getItem("dua_card_cleared_v1")
-      ) {
-        const { INITIAL_DEMO_DUAS } = await import("@/lib/seedData");
-        const { replaceAllDuas } = await import("@/lib/db");
-        await replaceAllDuas(INITIAL_DEMO_DUAS);
-        list = INITIAL_DEMO_DUAS;
-      }
+      const list = await ensureCoreDuas();
       setDuas(list);
       await refreshLogs();
     } catch (err) {
@@ -113,12 +127,24 @@ export default function HomePage() {
   useEffect(() => {
     refreshDuas();
 
+    // Check cloud login status & sync if online
+    checkAuthStatus().then((isAuth) => {
+      if (isAuth && typeof navigator !== "undefined" && navigator.onLine) {
+        triggerCloudSync();
+      }
+    });
+
     const handleResetTimeChange = () => {
       refreshLogs();
     };
 
+    const handleCloudSyncRefresh = () => {
+      refreshDuas();
+    };
+
     if (typeof window !== "undefined") {
       window.addEventListener("dua_daily_reset_time_changed", handleResetTimeChange);
+      window.addEventListener("dua_data_synced_from_cloud", handleCloudSyncRefresh);
       window.addEventListener("focus", refreshLogs);
     }
 
@@ -130,6 +156,7 @@ export default function HomePage() {
     return () => {
       if (typeof window !== "undefined") {
         window.removeEventListener("dua_daily_reset_time_changed", handleResetTimeChange);
+        window.removeEventListener("dua_data_synced_from_cloud", handleCloudSyncRefresh);
         window.removeEventListener("focus", refreshLogs);
       }
       clearInterval(timer);
@@ -171,17 +198,23 @@ export default function HomePage() {
       });
     }
     await refreshDuas();
+    notifyDataChangedAndScheduleSync();
   };
 
   // Delete Dua
   const handleConfirmDelete = async () => {
     if (!duaToDelete) return;
+    if (duaToDelete.isProtected) {
+      setDuaToDelete(null);
+      return;
+    }
     await deleteDua(duaToDelete.id);
     if (activeReaderDua?.id === duaToDelete.id) {
       setActiveReaderDua(null);
     }
     setDuaToDelete(null);
     await refreshDuas();
+    notifyDataChangedAndScheduleSync();
   };
 
   // Reorder Duas via drag-and-drop
@@ -189,18 +222,21 @@ export default function HomePage() {
     setDuas(newOrderedList);
     const ids = newOrderedList.map((d) => d.id);
     await reorderDuas(ids);
+    notifyDataChangedAndScheduleSync();
   };
 
   // Accessible Move Up
   const handleMoveUp = async (dua: DuaRecord) => {
     await moveDuaUp(dua.id);
     await refreshDuas();
+    notifyDataChangedAndScheduleSync();
   };
 
   // Accessible Move Down
   const handleMoveDown = async (dua: DuaRecord) => {
     await moveDuaDown(dua.id);
     await refreshDuas();
+    notifyDataChangedAndScheduleSync();
   };
 
   // Open Create Modal
@@ -219,12 +255,14 @@ export default function HomePage() {
   const handleToggleCompleted = async (dua: DuaRecord) => {
     await toggleTodayCompleted(dua.id);
     await refreshLogs();
+    notifyDataChangedAndScheduleSync();
   };
 
   // Quick Add Count (+100, etc.)
   const handleQuickAddCount = async (dua: DuaRecord, delta: number) => {
     await addDuaCount(dua.id, delta);
     await refreshLogs();
+    notifyDataChangedAndScheduleSync();
   };
 
   // Set Count from Modal
@@ -232,6 +270,7 @@ export default function HomePage() {
     if (!activeCountDua) return;
     await setDuaCount(activeCountDua.id, count);
     await refreshLogs();
+    notifyDataChangedAndScheduleSync();
   };
 
   // Add Count from Modal
@@ -239,6 +278,7 @@ export default function HomePage() {
     if (!activeCountDua) return;
     await addDuaCount(activeCountDua.id, delta);
     await refreshLogs();
+    notifyDataChangedAndScheduleSync();
   };
 
   // Instant Reset All Today's Completed Duas
@@ -248,6 +288,7 @@ export default function HomePage() {
       setTodayLogs({});
       await resetAllTodayLogs();
       await refreshLogs();
+      notifyDataChangedAndScheduleSync();
     } catch (e) {
       console.error("Failed to reset today's logs:", e);
     }
@@ -265,6 +306,7 @@ export default function HomePage() {
           if (isSearchOpen) setSearchQuery("");
         }}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenLogin={() => setIsLoginOpen(true)}
       />
 
       {/* Main Container */}
@@ -292,6 +334,7 @@ export default function HomePage() {
             onReorder={handleReorder}
             onAddNew={handleOpenCreate}
             hideVirtue={hideVirtueOnHome}
+            hideTitle={hideTitleOnHome}
           />
         )}
       </main>
@@ -301,7 +344,7 @@ export default function HomePage() {
         <button
           type="button"
           onClick={handleOpenCreate}
-          aria-label="নতুন দোয়া যোগ করুন"
+          aria-label={t("addNewDua")}
           className="w-14 h-14 rounded-full bg-[#ffb31a] hover:bg-[#e69c05] text-zinc-950 font-bold shadow-lg shadow-[#ffb31a]/25 flex items-center justify-center active:scale-95 transition-all focus:outline-none focus:ring-4 focus:ring-[#ffb31a]/30"
         >
           <Plus className="w-6 h-6 stroke-[2.5]" />
@@ -355,8 +398,18 @@ export default function HomePage() {
         onDataChanged={refreshDuas}
         onClearAllData={clearDatabase}
         totalDuasCount={duas.length}
+        hideTitleOnHome={hideTitleOnHome}
+        onToggleHideTitle={handleToggleHideTitle}
         hideVirtueOnHome={hideVirtueOnHome}
         onToggleHideVirtue={handleToggleHideVirtue}
+        onOpenLogin={() => setIsLoginOpen(true)}
+      />
+
+      {/* Cloud Login Modal */}
+      <LoginModal
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+        onLoginSuccess={refreshDuas}
       />
 
       {/* Dua Image Export & Share Modal */}
@@ -369,10 +422,14 @@ export default function HomePage() {
       {/* Delete Single Dua Confirmation Modal */}
       <DeleteConfirmModal
         isOpen={!!duaToDelete}
-        title="দোয়াটি মুছে ফেলবেন?"
-        description={`"${duaToDelete?.title || "এই দোয়াটি"}" আপনার তালিকা থেকে স্থায়ীভাবে মুছে যাবে।`}
-        confirmLabel="মুছে ফেলুন"
-        cancelLabel="বাতিল"
+        title={t("confirmDeleteTitle")}
+        description={
+          language === "bn"
+            ? `"${duaToDelete?.title || "এই দোয়াটি"}" আপনার তালিকা থেকে স্থায়ীভাবে মুছে যাবে।`
+            : `"${duaToDelete?.title || "This dua"}" will be permanently removed from your collection.`
+        }
+        confirmLabel={t("delete")}
+        cancelLabel={t("cancel")}
         onConfirm={handleConfirmDelete}
         onCancel={() => setDuaToDelete(null)}
         isDestructive={true}

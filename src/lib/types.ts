@@ -16,6 +16,7 @@ export interface DuaRecord {
   updatedAt: number;
   sortOrder: number;
   schemaVersion: number;
+  isProtected?: boolean; // Core default dua that cannot be removed/deleted
 }
 
 export interface DuaDailyLog {

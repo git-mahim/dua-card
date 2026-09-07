@@ -5,6 +5,7 @@ import { DuaRecord } from "@/lib/types";
 import { RichTextEditor, extractDuaMetadata } from "./Editor/RichTextEditor";
 import { JSONContent } from "@tiptap/react";
 import { ArrowLeft, Check, AlertCircle } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 interface DuaEditorModalProps {
   dua: DuaRecord | null; // If null, mode is create
@@ -23,6 +24,7 @@ export const DuaEditorModal: React.FC<DuaEditorModalProps> = ({
   onClose,
   onSave,
 }) => {
+  const { language, t } = useLanguage();
   const [editorData, setEditorData] = useState<{
     json: JSONContent;
     plainText: string;
@@ -116,7 +118,7 @@ export const DuaEditorModal: React.FC<DuaEditorModalProps> = ({
 
   const handleSave = async () => {
     if (!editorData.plainText.trim()) {
-      setErrorMsg("দয়া করে দোয়ার কিছু বিবরণ বা টেক্সট লিখুন।");
+      setErrorMsg(language === "bn" ? "দয়া করে দোয়ার কিছু বিবরণ বা টেক্সট লিখুন।" : "Please enter dua text or details.");
       return;
     }
 
@@ -126,12 +128,12 @@ export const DuaEditorModal: React.FC<DuaEditorModalProps> = ({
       await onSave({
         richTextContent: editorData.json,
         plainTextPreview: editorData.plainText,
-        title: editorData.extractedTitle || "দোয়া",
+        title: editorData.extractedTitle || (language === "bn" ? "দোয়া" : "Dua"),
       });
       onClose();
     } catch (err) {
       console.error("Save dua error:", err);
-      setErrorMsg("দোয়া সংরক্ষণ করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+      setErrorMsg(language === "bn" ? "দোয়া সংরক্ষণ করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।" : "Failed to save dua. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -145,7 +147,7 @@ export const DuaEditorModal: React.FC<DuaEditorModalProps> = ({
         height: viewportHeight ? `${viewportHeight}px` : "100dvh",
         maxHeight: viewportHeight ? `${viewportHeight}px` : "100dvh",
       }}
-      className="fixed inset-x-0 top-0 z-50 flex flex-col bg-background text-foreground animate-in fade-in duration-150 overflow-hidden font-bengali box-border"
+      className="fixed inset-x-0 top-0 z-50 flex flex-col bg-background text-foreground animate-in fade-in duration-150 overflow-hidden box-border"
     >
       {/* Top Action Header */}
       <header className="sticky top-0 z-10 w-full bg-white/85 dark:bg-[#121212]/85 backdrop-blur-xl border-b border-zinc-200/60 dark:border-zinc-800/60 px-4 py-2.5 sm:py-3 flex items-center justify-between max-w-lg mx-auto shrink-0">
@@ -153,37 +155,37 @@ export const DuaEditorModal: React.FC<DuaEditorModalProps> = ({
           type="button"
           onClick={onClose}
           disabled={isSaving}
-          aria-label="বাতিল করুন"
+          aria-label={t("cancel")}
           className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-50 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-all active:scale-95 shrink-0"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
 
-        <h2 className="text-sm font-bold font-bengali text-zinc-900 dark:text-zinc-50">
-          {dua ? "দোয়া সম্পাদনা" : "নতুন দোয়া যুক্ত করুন"}
+        <h2 className="text-sm font-bold text-zinc-900 dark:text-zinc-50">
+          {dua ? t("editDuaTitle") : t("createDuaTitle")}
         </h2>
 
         <button
           type="button"
           onClick={handleSave}
           disabled={isSaving}
-          className="min-h-[36px] sm:min-h-[38px] flex items-center gap-1.5 px-4 py-1.5 bg-[#ffb31a] hover:bg-[#e69c05] active:scale-95 text-zinc-950 text-xs font-bold font-bengali rounded-[12px] transition-all disabled:opacity-50 shadow-xs shrink-0"
+          className="min-h-[36px] sm:min-h-[38px] flex items-center gap-1.5 px-4 py-1.5 bg-[#ffb31a] hover:bg-[#e69c05] active:scale-95 text-zinc-950 text-xs font-bold rounded-[12px] transition-all disabled:opacity-50 shadow-xs shrink-0"
         >
           {isSaving ? (
             <div className="w-3.5 h-3.5 border-2 border-zinc-950 border-t-transparent rounded-full animate-spin" />
           ) : (
             <>
               <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>সংরক্ষণ</span>
+              <span>{t("saveDua")}</span>
             </>
           )}
         </button>
       </header>
 
-      {/* Editor Main Section (Strictly constrained to visual viewport so toolbar rests on virtual keyboard) */}
+      {/* Editor Main Section */}
       <main className="flex-1 min-h-0 w-full max-w-lg mx-auto px-3 sm:px-4 pt-2 pb-2 flex flex-col justify-between overflow-hidden">
         {errorMsg && (
-          <div className="p-2.5 mb-2 bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-bengali flex items-center gap-2 shrink-0">
+          <div className="p-2.5 mb-2 bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 rounded-xl text-xs flex items-center gap-2 shrink-0">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{errorMsg}</span>
           </div>

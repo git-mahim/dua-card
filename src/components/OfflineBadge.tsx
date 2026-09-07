@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import { WifiOff } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 export const OfflineBadge: React.FC = () => {
+  const { language } = useLanguage();
   const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
@@ -29,11 +31,11 @@ export const OfflineBadge: React.FC = () => {
     <div
       role="status"
       aria-live="polite"
-      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-medium font-bengali shrink-0 animate-pulse"
-      title="ইন্টারনেট সংযোগ নেই - অফলাইনে কাজ করছে"
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-medium shrink-0 animate-pulse"
+      title={language === "bn" ? "ইন্টারনেট সংযোগ নেই - অফলাইনে কাজ করছে" : "Offline mode active"}
     >
       <WifiOff className="w-3.5 h-3.5" />
-      <span>অফলাইন</span>
+      <span>{language === "bn" ? "অফলাইন" : "Offline"}</span>
     </div>
   );
 };

@@ -1,12 +1,18 @@
-"use client";
-
 import React, { useState, useRef, useEffect } from "react";
 import { useTheme } from "./ThemeProvider";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
+import { DragOnlySlider } from "./DragOnlySlider";
 import { exportAllDataToJson, importDataFromJson, clearAllData } from "@/lib/backup";
-import { getDuaCount, getAllDuas, getDailyResetTime, setDailyResetTime } from "@/lib/db";
-import { toBengaliNumber, formatResetTimeToBengali } from "@/lib/formatters";
+import { getDuaCount, getAllDuas, getDailyResetTime, setDailyResetTime, restoreDemoDuas } from "@/lib/db";
+import { toBengaliNumber, formatResetTimeToBengali, formatBengaliSyncTime } from "@/lib/formatters";
 import { triggerHaptic } from "@/lib/haptics";
+import {
+  subscribeSyncState,
+  triggerCloudSync,
+  logoutUser,
+  SyncState,
+} from "@/lib/clientSync";
+import { useLanguage } from "@/lib/i18n";
 import {
   ArrowLeft,
   Sun,
@@ -23,14 +29,26 @@ import {
   Eye,
   EyeOff,
   Clock,
+  Sparkles,
+  Cloud,
+  LogOut,
+  LogIn,
+  RefreshCw,
+  UserCheck,
 } from "lucide-react";
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onDataImported: () => void;
+  onDataImported?: () => void;
+  onDataChanged?: () => void;
+  totalDuasCount?: number;
+  onClearAllData?: () => Promise<void>;
+  hideTitleOnHome: boolean;
+  onToggleHideTitle: (hide: boolean) => void;
   hideVirtueOnHome: boolean;
   onToggleHideVirtue: (hide: boolean) => void;
+  onOpenLogin?: () => void;
 }
 
 // Configurable Typography Elements
@@ -87,12 +105,35 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
   onDataImported,
+  onDataChanged,
+  hideTitleOnHome,
+  onToggleHideTitle,
   hideVirtueOnHome,
   onToggleHideVirtue,
+  onOpenLogin,
 }) => {
+  const notifyChange = () => {
+    onDataImported?.();
+    onDataChanged?.();
+  };
   const { theme, setTheme } = useTheme();
+  const { language, setLanguage, t, formatNumber, formatSyncTime, formatResetTime } = useLanguage();
+  const [syncState, setSyncState] = useState<SyncState>({
+    status: "unauthenticated",
+    lastSyncedAt: null,
+    user: null,
+  });
+  const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = subscribeSyncState((state) => {
+      setSyncState(state);
+    });
+    return () => unsubscribe();
+  }, []);
   const [totalDuasCount, setTotalDuasCount] = useState<number>(0);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showRestoreDemoConfirm, setShowRestoreDemoConfirm] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [notification, setNotification] = useState<{
     type: "success" | "error";
@@ -268,7 +309,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       });
       setImportPreview(null);
       await loadStats();
-      onDataImported();
+      notifyChange();
       showToast(
         "success",
         `সফলভাবে ${toBengaliNumber(res.duasImported)} টি নতুন দোয়া ব্যাকআপ থেকে যুক্ত করা হয়েছে`
@@ -291,7 +332,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       });
       setImportPreview(null);
       await loadStats();
-      onDataImported();
+      notifyChange();
       showToast(
         "success",
         `পুরনো ডেটা প্রতিস্থাপন করে ${toBengaliNumber(res.duasImported)} টি দোয়া রিস্টোর করা হয়েছে`
@@ -311,11 +352,63 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       await clearAllData();
       setShowClearConfirm(false);
       await loadStats();
-      onDataImported();
+      notifyChange();
       showToast("success", "সকল সংরক্ষিত দোয়ার ডেটা সফলভাবে মুছে ফেলা হয়েছে");
     } catch (err) {
       console.error("Clear all error:", err);
       showToast("error", "ডেটা মুছে ফেলতে সমস্যা হয়েছে");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleConfirmRestoreDemo = async () => {
+    try {
+      setIsProcessing(true);
+      triggerHaptic(50);
+      const restored = await restoreDemoDuas();
+      setShowRestoreDemoConfirm(false);
+      await loadStats();
+      notifyChange();
+      showToast(
+        "success",
+        `সফলভাবে ${toBengaliNumber(restored.length)} টি ডিফল্ট দোয়া রিস্টোর করা হয়েছে`
+      );
+    } catch (err) {
+      console.error("Restore demo error:", err);
+      showToast("error", "ডিফল্ট দোয়া রিস্টোর করতে সমস্যা হয়েছে");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleManualSync = async () => {
+    try {
+      setIsProcessing(true);
+      triggerHaptic(40);
+      const res = await triggerCloudSync();
+      if (res.success) {
+        await loadStats();
+        notifyChange();
+        showToast("success", "ক্লাউডের সাথে সকল ডেটা সফলভাবে সিঙ্ক হয়েছে");
+      } else {
+        showToast("error", res.error || "সিঙ্ক করতে ব্যর্থ হয়েছে");
+      }
+    } catch (e) {
+      showToast("error", "ক্লাউড সিঙ্ক করতে সমস্যা হয়েছে");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      setIsProcessing(true);
+      triggerHaptic(30);
+      await logoutUser();
+      showToast("success", "সফলভাবে লগআউট হয়েছে");
+    } catch (e) {
+      showToast("error", "লগআউট করতে সমস্যা হয়েছে");
     } finally {
       setIsProcessing(false);
     }
@@ -335,7 +428,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         <button
           type="button"
           onClick={onClose}
-          aria-label="ফিরে যান"
+          aria-label={language === "bn" ? "ফিরে যান" : "Go Back"}
           className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-50 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-all active:scale-95 shrink-0"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -343,9 +436,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         <h1
           id="settings-title"
-          className="text-base font-bold font-bengali text-zinc-900 dark:text-zinc-50"
+          className="text-base font-bold text-zinc-900 dark:text-zinc-50"
         >
-          সেটিংস ও ব্যাকআপ
+          {t("settingsModalTitle")}
         </h1>
 
         <div className="w-9 h-9" />
@@ -373,6 +466,157 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         )}
 
+        {/* Google User Profile & Cloud Auto-Sync (Positioned at TOP) */}
+        <div className="p-4 bg-white dark:bg-[#181818] border border-zinc-200/80 dark:border-zinc-800 rounded-[22px] shadow-2xs flex flex-col gap-3.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+              {t("googleProfileTitle")}
+            </span>
+            {syncState.user && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                {t("connected")}
+              </span>
+            )}
+          </div>
+
+          {syncState.user ? (
+            <div className="flex flex-col gap-3">
+              {/* User Profile Card */}
+              <div className="p-3.5 bg-zinc-50 dark:bg-zinc-900/80 rounded-[18px] border border-zinc-200/60 dark:border-zinc-800 flex items-center gap-3">
+                <div className="relative shrink-0">
+                  {syncState.user.image && !imgError ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={syncState.user.image}
+                      alt={syncState.user.name || "User Avatar"}
+                      referrerPolicy="no-referrer"
+                      crossOrigin="anonymous"
+                      onError={() => setImgError(true)}
+                      className="w-12 h-12 rounded-full object-cover ring-2 ring-[#ffb31a] shadow-xs"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#ffb31a] to-[#c87d00] text-zinc-950 font-bold text-base flex items-center justify-center shadow-xs">
+                      {syncState.user.name ? syncState.user.name.charAt(0).toUpperCase() : "G"}
+                    </div>
+                  )}
+                  <div className="absolute -bottom-0.5 -right-0.5 w-4.5 h-4.5 rounded-full bg-white dark:bg-zinc-800 shadow-xs flex items-center justify-center p-0.5 ring-1 ring-white dark:ring-zinc-900">
+                    <svg className="w-3.5 h-3.5" width="14" height="14" viewBox="0 0 24 24">
+                      <path
+                        fill="#4285F4"
+                        d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
+                      />
+                      <path
+                        fill="#34A853"
+                        d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"
+                      />
+                      <path
+                        fill="#FBBC05"
+                        d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
+                      />
+                      <path
+                        fill="#EA4335"
+                        d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+
+                <div className="flex-1 min-w-0 flex flex-col justify-center">
+                  <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 truncate">
+                    {syncState.user.name || (language === "bn" ? "গুগল ব্যবহারকারী" : "Google User")}
+                  </h4>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate mt-0.5 font-sans">
+                    {syncState.user.email}
+                  </p>
+                </div>
+              </div>
+
+              {/* Last Sync Timestamp Record */}
+              <div className="px-3 py-2 bg-amber-500/[0.06] dark:bg-amber-400/[0.06] rounded-[14px] border border-[#ffb31a]/30 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400">
+                  <Clock className="w-3.5 h-3.5 text-[#ffb31a] shrink-0" />
+                  <span className="text-[11px]">{t("lastSynced")}</span>
+                </div>
+                <span className="text-xs font-bold text-zinc-900 dark:text-[#ffb31a]">
+                  {formatSyncTime(syncState.lastSyncedAt)}
+                </span>
+              </div>
+
+              {/* Sync Actions */}
+              <div className="flex items-center justify-between pt-1">
+                <div className="flex items-center gap-1.5 text-[11px] text-zinc-600 dark:text-zinc-400">
+                  <span className={`w-2 h-2 rounded-full ${
+                    syncState.status === "syncing"
+                      ? "bg-[#ffb31a] animate-pulse"
+                      : "bg-emerald-500"
+                  }`} />
+                  <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+                    {syncState.status === "syncing" ? (language === "bn" ? "সিঙ্ক হচ্ছে..." : "Syncing...") : (language === "bn" ? "অটো-সিঙ্ক সক্রিয়" : "Auto-Sync Active")}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleManualSync}
+                    disabled={isProcessing || syncState.status === "syncing"}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#ffb31a] hover:bg-[#e69c05] text-zinc-950 rounded-[11px] text-xs font-bold transition-all active:scale-95 shadow-2xs disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-3 h-3 ${syncState.status === "syncing" ? "animate-spin" : ""}`} />
+                    <span>{t("syncNow")}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    disabled={isProcessing}
+                    className="flex items-center gap-1 px-2.5 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-zinc-600 hover:text-rose-600 dark:text-zinc-400 dark:hover:text-rose-400 rounded-[11px] text-xs font-medium transition-all active:scale-95"
+                    title={t("logout")}
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>{t("logout")}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2.5">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                {t("googleAuthDesc")}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenLogin?.();
+                }}
+                className="w-full min-h-[44px] py-2 px-3.5 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-950 dark:text-zinc-50 font-bold text-xs rounded-[14px] border border-zinc-200 dark:border-zinc-700 shadow-2xs flex items-center justify-center gap-2.5 active:scale-98 transition-all"
+              >
+                <svg className="w-4 h-4 shrink-0" width="16" height="16" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+                  />
+                </svg>
+                <span>{t("signInWithGoogle")}</span>
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* Daily Reset Time Configuration */}
         <div className="p-4 bg-white dark:bg-[#181818] border border-zinc-200/80 dark:border-zinc-800 rounded-[20px] shadow-2xs flex flex-col gap-3">
           <div className="flex items-center justify-between">
@@ -382,10 +626,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
               <div>
                 <label className="text-xs font-bold text-zinc-900 dark:text-zinc-100 block">
-                  দৈনিক আমল রিসেট সময়
+                  {t("dailyResetTitle")}
                 </label>
                 <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-tight mt-0.5">
-                  প্রতিদিন এই সময়ে দোয়ার স্ট্যাটাস আবার নতুন দিনের জন্য রিসেট হবে
+                  {t("dailyResetSub")}
                 </p>
               </div>
             </div>
@@ -437,6 +681,51 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         {/* Card Display Preferences */}
+        {/* Hide Title on Home Toggle */}
+        <div className="p-4 bg-white dark:bg-[#181818] border border-zinc-200/80 dark:border-zinc-800 rounded-[20px] shadow-2xs">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <div className="w-8 h-8 rounded-[11px] bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] flex items-center justify-center shrink-0">
+                {hideTitleOnHome ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <label
+                  htmlFor="hide-title-toggle"
+                  className="text-xs font-bold text-zinc-900 dark:text-zinc-100 cursor-pointer block truncate"
+                >
+                  {t("hideTitleOnHomeLabel")}
+                </label>
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-tight mt-0.5">
+                  {t("hideTitleOnHomeSub")}
+                </p>
+              </div>
+            </div>
+
+            {/* Toggle Switch */}
+            <button
+              id="hide-title-toggle"
+              type="button"
+              role="switch"
+              aria-checked={hideTitleOnHome}
+              onClick={() => onToggleHideTitle(!hideTitleOnHome)}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                hideTitleOnHome ? "bg-[#ffb31a]" : "bg-zinc-300 dark:bg-zinc-700"
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  hideTitleOnHome ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+
+        {/* Compact View Toggle */}
         <div className="p-4 bg-white dark:bg-[#181818] border border-zinc-200/80 dark:border-zinc-800 rounded-[20px] shadow-2xs">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -452,10 +741,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   htmlFor="hide-virtue-toggle"
                   className="text-xs font-bold text-zinc-900 dark:text-zinc-100 cursor-pointer block truncate"
                 >
-                  কমপ্যাক্ট কার্ড ভিউ
+                  {t("hideVirtueOnHomeLabel")}
                 </label>
                 <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-tight mt-0.5">
-                  হোম কার্ডে বাড়তি বিবরণ লুকিয়ে রাখুন
+                  {t("hideVirtueOnHomeSub")}
                 </p>
               </div>
             </div>
@@ -483,7 +772,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* Theme Preferences */}
         <div className="flex flex-col gap-2">
           <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
-            থিম নির্বাচন
+            {t("themeSetting")}
           </label>
           <div className="grid grid-cols-2 gap-2">
             <button
@@ -496,7 +785,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               }`}
             >
               <Sun className="w-3.5 h-3.5 text-[#ffb31a]" />
-              <span>লাইট মোড</span>
+              <span>{t("lightMode")}</span>
             </button>
             <button
               type="button"
@@ -508,7 +797,40 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               }`}
             >
               <Moon className="w-3.5 h-3.5" />
-              <span>ডার্ক মোড</span>
+              <span>{t("darkMode")}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Language Preferences (Right below Theme Preferences as requested) */}
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+            {t("languageSetting")}
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setLanguage("bn")}
+              className={`min-h-[44px] flex items-center justify-center gap-2 p-2.5 rounded-[12px] text-xs font-medium border transition-all ${
+                language === "bn"
+                  ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border-transparent shadow-xs font-bold"
+                  : "bg-white dark:bg-[#181818] text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              }`}
+            >
+              <span className="text-sm font-bold text-[#ffb31a]">অ</span>
+              <span>বাংলা (Bengali)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setLanguage("en")}
+              className={`min-h-[44px] flex items-center justify-center gap-2 p-2.5 rounded-[12px] text-xs font-medium border transition-all ${
+                language === "en"
+                  ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border-transparent shadow-xs font-bold"
+                  : "bg-white dark:bg-[#181818] text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              }`}
+            >
+              <span className="text-sm font-bold text-[#ffb31a]">EN</span>
+              <span>English</span>
             </button>
           </div>
         </div>
@@ -518,34 +840,63 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <div className="flex items-center justify-between pb-1.5 border-b border-zinc-100 dark:border-zinc-800">
             <div className="flex items-center gap-2">
               <Type className="w-4 h-4 text-[#ffb31a]" />
-              <label className="text-xs font-bold font-bengali text-zinc-900 dark:text-zinc-100">
-                ফন্ট ও সাইজ
+              <label className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
+                {t("typographyTitle")}
               </label>
             </div>
             <button
               type="button"
               onClick={handleResetFontSizes}
-              className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-[10px] text-[11px] font-bold font-bengali transition-all active:scale-95 border border-zinc-200 dark:border-zinc-700/80 shadow-2xs"
-              title="ডিফল্ট ফন্ট সাইজে ফিরে যান"
+              className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-[10px] text-[11px] font-bold transition-all active:scale-95 border border-zinc-200 dark:border-zinc-700/80 shadow-2xs"
+              title={t("defaultReset")}
             >
               <RotateCcw className="w-3 h-3 text-[#ffb31a]" />
-              <span>ডিফল্ট রিসেট</span>
+              <span>{t("defaultReset")}</span>
             </button>
           </div>
 
           <div className="flex flex-col divide-y divide-zinc-100 dark:divide-zinc-800/60">
-            {FONT_CONFIGS.map((item) => {
+            {[
+              {
+                key: "dua-title" as const,
+                label: t("duaTitleFont"),
+                min: 16,
+                max: 32,
+                presets: { s: 18, m: 20, l: 24 },
+              },
+              {
+                key: "dua-pronunciation" as const,
+                label: t("duaArabicFont"),
+                min: 14,
+                max: 28,
+                presets: { s: 15, m: 17, l: 20 },
+              },
+              {
+                key: "dua-meaning" as const,
+                label: t("duaMeaningFont"),
+                min: 13,
+                max: 24,
+                presets: { s: 14, m: 15, l: 18 },
+              },
+              {
+                key: "dua-paragraph" as const,
+                label: t("duaVirtueFont"),
+                min: 13,
+                max: 24,
+                presets: { s: 14, m: 15, l: 18 },
+              },
+            ].map((item) => {
               const currentSize = fontSizes[item.key];
               return (
                 <div key={item.key} className="flex flex-col gap-1.5 py-2.5 first:pt-1 last:pb-0">
                   {/* Top Row: Element Label, Pixel Counter, S M L Buttons */}
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold font-bengali text-zinc-800 dark:text-zinc-200">
+                    <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">
                       {item.label}
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="text-[11px] font-mono font-bold text-zinc-500 dark:text-zinc-400">
-                        {toBengaliNumber(currentSize)}px
+                        {formatNumber(currentSize)}px
                       </span>
                       {/* S M L Preset Buttons */}
                       <div className="flex items-center bg-zinc-100 dark:bg-zinc-800 rounded-[10px] p-0.5 border border-zinc-200/80 dark:border-zinc-700/80">
@@ -571,18 +922,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     </div>
                   </div>
 
-                  {/* Bottom Row: Smooth Slider */}
-                  <div className="flex items-center gap-2 pt-0.5">
-                    <input
-                      type="range"
+                  {/* Bottom Row: Drag-Only Slider */}
+                  <div className="pt-0.5">
+                    <DragOnlySlider
                       min={item.min}
                       max={item.max}
-                      step="1"
+                      step={1}
                       value={currentSize}
-                      onChange={(e) =>
-                        handleUpdateFontSize(item.key, parseInt(e.target.value, 10))
-                      }
-                      className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-[#ffb31a]"
+                      onChange={(newVal) => handleUpdateFontSize(item.key, newVal)}
+                      label={item.label}
                     />
                   </div>
                 </div>
@@ -591,14 +939,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
 
-        {/* Backup and Restore */}
+        {/* Manual Backup and Restore */}
         <div className="flex flex-col gap-2 pt-1">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
-              ব্যাকআপ ও রিস্টোর
+              {t("manualBackupTitle")}
             </label>
             <span className="text-[11px] text-zinc-400">
-              সংরক্ষিত: {toBengaliNumber(totalDuasCount)} টি
+              {t("totalSaved")} {formatNumber(totalDuasCount)} {t("itemsSuffix")}
             </span>
           </div>
 
@@ -611,7 +959,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               className="min-h-[44px] flex items-center justify-center gap-2 p-2.5 bg-white dark:bg-[#181818] hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-[12px] text-xs font-medium border border-zinc-200/80 dark:border-zinc-800 transition-colors disabled:opacity-40 shadow-2xs"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>ব্যাকআপ এক্সপোর্ট</span>
+              <span>{t("exportBackup")}</span>
             </button>
 
             {/* Import Button */}
@@ -622,7 +970,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               className="min-h-[44px] flex items-center justify-center gap-2 p-2.5 bg-white dark:bg-[#181818] hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-[12px] text-xs font-medium border border-zinc-200/80 dark:border-zinc-800 transition-colors disabled:opacity-40 shadow-2xs"
             >
               <Upload className="w-3.5 h-3.5" />
-              <span>ব্যাকআপ রিস্টোর</span>
+              <span>{t("importBackup")}</span>
             </button>
 
             <input
@@ -640,12 +988,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-[20px] flex flex-col gap-2.5 animate-in fade-in">
             <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
               <FileJson className="w-4 h-4 shrink-0" />
-              <span className="text-xs font-bold font-bengali">
-                ব্যাকআপ প্রিভিউ: {importPreview.filename}
+              <span className="text-xs font-bold">
+                {language === "bn" ? `ব্যাকআপ প্রিভিউ: ${importPreview.filename}` : `Backup Preview: ${importPreview.filename}`}
               </span>
             </div>
             <p className="text-[11px] text-zinc-600 dark:text-zinc-400">
-              ফাইলে মোট <strong>{toBengaliNumber(importPreview.count)}</strong> টি দোয়ার তথ্য পাওয়া গেছে। আপনি কীভাবে ডেটা রিস্টোর করতে চান?
+              {language === "bn"
+                ? `ফাইলে মোট ${formatNumber(importPreview.count)} টি দোয়ার তথ্য পাওয়া গেছে। আপনি কীভাবে ডেটা রিস্টোর করতে চান?`
+                : `Found ${formatNumber(importPreview.count)} duas in this backup file. How would you like to restore?`}
             </p>
             <div className="grid grid-cols-2 gap-2 pt-1">
               <button
@@ -654,7 +1004,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 disabled={isProcessing}
                 className="min-h-[44px] py-1.5 px-2 bg-[#ffb31a] hover:bg-[#e69c05] text-zinc-950 font-bold text-xs rounded-[12px] shadow-xs transition-colors"
               >
-                যুক্ত করুন (Merge)
+                {language === "bn" ? "যুক্ত করুন (Merge)" : "Merge (Add)"}
               </button>
               <button
                 type="button"
@@ -662,24 +1012,37 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 disabled={isProcessing}
                 className="min-h-[44px] py-1.5 px-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-[12px] shadow-xs transition-colors"
               >
-                প্রতিস্থাপন (Replace)
+                {language === "bn" ? "প্রতিস্থাপন (Replace)" : "Replace (Overwrite)"}
               </button>
               <button
                 type="button"
                 onClick={() => setImportPreview(null)}
                 className="col-span-2 py-1.5 px-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 text-xs"
               >
-                বাতিল
+                {t("cancel")}
               </button>
             </div>
           </div>
         )}
 
-        {/* Destructive Actions */}
+        {/* Reset & Default Duas Actions */}
         <div className="flex flex-col gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
           <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
-            বিপজ্জনক অ্যাকশন
+            {language === "bn" ? "রিসেট ও ডিফল্ট ডেটা" : "Reset & Core Duas"}
           </label>
+
+          {/* Restore Demo Duas */}
+          <button
+            type="button"
+            onClick={() => setShowRestoreDemoConfirm(true)}
+            disabled={isProcessing}
+            className="min-h-[44px] w-full flex items-center justify-center gap-2 p-2.5 rounded-[12px] border border-amber-300 dark:border-amber-700/60 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 text-xs font-medium hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors disabled:opacity-40"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#c87d00] dark:text-[#ffb31a]" />
+            <span>{t("restoreDefaultDuas")}</span>
+          </button>
+
+          {/* Clear All Duas */}
           <button
             type="button"
             onClick={() => setShowClearConfirm(true)}
@@ -687,7 +1050,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             className="min-h-[44px] w-full flex items-center justify-center gap-2 p-2.5 rounded-[12px] border border-rose-200 dark:border-rose-900/60 bg-rose-50/50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 text-xs font-medium hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-colors disabled:opacity-40"
           >
             <Trash2 className="w-3.5 h-3.5" />
-            <span>সকল সংরক্ষিত দোয়া মুছে ফেলুন</span>
+            <span>{t("clearAllData")}</span>
           </button>
         </div>
 
@@ -695,18 +1058,32 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         <div className="p-4 bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200/60 dark:border-zinc-800/60 rounded-[20px] text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed flex items-start gap-2">
           <ShieldCheck className="w-4 h-4 text-[#ffb31a] shrink-0 mt-0.5" />
           <span>
-            আপনার সকল দোয়ার তথ্য সম্পূর্ণভাবে আপনার এই ডিভাইসের IndexedDB-তে সংরক্ষিত থাকে। কোনো রিমোট সার্ভারে ডেটা পাঠানো হয় না। নিয়মিত ব্যাকআপ ডাউনলোড করে রাখুন।
+            {language === "bn"
+              ? "আপনার সকল দোয়ার তথ্য সম্পূর্ণভাবে আপনার এই ডিভাইসের IndexedDB-তে সংরক্ষিত থাকে। কোনো রিমোট সার্ভারে ডেটা পাঠানো হয় না। নিয়মিত ব্যাকআপ ডাউনলোড করে রাখুন।"
+              : "All your dua records are securely stored locally in your browser's IndexedDB. Automatic Google sync keeps them backed up."}
           </span>
         </div>
       </main>
 
+      {/* Restore Demo Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={showRestoreDemoConfirm}
+        title={language === "bn" ? "ডিফল্ট দোয়া ফিরিয়ে আনবেন?" : "Restore Default Duas?"}
+        description={language === "bn" ? "আপনার বর্তমান দোয়ার তালিকা প্রতিস্থাপিত হয়ে মূল ২৫টি ইসলামিক ডিফল্ট দোয়া যুক্ত হবে।" : "Your current dua list will be restored with the 25 core authentic Islamic duas."}
+        confirmLabel={language === "bn" ? "হ্যাঁ, ফিরিয়ে আনুন" : "Yes, Restore"}
+        cancelLabel={t("cancel")}
+        onConfirm={handleConfirmRestoreDemo}
+        onCancel={() => setShowRestoreDemoConfirm(false)}
+        isDestructive={false}
+      />
+
       {/* Clear All Confirmation Modal */}
       <DeleteConfirmModal
         isOpen={showClearConfirm}
-        title="সকল তথ্য মুছে ফেলবেন?"
-        description="আপনার ডিভাইসে সংরক্ষিত সকল দোয়ার রেকর্ড স্থায়ীভাবে মুছে ফেলা হবে। আপনি কি নিশ্চিত?"
-        confirmLabel="হ্যাঁ, মুছে ফেলুন"
-        cancelLabel="বাতিল"
+        title={t("confirmClearAllTitle")}
+        description={t("confirmClearAllDesc")}
+        confirmLabel={language === "bn" ? "হ্যাঁ, মুছে ফেলুন" : "Yes, Clear All"}
+        cancelLabel={t("cancel")}
         onConfirm={handleConfirmClearAll}
         onCancel={() => setShowClearConfirm(false)}
         isDestructive={true}

@@ -6,8 +6,8 @@ import { CSS } from "@dnd-kit/utilities";
 import { DuaRecord, DuaDailyLog } from "@/lib/types";
 import { StructuredDuaViewer } from "./StructuredDuaViewer";
 import { DoubleTapCheckAnimation } from "./DoubleTapCheckAnimation";
-import { toBengaliNumber } from "@/lib/formatters";
 import { triggerHaptic } from "@/lib/haptics";
+import { useLanguage } from "@/lib/i18n";
 import {
   MoreVertical,
   ArrowUp,
@@ -20,6 +20,7 @@ import {
   Check,
   Clock,
   Image as ImageIcon,
+  ShieldCheck,
 } from "lucide-react";
 
 interface DuaCardProps {
@@ -39,6 +40,7 @@ interface DuaCardProps {
   isLast?: boolean;
   isDragOverlay?: boolean;
   hideVirtue?: boolean;
+  hideTitle?: boolean;
 }
 
 export const DuaCard: React.FC<DuaCardProps> = ({
@@ -56,7 +58,9 @@ export const DuaCard: React.FC<DuaCardProps> = ({
   isLast = false,
   isDragOverlay = false,
   hideVirtue = false,
+  hideTitle = false,
 }) => {
+  const { language, t, formatNumber } = useLanguage();
   const [showMenu, setShowMenu] = useState(false);
   const [showCheckAnim, setShowCheckAnim] = useState(false);
   const lastTapRef = useRef<number>(0);
@@ -89,11 +93,9 @@ export const DuaCard: React.FC<DuaCardProps> = ({
         touchAction: "pan-y",
       };
 
-  // Handle Instagram-style Double Tap
   const handleCardClick = (e: React.MouseEvent) => {
     if (isDragOverlay) return;
 
-    // Ignore if clicked on buttons or menu
     const target = e.target as HTMLElement;
     if (target.closest("[data-no-double-tap]")) return;
 
@@ -101,13 +103,17 @@ export const DuaCard: React.FC<DuaCardProps> = ({
     const DOUBLE_TAP_DELAY = 320;
 
     if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
-      // Double tap triggered
       triggerHaptic(50);
-      if (!isCompleted) {
-        setShowCheckAnim(true);
-      }
-      if (onToggleCompleted) {
-        onToggleCompleted(dua);
+      if (isCompleted) {
+        if (onToggleCompleted) {
+          onToggleCompleted(dua);
+        }
+      } else {
+        if (onOpenCountModal) {
+          onOpenCountModal(dua);
+        } else if (onToggleCompleted) {
+          onToggleCompleted(dua);
+        }
       }
       lastTapRef.current = 0;
     } else {
@@ -118,71 +124,81 @@ export const DuaCard: React.FC<DuaCardProps> = ({
   const handleToggleStatus = (e: React.MouseEvent) => {
     e.stopPropagation();
     triggerHaptic(40);
-    if (!isCompleted) {
-      setShowCheckAnim(true);
-    }
-    if (onToggleCompleted) {
-      onToggleCompleted(dua);
+    if (isCompleted) {
+      if (onToggleCompleted) {
+        onToggleCompleted(dua);
+      }
+    } else {
+      if (onOpenCountModal) {
+        onOpenCountModal(dua);
+      } else if (onToggleCompleted) {
+        onToggleCompleted(dua);
+      }
     }
   };
 
   return (
     <article
       ref={setNodeRef}
-      style={{
-        ...style,
-        WebkitUserSelect: "none",
-        userSelect: "none",
-        WebkitTouchCallout: "none",
-      }}
-      {...attributes}
-      {...listeners}
-      tabIndex={0}
+      style={style}
       onClick={handleCardClick}
-      aria-label={dua.title ? `দোয়া: ${dua.title}` : "দোয়া কার্ড"}
-      className={`dua-card group relative w-full rounded-[20px] p-4 sm:p-5 text-left select-none no-select outline-none transition-all duration-200 ${
-        isDragOverlay
-          ? "border border-[#ffb31a] bg-white dark:bg-[#181818] z-50 pointer-events-none shadow-xl scale-[1.02]"
+      className={`group relative w-full bg-surface-card border rounded-[22px] p-4 sm:p-5 ${!isDragOverlay ? "pb-0 sm:pb-0" : ""} transition-all duration-150 select-none no-select ${
+        isDragging
+          ? "border-[#ffb31a] shadow-xl ring-2 ring-[#ffb31a]/30 z-30"
           : isCompleted
-          ? "opacity-85 hover:opacity-100 bg-amber-500/[0.03] dark:bg-amber-400/[0.04] border border-[#ffb31a]/70 dark:border-[#ffb31a]/60 shadow-2xs"
-          : "opacity-100 bg-white dark:bg-[#181818] border border-zinc-200/80 dark:border-zinc-800/80 shadow-xs"
+          ? "border-emerald-500/30 dark:border-emerald-500/25 bg-emerald-500/[0.02] dark:bg-emerald-950/[0.08]"
+          : "border-zinc-200/80 dark:border-zinc-800/80 hover:border-zinc-300 dark:hover:border-zinc-700 shadow-2xs hover:shadow-xs"
       }`}
     >
-      {/* Double Tap Success Animation Overlay */}
+      {/* Instagram-style Double Tap Heart/Check Animation */}
       <DoubleTapCheckAnimation
         show={showCheckAnim}
-        onAnimationEnd={() => setShowCheckAnim(false)}
+        onComplete={() => setShowCheckAnim(false)}
       />
 
-      {/* Top Bar: Drag Grip, Status Pill & Three-Dot Menu */}
-      <div className="flex items-center justify-between gap-2 mb-3 no-select">
-        <div className="flex items-center gap-1.5 text-zinc-400 dark:text-zinc-500">
-          <GripVertical className="w-3.5 h-3.5 opacity-35 group-hover:opacity-90 transition-opacity cursor-grab active:cursor-grabbing" />
-        </div>
+      {/* Top Bar: Reorder Handle, Status Badge & Actions Menu */}
+      <div className="flex items-center justify-between gap-2 mb-3" data-no-double-tap="true">
+        {/* Left Side: Drag Handle */}
+        {!isDragOverlay ? (
+          <button
+            type="button"
+            {...attributes}
+            {...listeners}
+            aria-label={language === "bn" ? "স্থান পরিবর্তন করতে ধরে রাখুন" : "Drag to reorder"}
+            className="touch-none cursor-grab active:cursor-grabbing p-1.5 -ml-1 text-zinc-400 dark:text-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-300 rounded-lg transition-colors flex items-center justify-center shrink-0"
+          >
+            <GripVertical className="w-4 h-4 stroke-[2.2]" />
+          </button>
+        ) : (
+          <div className="w-4 h-4" />
+        )}
 
-        {/* Right Actions: Interactive Status Pill + 3-Dot Menu */}
-        <div className="flex items-center gap-1.5" data-no-double-tap="true">
-          {/* Status Button: Tap directly to toggle completed status */}
+        {/* Right Side: Status Badge & Context Menu */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {/* Completion Status Badge */}
           <button
             type="button"
             onClick={handleToggleStatus}
-            aria-label={isCompleted ? "পড়েছি - পরিবর্তন করতে ট্যাপ করুন" : "বাকি - পড়া সম্পন্ন করতে ট্যাপ করুন"}
-            className={`px-2.5 py-1 rounded-[10px] text-[11px] font-bold font-bengali tracking-wide inline-flex items-center gap-1.5 transition-all active:scale-95 shadow-2xs leading-none ${
+            aria-label={
               isCompleted
-                ? "bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] border border-[#ffb31a]/35 hover:bg-[#ffb31a]/25"
-                : "bg-zinc-100 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700/60 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-200/60"
+                ? (language === "bn" ? "পড়েছি সম্পন্ন - আনচেক করতে ক্লিক করুন" : "Completed - Click to uncheck")
+                : (language === "bn" ? "বাকি দোয়া - সংখ্যা ইনপুট করতে ক্লিক করুন" : "Pending - Click to record count")
+            }
+            className={`min-h-[34px] px-2.5 py-1 rounded-[10px] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer select-none active:scale-95 shadow-2xs ${
+              isCompleted
+                ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-300 dark:hover:border-rose-800"
+                : "bg-amber-500/15 text-[#c87d00] dark:text-[#ffb31a] border border-[#ffb31a]/30 hover:bg-[#ffb31a]/25"
             }`}
-            title={isCompleted ? "পড়া সম্পন্ন হয়েছে (ক্লিক করে পরিবর্তন করুন)" : "এখনও পড়া হয়নি (ক্লিক করে সম্পন্ন করুন)"}
           >
             {isCompleted ? (
               <>
-                <Check className="w-3 h-3 stroke-[2.5] text-[#c87d00] dark:text-[#ffb31a] shrink-0" />
-                <span className="leading-none translate-y-[0.5px]">পড়েছি</span>
+                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span className="leading-none translate-y-[0.5px]">{t("badgeCompleted")}</span>
               </>
             ) : (
               <>
-                <Clock className="w-3 h-3 text-zinc-400 dark:text-zinc-500 shrink-0" />
-                <span className="leading-none translate-y-[0.5px]">বাকি</span>
+                <Clock className="w-3.5 h-3.5 stroke-[2.2]" />
+                <span className="leading-none translate-y-[0.5px]">{t("badgePending")}</span>
               </>
             )}
           </button>
@@ -196,7 +212,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                   e.stopPropagation();
                   setShowMenu(!showMenu);
                 }}
-                aria-label="অপশন মেনু"
+                aria-label={t("actions")}
                 aria-expanded={showMenu}
                 className="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
               >
@@ -205,7 +221,6 @@ export const DuaCard: React.FC<DuaCardProps> = ({
 
               {showMenu && (
                 <>
-                  {/* Backdrop to close menu */}
                   <div
                     className="fixed inset-0 z-40"
                     onClick={(e) => {
@@ -213,7 +228,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                       setShowMenu(false);
                     }}
                   />
-                  <div className="absolute right-0 top-7 z-50 w-44 bg-white dark:bg-[#1a1a1a] border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-xl py-1 text-xs font-bengali animate-in fade-in zoom-in-95 duration-100 divide-y divide-zinc-100 dark:divide-zinc-800/60">
+                  <div className="absolute right-0 top-7 z-50 w-48 bg-white dark:bg-[#1a1a1a] border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-xl py-1 text-xs animate-in fade-in zoom-in-95 duration-100 divide-y divide-zinc-100 dark:divide-zinc-800/60">
                     <div className="py-1">
                       {!isFirst && onMoveUp && (
                         <button
@@ -226,7 +241,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                           className="w-full flex items-center gap-2 px-3 py-2 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 text-left transition-colors"
                         >
                           <ArrowUp className="w-3.5 h-3.5" />
-                          <span>উপরে নিন</span>
+                          <span>{t("moveUp")}</span>
                         </button>
                       )}
                       {!isLast && onMoveDown && (
@@ -240,13 +255,12 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                           className="w-full flex items-center gap-2 px-3 py-2 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 text-left transition-colors"
                         >
                           <ArrowDown className="w-3.5 h-3.5" />
-                          <span>নিচে নিন</span>
+                          <span>{t("moveDown")}</span>
                         </button>
                       )}
                     </div>
 
                     <div className="py-1">
-                      {/* ইমেজ হিসেবে সেভ (Save as Image) */}
                       {onExportImage && (
                         <button
                           type="button"
@@ -258,11 +272,10 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                           className="w-full flex items-center gap-2 px-3 py-2 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 text-left transition-colors font-medium"
                         >
                           <ImageIcon className="w-3.5 h-3.5 text-[#ffb31a]" />
-                          <span>ইমেজ হিসেবে সেভ</span>
+                          <span>{t("shareImage")}</span>
                         </button>
                       )}
 
-                      {/* আমল হিস্ট্রি (Analytics) */}
                       {onOpenAnalytics && (
                         <button
                           type="button"
@@ -274,11 +287,10 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                           className="w-full flex items-center gap-2 px-3 py-2 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 text-left transition-colors font-medium"
                         >
                           <TrendingUp className="w-3.5 h-3.5 text-[#ffb31a]" />
-                          <span>আমল হিস্ট্রি</span>
+                          <span>{t("analytics")}</span>
                         </button>
                       )}
 
-                      {/* সম্পাদনা (Edit) */}
                       <button
                         type="button"
                         onClick={(e) => {
@@ -289,24 +301,30 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                         className="w-full flex items-center gap-2 px-3 py-2 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 text-left transition-colors font-medium"
                       >
                         <Edit3 className="w-3.5 h-3.5 text-[#ffb31a]" />
-                        <span>সম্পাদনা</span>
+                        <span>{t("edit")}</span>
                       </button>
                     </div>
 
                     <div className="py-1">
-                      {/* মুছে ফেলুন (Delete) */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowMenu(false);
-                          onDeleteRequest(dua);
-                        }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-left transition-colors"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>মুছে ফেলুন</span>
-                      </button>
+                      {dua.isProtected ? (
+                        <div className="w-full flex items-center gap-2 px-3 py-1.5 text-zinc-400 dark:text-zinc-500 text-[11px] font-medium select-none">
+                          <ShieldCheck className="w-3.5 h-3.5 text-[#c87d00] dark:text-[#ffb31a] shrink-0" />
+                          <span>{language === "bn" ? "স্থায়ী দোয়া (মুছে ফেলা যাবে না)" : "Protected Dua"}</span>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowMenu(false);
+                            onDeleteRequest(dua);
+                          }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-left transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>{t("delete")}</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 </>
@@ -316,47 +334,48 @@ export const DuaCard: React.FC<DuaCardProps> = ({
         </div>
       </div>
 
-      {/* Structured Rich-Text Content (Non-selectable on home card) */}
+      {/* Structured Rich-Text Content */}
       <div className="relative select-none no-select dua-card-content">
         <StructuredDuaViewer
           content={dua.richTextContent}
           isTruncated={false}
           hideVirtue={hideVirtue}
+          hideTitle={hideTitle}
         />
       </div>
 
-      {/* Bottom Action Footer: Clean, Minimalist Single-Strip (Never Wraps) */}
+      {/* Bottom Action Footer */}
       {!isDragOverlay && (
         <div
-          className="mt-3.5 pt-3 border-t border-zinc-100 dark:border-zinc-800/70 flex items-center justify-between gap-2"
+          className="mt-3 py-3.5 sm:py-4 border-t border-zinc-100 dark:border-zinc-800/70 flex items-center justify-between gap-2"
           data-no-double-tap="true"
         >
           {/* Left: Quick Counter Badge */}
           <button
             type="button"
             onClick={() => onOpenCountModal && onOpenCountModal(dua)}
-            className={`px-3 py-1.5 rounded-[12px] text-xs font-bengali font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow-2xs whitespace-nowrap ${
+            className={`px-3 py-1.5 rounded-[12px] text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow-2xs whitespace-nowrap ${
               isCompleted
                 ? "bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] border border-[#ffb31a]/35 hover:bg-[#ffb31a]/25"
                 : "bg-zinc-100/90 dark:bg-zinc-800/70 hover:bg-[#ffb31a]/15 hover:border-[#ffb31a]/40 text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-100 border border-zinc-200/80 dark:border-zinc-750"
             }`}
-            title="আমল সংখ্যা যোগ বা পরিবর্তন করুন"
+            title={language === "bn" ? "আমল সংখ্যা যোগ বা পরিবর্তন করুন" : "Add or update recitation count"}
           >
-            <span>আজকে:</span>
+            <span>{t("todayCount")}:</span>
             <span className={`font-mono font-extrabold text-[13px] ${
               isCompleted ? "text-zinc-950 dark:text-[#ffb31a]" : "text-zinc-900 dark:text-zinc-100"
             }`}>
-              {toBengaliNumber(currentCount)}
+              {formatNumber(currentCount)}
             </span>
             <span className={`text-[10px] font-medium ${
               isCompleted ? "text-amber-900/80 dark:text-amber-300/80" : "text-zinc-500 dark:text-zinc-400"
             }`}>
-              বার
+              {t("timesSuffix")}
             </span>
             <Plus className="w-3 h-3 text-[#ffb31a] stroke-[2.5]" />
           </button>
 
-          {/* Right: Direct "হিস্ট্রি" Button */}
+          {/* Right: Direct Analytics Button */}
           {onOpenAnalytics && (
             <button
               type="button"
@@ -364,11 +383,11 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                 triggerHaptic(40);
                 onOpenAnalytics(dua);
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold font-bengali text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 active:scale-95 rounded-[12px] border border-transparent hover:border-zinc-200/80 dark:hover:border-zinc-700/80 transition-all whitespace-nowrap"
-              title="আমল হিস্ট্রি ও বিস্তারিত চার্ট দেখুন"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 active:scale-95 rounded-[12px] border border-transparent hover:border-zinc-200/80 dark:hover:border-zinc-700/80 transition-all whitespace-nowrap"
+              title={language === "bn" ? "আমল হিস্ট্রি ও বিস্তারিত চার্ট দেখুন" : "View recitation history and analytics"}
             >
               <TrendingUp className="w-3.5 h-3.5 text-[#ffb31a]" />
-              <span>আমল হিস্ট্রি</span>
+              <span>{t("analytics")}</span>
             </button>
           )}
         </div>

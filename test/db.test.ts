@@ -24,7 +24,8 @@ import { DuaRecord } from "../src/lib/types";
 
 describe("IndexedDB Dua Card Database Operations", () => {
   beforeEach(async () => {
-    await clearDatabase();
+    await db.duas.clear();
+    await db.logs.clear();
   });
 
   it("should create a new dua and assign sortOrder to top", async () => {
@@ -135,22 +136,33 @@ describe("IndexedDB Dua Card Database Operations", () => {
     expect(list[1].id).toBe(d1.id);
   });
 
-  it("should toggle today completed status (Instagram-style double tap)", async () => {
+  it("should toggle today completed status and reset count to 0 when unchecked", async () => {
     const d = await createDua({ richTextContent: {}, plainTextPreview: "টেস্ট", title: "টেস্ট" });
 
-    // 1st double tap -> completed = true
+    // 1st toggle -> completed = true, count = 1
     const log1 = await toggleTodayCompleted(d.id);
     expect(log1.completed).toBe(true);
+    expect(log1.count).toBe(1);
 
-    const todayMap1 = await getAllTodayLogs();
-    expect(todayMap1[d.id]?.completed).toBe(true);
+    // Add count: +50
+    await addDuaCount(d.id, 50);
+    const logWithCount = await db.logs.get(`${d.id}_${getLocalDateString()}`);
+    expect(logWithCount?.count).toBe(51);
+    expect(logWithCount?.completed).toBe(true);
 
-    // 2nd double tap -> completed = false (uncheck)
+    // 2nd toggle (Uncheck) -> completed = false AND count reset to 0
     const log2 = await toggleTodayCompleted(d.id);
     expect(log2.completed).toBe(false);
+    expect(log2.count).toBe(0);
 
     const todayMap2 = await getAllTodayLogs();
     expect(todayMap2[d.id]?.completed).toBe(false);
+    expect(todayMap2[d.id]?.count).toBe(0);
+
+    // 3rd toggle (Check again) -> completed = true, count = 1
+    const log3 = await toggleTodayCompleted(d.id);
+    expect(log3.completed).toBe(true);
+    expect(log3.count).toBe(1);
   });
 
   it("should track counts and calculate aggregated statistics & streak correctly", async () => {
@@ -204,5 +216,36 @@ describe("IndexedDB Dua Card Database Operations", () => {
     todayMap = await getAllTodayLogs();
     expect(todayMap[d1.id]).toBeUndefined();
     expect(todayMap[d2.id]).toBeUndefined();
+  });
+
+  it("should prevent deleting protected core duas", async () => {
+    const { ensureCoreDuas } = await import("../src/lib/db");
+    const coreDuas = await ensureCoreDuas();
+    expect(coreDuas.length).toBe(25);
+
+    const firstProtected = coreDuas[0];
+    expect(firstProtected.isProtected).toBe(true);
+
+    const deleted = await deleteDua(firstProtected.id);
+    expect(deleted).toBe(false);
+
+    const listAfter = await getAllDuas();
+    expect(listAfter.length).toBe(25);
+    expect(listAfter.find((d) => d.id === firstProtected.id)).toBeDefined();
+  });
+
+  it("should preserve the 25 core authentic duas when clearDatabase is called", async () => {
+    // Add custom dua
+    await createDua({
+      richTextContent: {},
+      plainTextPreview: "কাস্টম দোয়া",
+      title: "কাস্টম দোয়া",
+    });
+
+    await clearDatabase();
+
+    const list = await getAllDuas();
+    expect(list.length).toBe(25);
+    expect(list.every((d) => d.isProtected)).toBe(true);
   });
 });

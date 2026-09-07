@@ -100,6 +100,77 @@ export async function getAllDuas(): Promise<DuaRecord[]> {
 }
 
 /**
+ * Get count of all stored duas
+ */
+export async function getDuaCount(): Promise<number> {
+  try {
+    return await db.duas.count();
+  } catch (error) {
+    console.error("Failed to get dua count:", error);
+    return 0;
+  }
+}
+
+/**
+ * Ensure the 25 core authentic duas are always present in the database.
+ * If any core dua is missing or corrupt, it puts the authentic version in.
+ */
+export async function ensureCoreDuas(): Promise<DuaRecord[]> {
+  try {
+    const { INITIAL_DEMO_DUAS } = await import("./seedData");
+    const legacyDemoIds = [
+      "demo_dua_1",
+      "demo_dua_2",
+      "demo_dua_3",
+      "demo_dua_4",
+      "demo_dua_5",
+    ];
+
+    // Clean up legacy 5 demo duas if present
+    for (const legacyId of legacyDemoIds) {
+      await db.duas.delete(legacyId);
+      await db.logs.where("duaId").equals(legacyId).delete();
+    }
+
+    const existing = await db.duas.toArray();
+    const existingMap = new Map(existing.map((d) => [d.id, d]));
+
+    for (const core of INITIAL_DEMO_DUAS) {
+      const current = existingMap.get(core.id);
+      if (!current) {
+        await db.duas.put(core);
+      } else if (!current.isProtected || current.plainTextPreview !== core.plainTextPreview) {
+        await db.duas.put({
+          ...core,
+          sortOrder: typeof current.sortOrder === "number" ? current.sortOrder : core.sortOrder,
+        });
+      }
+    }
+
+    if (existing.length === 0) {
+      await db.duas.bulkPut(INITIAL_DEMO_DUAS);
+    }
+
+    return await db.duas.orderBy("sortOrder").toArray();
+  } catch (error) {
+    console.error("Failed to ensure core duas:", error);
+    return await getAllDuas();
+  }
+}
+
+/**
+ * Restore initial demo duas
+ */
+export async function restoreDemoDuas(): Promise<DuaRecord[]> {
+  const { INITIAL_DEMO_DUAS } = await import("./seedData");
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("dua_card_cleared_v1");
+  }
+  await replaceAllDuas(INITIAL_DEMO_DUAS);
+  return INITIAL_DEMO_DUAS;
+}
+
+/**
  * Get a single dua by ID
  */
 export async function getDuaById(id: string): Promise<DuaRecord | undefined> {
@@ -161,13 +232,23 @@ export async function updateDua(
 }
 
 /**
- * Delete a dua by ID and remove associated logs
+ * Delete a dua by ID and remove associated logs (protected duas cannot be deleted)
  */
-export async function deleteDua(id: string): Promise<void> {
-  await db.transaction("rw", db.duas, db.logs, async () => {
-    await db.duas.delete(id);
-    await db.logs.where("duaId").equals(id).delete();
-  });
+export async function deleteDua(id: string): Promise<boolean> {
+  try {
+    const target = await db.duas.get(id);
+    if (target?.isProtected) {
+      return false; // Protected core dua cannot be removed
+    }
+    await db.transaction("rw", db.duas, db.logs, async () => {
+      await db.duas.delete(id);
+      await db.logs.where("duaId").equals(id).delete();
+    });
+    return true;
+  } catch (error) {
+    console.error(`Failed to delete dua ${id}:`, error);
+    return false;
+  }
 }
 
 /**
@@ -277,14 +358,13 @@ export async function mergeImportedDuas(importedDuas: DuaRecord[]): Promise<{
 }
 
 /**
- * Delete all local records
+ * Delete all custom records and reset to core authentic duas
  */
 export async function clearDatabase(): Promise<void> {
-  if (typeof window !== "undefined") {
-    localStorage.setItem("dua_card_cleared_v1", "true");
-  }
+  const { INITIAL_DEMO_DUAS } = await import("./seedData");
   await db.transaction("rw", db.duas, db.logs, async () => {
     await db.duas.clear();
+    await db.duas.bulkAdd(INITIAL_DEMO_DUAS);
     await db.logs.clear();
   });
 }
@@ -329,7 +409,10 @@ export async function getAllTodayLogs(
 }
 
 /**
- * Toggle completed state for today (Instagram-style double tap)
+ * Toggle completed state for today (Instagram-style double tap or badge click)
+ * When unchecking (transitioning from completed to uncompleted):
+ * - completed is set to false
+ * - today's count is automatically reset to 0
  */
 export async function toggleTodayCompleted(
   duaId: string,
@@ -337,26 +420,38 @@ export async function toggleTodayCompleted(
 ): Promise<DuaDailyLog> {
   const id = `${duaId}_${dateStr}`;
   const existing = await db.logs.get(id);
+  const now = Date.now();
 
-  if (existing) {
+  const isCurrentlyDone = !!(
+    existing &&
+    (existing.completed || (existing.count && existing.count > 0))
+  );
+
+  if (isCurrentlyDone) {
+    // Unchecking: reset completed to false AND count to 0
     const updated: DuaDailyLog = {
-      ...existing,
-      completed: !existing.completed,
-      updatedAt: Date.now(),
-    };
-    await db.logs.put(updated);
-    return updated;
-  } else {
-    const newLog: DuaDailyLog = {
       id,
       duaId,
       date: dateStr,
       count: 0,
-      completed: true,
-      updatedAt: Date.now(),
+      completed: false,
+      updatedAt: now,
     };
-    await db.logs.put(newLog);
-    return newLog;
+    await db.logs.put(updated);
+    return updated;
+  } else {
+    // Checking: mark completed with at least 1 count (or preserve existing count if > 0)
+    const newCount = existing && existing.count > 0 ? existing.count : 1;
+    const updated: DuaDailyLog = {
+      id,
+      duaId,
+      date: dateStr,
+      count: newCount,
+      completed: true,
+      updatedAt: now,
+    };
+    await db.logs.put(updated);
+    return updated;
   }
 }
 
@@ -388,7 +483,7 @@ export async function addDuaCount(
     const updated: DuaDailyLog = {
       ...existing,
       count: newCount,
-      completed: newCount > 0 ? true : existing.completed,
+      completed: newCount > 0,
       updatedAt: now,
     };
     await db.logs.put(updated);
@@ -425,7 +520,7 @@ export async function setDuaCount(
     const updated: DuaDailyLog = {
       ...existing,
       count: safeCount,
-      completed: safeCount > 0 ? true : existing.completed,
+      completed: safeCount > 0,
       updatedAt: now,
     };
     await db.logs.put(updated);

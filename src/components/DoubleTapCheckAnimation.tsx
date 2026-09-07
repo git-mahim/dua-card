@@ -2,16 +2,20 @@
 
 import React, { useEffect, useState } from "react";
 import { Check, Sparkles } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 interface DoubleTapCheckAnimationProps {
   show: boolean;
-  onAnimationEnd: () => void;
+  onAnimationEnd?: () => void;
+  onComplete?: () => void;
 }
 
 export const DoubleTapCheckAnimation: React.FC<DoubleTapCheckAnimationProps> = ({
   show,
   onAnimationEnd,
+  onComplete,
 }) => {
+  const { language } = useLanguage();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -19,11 +23,12 @@ export const DoubleTapCheckAnimation: React.FC<DoubleTapCheckAnimationProps> = (
       setVisible(true);
       const timer = setTimeout(() => {
         setVisible(false);
-        onAnimationEnd();
+        onAnimationEnd?.();
+        onComplete?.();
       }, 750);
       return () => clearTimeout(timer);
     }
-  }, [show, onAnimationEnd]);
+  }, [show, onAnimationEnd, onComplete]);
 
   if (!visible) return null;
 
@@ -34,8 +39,10 @@ export const DoubleTapCheckAnimation: React.FC<DoubleTapCheckAnimationProps> = (
           <Check className="w-9 h-9 stroke-[3]" />
         </div>
         <Sparkles className="w-6 h-6 text-[#ffb31a] absolute -top-2 -right-2 animate-bounce" />
-        <span className="mt-2 px-3 py-1 bg-black/80 text-[#ffb31a] text-xs font-bold font-bengali rounded-full shadow-md backdrop-blur-sm flex items-center justify-center leading-none">
-          <span className="translate-y-[0.5px]">পড়েছি!</span>
+        <span className="mt-2 px-3 py-1 bg-black/80 text-[#ffb31a] text-xs font-bold rounded-full shadow-md backdrop-blur-sm flex items-center justify-center leading-none">
+          <span className="translate-y-[0.5px]">
+            {language === "bn" ? "পড়েছি!" : "Completed!"}
+          </span>
         </span>
       </div>
     </div>

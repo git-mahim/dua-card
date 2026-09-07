@@ -20,9 +20,9 @@ import {
 } from "@dnd-kit/sortable";
 import { DuaRecord, DuaDailyLog } from "@/lib/types";
 import { DuaCard } from "./DuaCard";
-import { toBengaliNumber } from "@/lib/formatters";
 import { triggerHaptic } from "@/lib/haptics";
 import { BookPlus, SearchX, CheckCircle2, Clock, RotateCcw } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 interface DuaListProps {
   duas: DuaRecord[];
@@ -42,6 +42,7 @@ interface DuaListProps {
   onAddNew: () => void;
   onOpenDua?: (dua: DuaRecord) => void;
   hideVirtue?: boolean;
+  hideTitle?: boolean;
 }
 
 type TabFilter = "all" | "pending" | "completed";
@@ -64,11 +65,12 @@ export const DuaList: React.FC<DuaListProps> = ({
   onAddNew,
   onOpenDua,
   hideVirtue = false,
+  hideTitle = false,
 }) => {
+  const { language, t, formatNumber } = useLanguage();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabFilter>("all");
 
-  // PointerSensor with intentional 650ms press & hold delay and 8px tolerance to prevent accidental reorders
   const pointerSensor = useSensor(PointerSensor, {
     activationConstraint: {
       delay: 650,
@@ -82,13 +84,11 @@ export const DuaList: React.FC<DuaListProps> = ({
 
   const sensors = useSensors(pointerSensor, keyboardSensor);
 
-  // Handle Drag Start: Provide distinct haptic tick on lift
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
     triggerHaptic(40);
   };
 
-  // Handle Drag End: Reorder list and trigger settle haptic
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -159,18 +159,18 @@ export const DuaList: React.FC<DuaListProps> = ({
         <div className="w-16 h-16 rounded-2xl bg-[#ffb31a]/10 border border-[#ffb31a]/25 flex items-center justify-center mb-4 text-[#ffb31a]">
           <BookPlus className="w-8 h-8" />
         </div>
-        <h2 className="text-base font-bold font-bengali text-zinc-800 dark:text-zinc-200 mb-1">
-          এখনো কোনো দোয়া সংরক্ষিত নেই
+        <h2 className="text-base font-bold text-zinc-800 dark:text-zinc-200 mb-1">
+          {language === "bn" ? "এখনো কোনো দোয়া সংরক্ষিত নেই" : "No Duas Saved Yet"}
         </h2>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400 font-bengali max-w-xs mb-6 leading-relaxed">
-          আপনার পছন্দসই দোয়া সংরক্ষণ করতে নিচে &apos;+&apos; বাটনে অথবা এখানে চাপুন।
+        <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-xs mb-6 leading-relaxed">
+          {t("emptyStateText")}
         </p>
         <button
           type="button"
           onClick={onAddNew}
-          className="px-5 py-2.5 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-white text-white dark:text-zinc-900 rounded-xl text-xs font-semibold font-bengali shadow-md transition-all active:scale-95"
+          className="px-5 py-2.5 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-white text-white dark:text-zinc-900 rounded-xl text-xs font-semibold shadow-md transition-all active:scale-95"
         >
-          নতুন দোয়া যোগ করুন
+          {t("addNewDua")}
         </button>
       </div>
     );
@@ -178,9 +178,9 @@ export const DuaList: React.FC<DuaListProps> = ({
 
   return (
     <div className="w-full flex flex-col gap-4 pb-24">
-      {/* Smart Status Filter Tabs (সকল দোয়া | বাকি দোয়া | পড়েছি) */}
+      {/* Smart Status Filter Tabs (All | Pending | Completed) */}
       {!isSearchActive && (
-        <div className="w-full grid grid-cols-3 gap-1.5 p-1.5 bg-zinc-100/90 dark:bg-zinc-900/90 border border-zinc-200/60 dark:border-zinc-800/60 rounded-[18px] shadow-2xs font-bengali">
+        <div className="w-full grid grid-cols-3 gap-1.5 p-1.5 bg-zinc-100/90 dark:bg-zinc-900/90 border border-zinc-200/60 dark:border-zinc-800/60 rounded-[18px] shadow-2xs">
           <button
             type="button"
             onClick={() => {
@@ -193,7 +193,7 @@ export const DuaList: React.FC<DuaListProps> = ({
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-white/50 dark:hover:bg-zinc-800/40"
             }`}
           >
-            <span className="text-[13.5px] sm:text-[14.5px]">সকল দোয়া</span>
+            <span className="text-[13px] sm:text-[14px]">{t("allDuas")}</span>
             <span
               className={`font-mono text-[11px] sm:text-[12px] font-bold leading-none px-1.5 py-0.5 rounded-full ${
                 activeTab === "all"
@@ -201,7 +201,7 @@ export const DuaList: React.FC<DuaListProps> = ({
                   : "bg-zinc-200/70 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400"
               }`}
             >
-              {toBengaliNumber(duas.length)}
+              {formatNumber(duas.length)}
             </span>
           </button>
 
@@ -217,7 +217,7 @@ export const DuaList: React.FC<DuaListProps> = ({
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-white/50 dark:hover:bg-zinc-800/40"
             }`}
           >
-            <span className="text-[13.5px] sm:text-[14.5px]">বাকি দোয়া</span>
+            <span className="text-[13px] sm:text-[14px]">{t("pendingDuas")}</span>
             <span
               className={`font-mono text-[11px] sm:text-[12px] font-bold leading-none px-1.5 py-0.5 rounded-full ${
                 activeTab === "pending"
@@ -225,7 +225,7 @@ export const DuaList: React.FC<DuaListProps> = ({
                   : "bg-zinc-200/70 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400"
               }`}
             >
-              {toBengaliNumber(pendingCount)}
+              {formatNumber(pendingCount)}
             </span>
           </button>
 
@@ -241,7 +241,7 @@ export const DuaList: React.FC<DuaListProps> = ({
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-white/50 dark:hover:bg-zinc-800/40"
             }`}
           >
-            <span className="text-[13.5px] sm:text-[14.5px]">পড়েছি</span>
+            <span className="text-[13px] sm:text-[14px]">{t("completedDuas")}</span>
             <span
               className={`font-mono text-[11px] sm:text-[12px] font-bold leading-none px-1.5 py-0.5 rounded-full ${
                 activeTab === "completed"
@@ -249,7 +249,7 @@ export const DuaList: React.FC<DuaListProps> = ({
                   : "bg-zinc-200/70 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400"
               }`}
             >
-              {toBengaliNumber(completedCount)}
+              {formatNumber(completedCount)}
             </span>
           </button>
         </div>
@@ -261,11 +261,13 @@ export const DuaList: React.FC<DuaListProps> = ({
           <div className="w-14 h-14 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-4 text-zinc-400">
             <SearchX className="w-7 h-7" />
           </div>
-          <h2 className="text-base font-bold font-bengali text-zinc-800 dark:text-zinc-200 mb-1">
-            কোনো ফলাফল পাওয়া যায়নি
+          <h2 className="text-base font-bold text-zinc-800 dark:text-zinc-200 mb-1">
+            {t("noDuasFound")}
           </h2>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 font-bengali max-w-xs">
-            &apos;{searchQuery}&apos; দিয়ে কোনো সংরক্ষিত দোয়া খুঁজে পাওয়া যায়নি।
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-xs">
+            {language === "bn"
+              ? `'${searchQuery}' দিয়ে কোনো সংরক্ষিত দোয়া খুঁজে পাওয়া যায়নি।`
+              : `No saved duas matching '${searchQuery}'`}
           </p>
         </div>
       )}
@@ -276,18 +278,22 @@ export const DuaList: React.FC<DuaListProps> = ({
           <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3">
             <CheckCircle2 className="w-7 h-7 stroke-[2.5]" />
           </div>
-          <h2 className="text-base font-bold font-bengali text-zinc-900 dark:text-zinc-100 mb-1">
-            মাশাআল্লাহ! আজকের সকল দোয়া সম্পন্ন হয়েছে!
+          <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100 mb-1">
+            {language === "bn"
+              ? "মাশাআল্লাহ! আজকের সকল দোয়া সম্পন্ন হয়েছে!"
+              : "MashaAllah! All daily duas completed for today!"}
           </h2>
-          <p className="text-xs text-zinc-500 font-bengali max-w-xs mb-4">
-            আজকের জন্য আর কোনো দোয়া বাকি নেই। সব দোয়া দেখতে নিচের বাটনে চাপুন।
+          <p className="text-xs text-zinc-500 max-w-xs mb-4">
+            {language === "bn"
+              ? "আজকের জন্য আর কোনো দোয়া বাকি নেই।"
+              : "No more pending duas for today."}
           </p>
           <button
             type="button"
             onClick={() => setActiveTab("all")}
-            className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-xl text-xs font-bold font-bengali transition-colors"
+            className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-xl text-xs font-bold transition-colors"
           >
-            সকল দোয়া দেখুন
+            {t("allDuas")}
           </button>
         </div>
       )}
@@ -298,18 +304,22 @@ export const DuaList: React.FC<DuaListProps> = ({
           <div className="w-14 h-14 rounded-2xl bg-[#ffb31a]/10 text-[#c87d00] dark:text-[#ffb31a] flex items-center justify-center mb-3">
             <Clock className="w-7 h-7 stroke-[2.5]" />
           </div>
-          <h2 className="text-base font-bold font-bengali text-zinc-900 dark:text-zinc-100 mb-1">
-            আজকে এখনো কোনো দোয়া সম্পন্ন করা হয়নি
+          <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100 mb-1">
+            {language === "bn"
+              ? "আজকে এখনো কোনো দোয়া সম্পন্ন করা হয়নি"
+              : "No duas completed yet today"}
           </h2>
-          <p className="text-xs text-zinc-500 font-bengali max-w-xs mb-4">
-            দোয়া কার্ডে ডাবল ট্যাপ করে অথবা কাউন্ট যোগ করে আমল সম্পন্ন করুন।
+          <p className="text-xs text-zinc-500 max-w-xs mb-4">
+            {language === "bn"
+              ? "দোয়া কার্ডে ক্লিক করে কাউন্ট যোগ করে আমল সম্পন্ন করুন।"
+              : "Click a dua card badge to record your recitation count."}
           </p>
           <button
             type="button"
             onClick={() => setActiveTab("all")}
-            className="min-h-[44px] px-4 py-2.5 bg-[#ffb31a] hover:bg-[#e69c05] text-zinc-950 rounded-[12px] text-xs font-bold font-bengali transition-colors shadow-2xs"
+            className="min-h-[44px] px-4 py-2.5 bg-[#ffb31a] hover:bg-[#e69c05] text-zinc-950 rounded-[12px] text-xs font-bold transition-colors shadow-2xs"
           >
-            দোয়ার তালিকা দেখুন
+            {t("allDuas")}
           </button>
         </div>
       )}
@@ -347,12 +357,13 @@ export const DuaList: React.FC<DuaListProps> = ({
                     isFirst={index === 0}
                     isLast={index === displayedDuas.length - 1}
                     hideVirtue={hideVirtue}
+                    hideTitle={hideTitle}
                   />
                 ))}
               </div>
             </SortableContext>
 
-            {/* Drag Overlay: Fluid lifted card following finger/mouse without document jump */}
+            {/* Drag Overlay */}
             <DragOverlay
               dropAnimation={{ duration: 180, easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)" }}
             >
@@ -363,6 +374,8 @@ export const DuaList: React.FC<DuaListProps> = ({
                   onEdit={() => {}}
                   onDeleteRequest={() => {}}
                   isDragOverlay={true}
+                  hideVirtue={hideVirtue}
+                  hideTitle={hideTitle}
                 />
               ) : null}
             </DragOverlay>
@@ -387,6 +400,7 @@ export const DuaList: React.FC<DuaListProps> = ({
                 isFirst={index === 0}
                 isLast={index === displayedDuas.length - 1}
                 hideVirtue={hideVirtue}
+                hideTitle={hideTitle}
               />
             ))}
           </div>
@@ -404,7 +418,7 @@ export const DuaList: React.FC<DuaListProps> = ({
             className="w-full sm:w-auto min-w-[200px] px-6 py-3.5 rounded-[16px] bg-zinc-100 dark:bg-zinc-800 hover:bg-amber-500/20 dark:hover:bg-amber-400/20 text-zinc-900 dark:text-zinc-100 hover:text-[#c87d00] dark:hover:text-[#ffb31a] border border-zinc-300 dark:border-zinc-700 flex items-center justify-center gap-2 text-xs sm:text-sm font-bold shadow-xs active:scale-95 transition-all cursor-pointer select-none"
           >
             <RotateCcw className="w-4 h-4 text-[#ffb31a]" />
-            <span>রিসেট বাটন</span>
+            <span>{t("resetAllButton")}</span>
           </button>
         </div>
       )}

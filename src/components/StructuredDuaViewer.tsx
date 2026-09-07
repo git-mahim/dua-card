@@ -7,6 +7,7 @@ interface StructuredDuaViewerProps {
   isTruncated?: boolean;
   maxBlocks?: number;
   hideVirtue?: boolean;
+  hideTitle?: boolean;
 }
 
 /**
@@ -73,6 +74,7 @@ export const StructuredDuaViewer: React.FC<StructuredDuaViewerProps> = ({
   isTruncated = false,
   maxBlocks = 3,
   hideVirtue = false,
+  hideTitle = false,
 }) => {
   if (!content || !content.content || !Array.isArray(content.content)) {
     return null;
@@ -81,19 +83,27 @@ export const StructuredDuaViewer: React.FC<StructuredDuaViewerProps> = ({
   // Filter out any blocks that have no actual text/content
   let visibleBlocks = content.content.filter((block) => hasTextContent(block));
 
+  // If hideTitle is enabled on Home screen, filter out title
+  if (hideTitle) {
+    visibleBlocks = visibleBlocks.filter((block) => {
+      const style = block.attrs?.semanticStyle;
+      return style !== "dua-title";
+    });
+  }
+
   // If hideVirtue is enabled on Home screen, filter out virtue and secondary notes
   if (hideVirtue) {
     visibleBlocks = visibleBlocks.filter((block) => {
       const style = block.attrs?.semanticStyle;
       return style !== "dua-virtue" && style !== "dua-paragraph";
     });
+  }
 
-    // Fallback: If all blocks were filtered out, show at least first 2 blocks
-    if (visibleBlocks.length === 0) {
-      visibleBlocks = content.content
-        .filter((block) => hasTextContent(block))
-        .slice(0, 2);
-    }
+  // Fallback: If all blocks were filtered out, show at least first 1 block
+  if (visibleBlocks.length === 0) {
+    visibleBlocks = content.content
+      .filter((block) => hasTextContent(block))
+      .slice(0, 1);
   }
 
   const blocks = isTruncated

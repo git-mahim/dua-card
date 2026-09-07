@@ -6,6 +6,7 @@ import { DuaRecord } from "@/lib/types";
 import { StructuredDuaViewer } from "./StructuredDuaViewer";
 import { getBengaliTodayFormatted } from "@/lib/formatters";
 import { triggerHaptic } from "@/lib/haptics";
+import { useLanguage } from "@/lib/i18n";
 import { Download, Share2, X, Check, Loader2, Sparkles } from "lucide-react";
 
 interface DuaExportModalProps {
@@ -19,6 +20,7 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const { language, t } = useLanguage();
   const [isExporting, setIsExporting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [themeMode, setThemeMode] = useState<"light" | "dark">("light");
@@ -95,7 +97,7 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
       const blob = await generateImageBlob();
       if (!blob) return;
 
-      const cleanTitle = dua.title || "দোয়া কার্ড";
+      const cleanTitle = dua.title || (language === "bn" ? "দোয়া কার্ড" : "Dua Card");
       const file = new File([blob], `${cleanTitle}.png`, { type: "image/png" });
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -114,7 +116,6 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
         await handleDownloadImage();
       }
     } catch (err) {
-      // User cancelled or share error
       console.log("Share dismissed:", err);
     } finally {
       setIsExporting(false);
@@ -126,7 +127,7 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
       role="dialog"
       aria-modal="true"
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-150 h-[100dvh] w-screen overscroll-none font-bengali overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-150 h-[100dvh] w-screen overscroll-none overflow-y-auto"
     >
       <div
         onClick={(e) => e.stopPropagation()}
@@ -140,10 +141,10 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
             </div>
             <div>
               <h2 className="text-sm font-bold text-zinc-900 dark:text-zinc-50">
-                ইমেজ হিসেবে সেভ ও শেয়ার
+                {language === "bn" ? "ইমেজ হিসেবে সেভ ও শেয়ার" : "Save & Share as Image"}
               </h2>
               <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                চারপাশে সুন্দর মার্জিন ও হাই-রেজোলিউশন ফ্রেম
+                {language === "bn" ? "চারপাশে সুন্দর মার্জিন ও হাই-রেজোলিউশন ফ্রেম" : "High-resolution frame with clean layout"}
               </p>
             </div>
           </div>
@@ -151,7 +152,7 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            aria-label="বন্ধ করুন"
+            aria-label={language === "bn" ? "বন্ধ করুন" : "Close"}
             className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           >
             <X className="w-5 h-5" />
@@ -161,7 +162,7 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
         {/* Theme Selector Pill for Image */}
         <div className="flex items-center justify-between px-1">
           <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
-            ইমেজ থিম নির্বাচন:
+            {language === "bn" ? "ইমেজ থিম নির্বাচন:" : "Card Image Theme:"}
           </span>
           <div className="flex items-center bg-zinc-100 dark:bg-zinc-800/80 p-0.5 rounded-[10px] border border-zinc-200/80 dark:border-zinc-700">
             <button
@@ -173,7 +174,7 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
                   : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
               }`}
             >
-              লাইট মোড
+              {t("lightMode")}
             </button>
             <button
               type="button"
@@ -184,14 +185,14 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
                   : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
               }`}
             >
-              ডার্ক মোড
+              {t("darkMode")}
             </button>
           </div>
         </div>
 
         {/* Live Export Preview Container */}
         <div className="w-full max-h-[52vh] overflow-y-auto rounded-2xl border border-zinc-200/90 dark:border-zinc-800 p-2 sm:p-3 bg-zinc-200/50 dark:bg-zinc-950 flex items-center justify-center">
-          {/* Outer Frame with Zero Border Radius (Captured by html-to-image) */}
+          {/* Outer Frame with Zero Border Radius */}
           <div
             ref={cardFrameRef}
             className={`w-full max-w-[480px] p-4 sm:p-5 rounded-none transition-colors ${
@@ -200,7 +201,7 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
                 : "dark bg-gradient-to-br from-[#0c0c0c] via-[#141414] to-[#1e1e1e] text-zinc-50"
             }`}
           >
-            {/* The Floating Dua Card Inside (Full comfortable padding & uncompromised layout) */}
+            {/* The Floating Dua Card Inside */}
             <div
               className={`w-full rounded-[22px] p-6 sm:p-7 flex flex-col justify-between gap-4 transition-colors ${
                 themeMode === "light"
@@ -212,14 +213,16 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
               <div className="flex items-center justify-between pb-2.5 border-b border-amber-500/25">
                 <span className="text-[11px] font-bold text-[#c87d00] dark:text-[#ffb31a] tracking-wider uppercase flex items-center gap-1.5">
                   <span>🌙</span>
-                  <span>দৈনিক দোয়া</span>
+                  <span>{language === "bn" ? "দৈনিক দোয়া" : "Daily Dhikr"}</span>
                 </span>
                 <span className="text-[10.5px] text-zinc-500 dark:text-zinc-400 font-medium">
-                  {getBengaliTodayFormatted(true)}
+                  {language === "bn"
+                    ? getBengaliTodayFormatted(true)
+                    : new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
                 </span>
               </div>
 
-              {/* Dua Content with Full Bengali Typography Hierarchy */}
+              {/* Dua Content */}
               <div className="py-1">
                 <StructuredDuaViewer
                   content={dua.richTextContent}
@@ -227,10 +230,10 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
                 />
               </div>
 
-              {/* Bottom Footer with English branding */}
-              <div className="pt-3 border-t border-amber-500/20 flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400 font-bengali">
+              {/* Bottom Footer */}
+              <div className="pt-3 border-t border-amber-500/20 flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
                 <span className="font-bold text-zinc-700 dark:text-zinc-300">
-                  ✨ দোয়া কার্ড
+                  ✨ {t("appName")}
                 </span>
                 <span className="text-[10.5px] text-zinc-500 dark:text-zinc-400 font-medium">
                   Build by Apurbo Khan
@@ -253,12 +256,12 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
             ) : copied ? (
               <>
                 <Check className="w-4 h-4 stroke-[2.5]" />
-                <span>ডাউনলোড সম্পন্ন!</span>
+                <span>{language === "bn" ? "ডাউনলোড সম্পন্ন!" : "Downloaded!"}</span>
               </>
             ) : (
               <>
                 <Download className="w-4 h-4" />
-                <span>ইমেজ ডাউনলোড</span>
+                <span>{t("downloadImage")}</span>
               </>
             )}
           </button>
@@ -270,7 +273,7 @@ export const DuaExportModal: React.FC<DuaExportModalProps> = ({
             className="min-h-[44px] flex items-center justify-center gap-2 px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold text-xs rounded-[12px] shadow-xs active:scale-95 transition-all disabled:opacity-50"
           >
             <Share2 className="w-4 h-4" />
-            <span>সরাসরি শেয়ার</span>
+            <span>{t("shareImageBtn")}</span>
           </button>
         </div>
       </div>

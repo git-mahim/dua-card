@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Hind_Siliguri, Anek_Bangla, Noto_Sans_Bengali } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { LanguageProvider } from "@/lib/i18n";
 
 const hindSiliguri = Hind_Siliguri({
   subsets: ["bengali"],
@@ -96,7 +97,9 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-background text-foreground font-bengali antialiased selection:bg-[#ffb31a]/30 selection:text-zinc-900 dark:selection:text-zinc-100">
-        <ThemeProvider>{children}</ThemeProvider>
+        <LanguageProvider>
+          <ThemeProvider>{children}</ThemeProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

@@ -17,12 +17,14 @@ import {
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { SEMANTIC_STYLES } from "@/styles/typography";
+import { useLanguage } from "@/lib/i18n";
 
 interface EditorToolbarProps {
   editor: Editor | null;
 }
 
 export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
+  const { language } = useLanguage();
   if (!editor) return null;
 
   const currentSemanticStyle =
@@ -37,33 +39,33 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
   const semanticButtons = [
     {
       key: "dua-title",
-      label: "শিরোনাম",
+      label: language === "bn" ? "শিরোনাম" : "Title",
       icon: Type,
-      title: SEMANTIC_STYLES["dua-title"]?.description || "শিরোনাম",
+      title: language === "bn" ? (SEMANTIC_STYLES["dua-title"]?.description || "শিরোনাম") : "Title style",
     },
     {
       key: "dua-pronunciation",
-      label: "উচ্চারণ",
+      label: language === "bn" ? "উচ্চারণ" : "Arabic",
       icon: Languages,
-      title: SEMANTIC_STYLES["dua-pronunciation"]?.description || "উচ্চারণ",
+      title: language === "bn" ? (SEMANTIC_STYLES["dua-pronunciation"]?.description || "উচ্চারণ") : "Pronunciation / Arabic",
     },
     {
       key: "dua-meaning",
-      label: "অনুবাদ",
+      label: language === "bn" ? "অনুবাদ" : "Meaning",
       icon: BookOpen,
-      title: SEMANTIC_STYLES["dua-meaning"]?.description || "অনুবাদ",
+      title: language === "bn" ? (SEMANTIC_STYLES["dua-meaning"]?.description || "অনুবাদ") : "Meaning / Translation",
     },
     {
       key: "dua-paragraph",
-      label: "নোট",
+      label: language === "bn" ? "নোট" : "Notes",
       icon: AlignLeft,
-      title: SEMANTIC_STYLES["dua-paragraph"]?.description || "সাধারণ নোট",
+      title: language === "bn" ? (SEMANTIC_STYLES["dua-paragraph"]?.description || "সাধারণ নোট") : "Virtues & Lesson Notes",
     },
   ];
 
   return (
-    <div className="w-full flex flex-col gap-1.5 p-1.5 sm:p-2 bg-white/95 dark:bg-[#181818]/95 backdrop-blur-xl border border-zinc-200/90 dark:border-zinc-800/90 rounded-[18px] shadow-lg font-bengali">
-      {/* Top Row: Cohesive Segmented Semantic Style Selectors (Compact, No text clipping) */}
+    <div className="w-full flex flex-col gap-1.5 p-1.5 sm:p-2 bg-white/95 dark:bg-[#181818]/95 backdrop-blur-xl border border-zinc-200/90 dark:border-zinc-800/90 rounded-[18px] shadow-lg">
+      {/* Top Row: Cohesive Segmented Semantic Style Selectors */}
       <div className="grid grid-cols-4 gap-1 no-select">
         {semanticButtons.map((btn) => {
           const Icon = btn.icon;
@@ -73,7 +75,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
               key={btn.key}
               type="button"
               onClick={() => handleStyleChange(btn.key)}
-              className={`flex items-center justify-center gap-1 py-1.5 px-1 sm:px-2 rounded-[10px] text-[11px] sm:text-xs font-bold font-bengali transition-all duration-150 active:scale-95 text-center ${
+              className={`flex items-center justify-center gap-1 py-1.5 px-1 sm:px-2 rounded-[10px] text-[11px] sm:text-xs font-bold transition-all duration-150 active:scale-95 text-center ${
                 isActive
                   ? "bg-[#ffb31a] text-zinc-950 shadow-xs ring-1 ring-[#ffb31a] scale-[1.01]"
                   : "bg-zinc-100/90 dark:bg-zinc-850/70 text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-750 border border-zinc-200/70 dark:border-zinc-800/80"
@@ -103,8 +105,8 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
                 ? "bg-[#ffb31a] text-zinc-950 font-extrabold shadow-2xs"
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60"
             }`}
-            title="বোল্ড (Bold)"
-            aria-label="বোল্ড"
+            title="Bold"
+            aria-label="Bold"
           >
             <Bold className="w-3.5 h-3.5" />
           </button>
@@ -120,8 +122,8 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
                 ? "bg-[#ffb31a] text-zinc-950 shadow-2xs"
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60"
             }`}
-            title="উদ্ধৃতি / কোটেশন (Blockquote)"
-            aria-label="উদ্ধৃতি"
+            title="Blockquote"
+            aria-label="Blockquote"
           >
             <Quote className="w-3.5 h-3.5" />
           </button>
@@ -140,8 +142,8 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
                 ? "bg-[#ffb31a] text-zinc-950 shadow-2xs"
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60"
             }`}
-            title="বুলেট তালিকা"
-            aria-label="বুলেট তালিকা"
+            title={language === "bn" ? "বুলেট তালিকা" : "Bullet List"}
+            aria-label="Bullet list"
           >
             <List className="w-3.5 h-3.5" />
           </button>
@@ -157,8 +159,8 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
                 ? "bg-[#ffb31a] text-zinc-950 shadow-2xs"
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60"
             }`}
-            title="নম্বর তালিকা"
-            aria-label="নম্বর তালিকা"
+            title={language === "bn" ? "নম্বর তালিকা" : "Numbered List"}
+            aria-label="Numbered list"
           >
             <ListOrdered className="w-3.5 h-3.5" />
           </button>
@@ -170,8 +172,8 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
               editor.chain().focus().setHorizontalRule().run();
             }}
             className="w-7 h-7 sm:w-8 sm:h-8 rounded-[8px] flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60 transition-all active:scale-90"
-            title="বিভাজক রেখা (Divider)"
-            aria-label="বিভাজক রেখা"
+            title={language === "bn" ? "বিভাজক রেখা (Divider)" : "Divider"}
+            aria-label="Divider"
           >
             <Minus className="w-3.5 h-3.5" />
           </button>
@@ -187,8 +189,8 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
             }}
             disabled={!editor.can().undo()}
             className="w-7 h-7 sm:w-8 sm:h-8 rounded-[8px] flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60 disabled:opacity-30 disabled:pointer-events-none transition-all active:scale-90"
-            title="পূর্বে যান (Undo)"
-            aria-label="পূর্বাবস্থায় ফেরান"
+            title="Undo"
+            aria-label="Undo"
           >
             <Undo2 className="w-3.5 h-3.5" />
           </button>
@@ -201,8 +203,8 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
             }}
             disabled={!editor.can().redo()}
             className="w-7 h-7 sm:w-8 sm:h-8 rounded-[8px] flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60 disabled:opacity-30 disabled:pointer-events-none transition-all active:scale-90"
-            title="পুনরায় করুন (Redo)"
-            aria-label="পুনরায় করুন"
+            title="Redo"
+            aria-label="Redo"
           >
             <Redo2 className="w-3.5 h-3.5" />
           </button>

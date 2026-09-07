@@ -201,3 +201,73 @@ export function formatResetTimeToBengali(timeStr: string): string {
   const bm = min === 0 ? "০০" : (min < 10 ? `০${toBengaliDigits(min)}` : toBengaliDigits(min));
   return `${period} ${bh}:${bm} টা`;
 }
+
+/**
+ * Format timestamp into human-readable Bengali relative / exact date-time string
+ * e.g. "এইমাত্র (আপ-টু-ডেট)", "আজকে, ভোর ০৩:৪৫ মিনিট", "গতকাল, রাত ১১:২০ মিনিট", "২৮ আগস্ট • রাত ১০:১৫ মিনিট"
+ */
+export function formatBengaliSyncTime(timestamp: number | null | undefined): string {
+  if (!timestamp) return "এখনো সিঙ্ক হয়নি";
+  const now = Date.now();
+  const diffSec = Math.floor((now - timestamp) / 1000);
+
+  if (diffSec < 45) {
+    return "এইমাত্র (আপ-টু-ডেট)";
+  }
+
+  const d = new Date(timestamp);
+  const today = new Date();
+
+  const isToday =
+    d.getDate() === today.getDate() &&
+    d.getMonth() === today.getMonth() &&
+    d.getFullYear() === today.getFullYear();
+
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const isYesterday =
+    d.getDate() === yesterday.getDate() &&
+    d.getMonth() === yesterday.getMonth() &&
+    d.getFullYear() === yesterday.getFullYear();
+
+  const hour = d.getHours();
+  const min = d.getMinutes();
+
+  let period = "রাত";
+  let displayHour = hour;
+
+  if (hour >= 4 && hour < 6) {
+    period = "ভোর";
+    displayHour = hour;
+  } else if (hour >= 6 && hour < 12) {
+    period = "সকাল";
+    displayHour = hour;
+  } else if (hour >= 12 && hour < 16) {
+    period = "দুপুর";
+    displayHour = hour === 12 ? 12 : hour - 12;
+  } else if (hour >= 16 && hour < 19) {
+    period = "বিকাল";
+    displayHour = hour - 12;
+  } else if (hour >= 19 && hour < 23) {
+    period = "সন্ধ্যা/রাত";
+    displayHour = hour - 12;
+  } else {
+    period = "রাত";
+    displayHour = hour === 0 ? 12 : (hour > 12 ? hour - 12 : hour);
+  }
+
+  const bh = toBengaliDigits(displayHour);
+  const bm = min < 10 ? `০${toBengaliDigits(min)}` : toBengaliDigits(min);
+  const timeStr = `${period} ${bh}:${bm} মিনিট`;
+
+  if (isToday) {
+    return `আজকে, ${timeStr}`;
+  }
+  if (isYesterday) {
+    return `গতকাল, ${timeStr}`;
+  }
+
+  const month = BENGALI_MONTHS[d.getMonth()] || "";
+  const day = toBengaliDigits(d.getDate());
+  return `${day} ${month}, ${timeStr}`;
+}
