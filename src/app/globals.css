@@ -5,6 +5,7 @@
 @tailwind utilities;
 
 :root {
+  color-scheme: light;
   --background: #fafafa;
   --foreground: #09090b;
   --surface-card: #ffffff;
@@ -20,6 +21,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: #000000;
   --foreground: #f4f4f5;
   --surface-card: #121212;

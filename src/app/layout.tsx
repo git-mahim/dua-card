@@ -46,9 +46,10 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  colorScheme: "dark light",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
     { media: "(prefers-color-scheme: dark)", color: "#121212" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
   ],
   interactiveWidget: "resizes-content",
 };
@@ -70,20 +71,28 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                const savedTheme = localStorage.getItem('dua_card_theme_pref');
-                const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                const isDark = savedTheme === 'dark' || (!savedTheme && systemPrefersDark);
+                var savedTheme = localStorage.getItem('dua_card_theme_pref');
+                var systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                var isDark = savedTheme === 'dark' || (!savedTheme && systemPrefersDark);
                 if (isDark) {
                   document.documentElement.classList.remove('light');
                   document.documentElement.classList.add('dark');
+                  document.documentElement.style.colorScheme = 'dark';
                 } else {
                   document.documentElement.classList.remove('dark');
                   document.documentElement.classList.add('light');
+                  document.documentElement.style.colorScheme = 'light';
                 }
-                const activeColor = isDark ? '#121212' : '#ffffff';
-                const metas = document.querySelectorAll('meta[name="theme-color"]');
-                if (metas.length > 0) {
-                  metas.forEach(function(m) { m.setAttribute('content', activeColor); });
+                var activeColor = isDark ? '#121212' : '#ffffff';
+                var metas = document.querySelectorAll('meta[name="theme-color"]');
+                metas.forEach(function(m) { m.remove(); });
+                var newMeta = document.createElement('meta');
+                newMeta.setAttribute('name', 'theme-color');
+                newMeta.setAttribute('content', activeColor);
+                document.head.appendChild(newMeta);
+                var appleMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+                if (appleMeta) {
+                  appleMeta.setAttribute('content', isDark ? 'black' : 'default');
                 }
               } catch (e) {}
             `,

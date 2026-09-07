@@ -25,12 +25,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Read saved preference, default to "light"
+    // Read saved preference, default to system preference if none saved
     const saved = localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode | null;
-    if (saved && (saved === "light" || saved === "dark")) {
+    if (saved === "light" || saved === "dark") {
       setThemeState(saved);
     } else {
-      setThemeState("light");
+      const prefersDark =
+        typeof window !== "undefined" &&
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches;
+      setThemeState(prefersDark ? "dark" : "light");
     }
     setMounted(true);
   }, []);
@@ -43,15 +47,31 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (theme === "dark") {
       root.classList.add("dark");
       root.classList.remove("light");
+      root.style.colorScheme = "dark";
       setResolvedTheme("dark");
       updateThemeMeta("#121212");
     } else {
       root.classList.remove("dark");
       root.classList.add("light");
+      root.style.colorScheme = "light";
       setResolvedTheme("light");
       updateThemeMeta("#ffffff");
     }
   }, [theme, mounted]);
+
+  // Listen for system theme changes if user hasn't set explicit preference
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = (e: MediaQueryListEvent) => {
+      const saved = localStorage.getItem(THEME_STORAGE_KEY);
+      if (!saved) {
+        setThemeState(e.matches ? "dark" : "light");
+      }
+    };
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
 
   const setTheme = (newTheme: ThemeMode) => {
     setThemeState(newTheme);
@@ -59,18 +79,24 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateThemeMeta = (color: string) => {
-    const metas = document.querySelectorAll('meta[name="theme-color"]');
-    if (metas.length > 0) {
-      metas.forEach((meta) => {
-        meta.removeAttribute("media");
-        meta.setAttribute("content", color);
-      });
-    } else {
-      const meta = document.createElement("meta");
-      meta.setAttribute("name", "theme-color");
-      meta.setAttribute("content", color);
-      document.head.appendChild(meta);
+    // 1. Remove all old theme-color meta tags
+    const oldMetas = document.querySelectorAll('meta[name="theme-color"]');
+    oldMetas.forEach((meta) => meta.remove());
+
+    // 2. Append fresh theme-color meta tag
+    const meta = document.createElement("meta");
+    meta.setAttribute("name", "theme-color");
+    meta.setAttribute("content", color);
+    document.head.appendChild(meta);
+
+    // 3. Update apple-mobile-web-app-status-bar-style for iOS
+    let appleMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+    if (!appleMeta) {
+      appleMeta = document.createElement("meta");
+      appleMeta.setAttribute("name", "apple-mobile-web-app-status-bar-style");
+      document.head.appendChild(appleMeta);
     }
+    appleMeta.setAttribute("content", color === "#ffffff" ? "default" : "black");
   };
 
   return (
