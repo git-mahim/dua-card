@@ -193,15 +193,7 @@ export async function createDua(data: {
   const now = Date.now();
   const id = `dua_${now}_${Math.random().toString(36).substring(2, 9)}`;
 
-  // Find minimum sortOrder to place new dua at the very top
   const existingDuas = await getAllDuas();
-  const minSortOrder =
-    existingDuas.length > 0
-      ? Math.min(...existingDuas.map((d) => d.sortOrder ?? 0))
-      : 0;
-
-  // New item gets minSortOrder - 1, or 0 if empty
-  const newSortOrder = existingDuas.length > 0 ? minSortOrder - 1 : 0;
 
   const newDua: DuaRecord = {
     id,
@@ -210,11 +202,23 @@ export async function createDua(data: {
     title: data.title || "",
     createdAt: now,
     updatedAt: now,
-    sortOrder: newSortOrder,
+    sortOrder: 0,
     schemaVersion: 1,
   };
 
-  await db.duas.add(newDua);
+  const newOrderedList = [newDua, ...existingDuas];
+
+  await db.transaction("rw", db.duas, async () => {
+    for (let i = 0; i < newOrderedList.length; i++) {
+      const item = newOrderedList[i];
+      if (item.id === id) {
+        await db.duas.add({ ...item, sortOrder: i });
+      } else {
+        await db.duas.update(item.id, { sortOrder: i, updatedAt: now });
+      }
+    }
+  });
+
   return newDua;
 }
 

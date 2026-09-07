@@ -62,12 +62,11 @@ describe("IndexedDB Dua Card Database Operations", () => {
       title: "সাইয়্যিদুল ইস্তিগফার",
     });
 
-    expect(dua2.sortOrder).toBeLessThan(dua1.sortOrder);
-
     const all = await getAllDuas();
     expect(all.length).toBe(2);
     expect(all[0].id).toBe(dua2.id);
     expect(all[1].id).toBe(dua1.id);
+    expect(all[0].sortOrder).toBeLessThan(all[1].sortOrder);
   });
 
   it("should update a dua record", async () => {

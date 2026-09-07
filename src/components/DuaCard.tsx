@@ -26,6 +26,7 @@ import {
 interface DuaCardProps {
   dua: DuaRecord;
   todayLog?: DuaDailyLog;
+  orderIndex?: number;
   onEdit: (dua: DuaRecord) => void;
   onDeleteRequest: (dua: DuaRecord) => void;
   onToggleCompleted?: (dua: DuaRecord) => void;
@@ -46,6 +47,7 @@ interface DuaCardProps {
 export const DuaCard: React.FC<DuaCardProps> = ({
   dua,
   todayLog,
+  orderIndex,
   onEdit,
   onDeleteRequest,
   onToggleCompleted,
@@ -158,20 +160,31 @@ export const DuaCard: React.FC<DuaCardProps> = ({
 
       {/* Top Bar: Reorder Handle, Status Badge & Actions Menu */}
       <div className="flex items-center justify-between gap-2 mb-3" data-no-double-tap="true">
-        {/* Left Side: Drag Handle */}
-        {!isDragOverlay ? (
-          <button
-            type="button"
-            {...attributes}
-            {...listeners}
-            aria-label={language === "bn" ? "স্থান পরিবর্তন করতে ধরে রাখুন" : "Drag to reorder"}
-            className="touch-none cursor-grab active:cursor-grabbing p-1.5 -ml-1 text-zinc-400 dark:text-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-300 rounded-lg transition-colors flex items-center justify-center shrink-0"
-          >
-            <GripVertical className="w-4 h-4 stroke-[2.2]" />
-          </button>
-        ) : (
-          <div className="w-4 h-4" />
-        )}
+        {/* Left Side: Drag Handle & Order Number Badge */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {!isDragOverlay ? (
+            <button
+              type="button"
+              {...attributes}
+              {...listeners}
+              aria-label={language === "bn" ? "স্থান পরিবর্তন করতে ধরে রাখুন" : "Drag to reorder"}
+              className="touch-none cursor-grab active:cursor-grabbing p-1.5 -ml-1 text-zinc-400 dark:text-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-300 rounded-lg transition-colors flex items-center justify-center shrink-0"
+            >
+              <GripVertical className="w-4 h-4 stroke-[2.2]" />
+            </button>
+          ) : (
+            <div className="w-4 h-4" />
+          )}
+
+          {typeof orderIndex === "number" && (
+            <span
+              className="px-2 py-0.5 rounded-[8px] bg-zinc-100 dark:bg-zinc-800/90 text-zinc-600 dark:text-zinc-400 font-mono text-[11px] font-bold border border-zinc-200/80 dark:border-zinc-700/80 shadow-2xs select-none"
+              title={language === "bn" ? `ক্রমিক নম্বর: ${formatNumber(orderIndex)}` : `Order: #${orderIndex}`}
+            >
+              #{formatNumber(orderIndex)}
+            </span>
+          )}
+        </div>
 
         {/* Right Side: Status Badge & Context Menu */}
         <div className="flex items-center gap-1.5 shrink-0">
