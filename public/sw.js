@@ -1,4 +1,4 @@
-const CACHE_NAME = "dua-card-v3";
+const CACHE_NAME = "dua-card-v4";
 const STATIC_ASSETS = [
   "/",
   "/manifest.json",

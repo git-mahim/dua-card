@@ -298,13 +298,6 @@ export default function HomePage() {
     <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-[#ffb31a]/30 selection:text-zinc-900 dark:selection:text-zinc-100 transition-colors duration-200">
       {/* Sticky Header */}
       <Header
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        isSearchOpen={isSearchOpen}
-        onToggleSearch={() => {
-          setIsSearchOpen(!isSearchOpen);
-          if (isSearchOpen) setSearchQuery("");
-        }}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenLogin={() => setIsLoginOpen(true)}
       />

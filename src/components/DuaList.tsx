@@ -27,7 +27,7 @@ import { useLanguage } from "@/lib/i18n";
 interface DuaListProps {
   duas: DuaRecord[];
   todayLogs: Record<string, DuaDailyLog>;
-  searchQuery: string;
+  searchQuery?: string;
   onEdit: (dua: DuaRecord) => void;
   onDeleteRequest: (dua: DuaRecord) => void;
   onToggleCompleted: (dua: DuaRecord) => void;
@@ -50,7 +50,7 @@ type TabFilter = "all" | "pending" | "completed";
 export const DuaList: React.FC<DuaListProps> = ({
   duas,
   todayLogs,
-  searchQuery,
+  searchQuery = "",
   onEdit,
   onDeleteRequest,
   onToggleCompleted,
