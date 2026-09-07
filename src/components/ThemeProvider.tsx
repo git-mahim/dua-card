@@ -44,7 +44,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       root.classList.add("dark");
       root.classList.remove("light");
       setResolvedTheme("dark");
-      updateThemeMeta("#000000");
+      updateThemeMeta("#121212");
     } else {
       root.classList.remove("dark");
       root.classList.add("light");
@@ -59,13 +59,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateThemeMeta = (color: string) => {
-    let meta = document.querySelector('meta[name="theme-color"]');
-    if (!meta) {
-      meta = document.createElement("meta");
+    const metas = document.querySelectorAll('meta[name="theme-color"]');
+    if (metas.length > 0) {
+      metas.forEach((meta) => {
+        meta.removeAttribute("media");
+        meta.setAttribute("content", color);
+      });
+    } else {
+      const meta = document.createElement("meta");
       meta.setAttribute("name", "theme-color");
+      meta.setAttribute("content", color);
       document.head.appendChild(meta);
     }
-    meta.setAttribute("content", color);
   };
 
   return (

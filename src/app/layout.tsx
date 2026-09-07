@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "Dua Card",
   },
   icons: {
@@ -46,8 +46,10 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  viewportFit: "cover",
-  themeColor: "#000000",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#121212" },
+  ],
   interactiveWidget: "resizes-content",
 };
 
@@ -70,12 +72,18 @@ export default function RootLayout({
               try {
                 const savedTheme = localStorage.getItem('dua_card_theme_pref');
                 const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (savedTheme === 'light' || (!savedTheme && !systemPrefersDark)) {
-                  document.documentElement.classList.remove('dark');
-                  document.documentElement.classList.add('light');
-                } else {
+                const isDark = savedTheme === 'dark' || (!savedTheme && systemPrefersDark);
+                if (isDark) {
                   document.documentElement.classList.remove('light');
                   document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.remove('dark');
+                  document.documentElement.classList.add('light');
+                }
+                const activeColor = isDark ? '#121212' : '#ffffff';
+                const metas = document.querySelectorAll('meta[name="theme-color"]');
+                if (metas.length > 0) {
+                  metas.forEach(function(m) { m.setAttribute('content', activeColor); });
                 }
               } catch (e) {}
             `,
