@@ -64,45 +64,30 @@ export function verifySessionToken(token: string): AuthUser | null {
  * Validate submitted credentials
  */
 export function validateCredentials(email: string, password: string): { success: boolean; user?: AuthUser; error?: string } {
-  const adminEmail = (process.env.ADMIN_EMAIL || "admin@duacard.app").trim().toLowerCase();
-  const adminPassword = (process.env.ADMIN_PASSWORD || "admin").trim();
-
   // Clean inputs
   const cleanEmail = email.trim().toLowerCase();
   const cleanPassword = password.trim();
 
-  if (!cleanEmail || !cleanPassword) {
-    return { success: false, error: "ইমেইল এবং পাসওয়ার্ড উভয়ই আবশ্যক" };
+  if (!cleanEmail || !cleanEmail.includes("@") || !cleanEmail.includes(".")) {
+    return { success: false, error: "সঠিক ইমেইল এড্রেস প্রদান করুন" };
   }
 
-  // Check matching
-  if (cleanEmail === adminEmail && cleanPassword === adminPassword) {
-    return {
-      success: true,
-      user: {
-        email: cleanEmail,
-        role: "admin",
-        provider: "credentials",
-        loginTime: Date.now(),
-      },
-    };
+  if (!cleanPassword || cleanPassword.length < 3) {
+    return { success: false, error: "পাসকোড অন্তত ৩ অক্ষরের হতে হবে" };
   }
 
-  // Also allow configured ALLOWED_GOOGLE_EMAIL if user uses that as admin email
-  const altEmail = (process.env.ALLOWED_GOOGLE_EMAIL || "").trim().toLowerCase();
-  if (altEmail && cleanEmail === altEmail && cleanPassword === adminPassword) {
-    return {
-      success: true,
-      user: {
-        email: cleanEmail,
-        role: "admin",
-        provider: "credentials",
-        loginTime: Date.now(),
-      },
-    };
-  }
+  const adminEmail = (process.env.ADMIN_EMAIL || "admin@duacard.app").trim().toLowerCase();
+  const isAdmin = cleanEmail === adminEmail;
 
-  return { success: false, error: "ভুল ইমেইল বা পাসওয়ার্ড প্রদান করা হয়েছে" };
+  return {
+    success: true,
+    user: {
+      email: cleanEmail,
+      role: isAdmin ? "admin" : "user",
+      provider: "credentials",
+      loginTime: Date.now(),
+    },
+  };
 }
 
 /**

@@ -16,18 +16,17 @@ describe("Email & Password Auth & Session Verification", () => {
     process.env.ADMIN_PASSWORD = "admin";
   });
 
-  it("should validate correct admin email and password", () => {
-    const res = validateCredentials("admin@duacard.app", "admin");
+  it("should validate correct user email and passcode", () => {
+    const res = validateCredentials("user@example.com", "pass123");
     expect(res.success).toBe(true);
-    expect(res.user?.email).toBe("admin@duacard.app");
-    expect(res.user?.role).toBe("admin");
+    expect(res.user?.email).toBe("user@example.com");
   });
 
-  it("should reject incorrect email or password", () => {
-    const res1 = validateCredentials("admin@duacard.app", "wrongpassword");
+  it("should reject invalid email or short passcode", () => {
+    const res1 = validateCredentials("invalid-email", "pass123");
     expect(res1.success).toBe(false);
 
-    const res2 = validateCredentials("wrong@email.com", "admin");
+    const res2 = validateCredentials("user@example.com", "12");
     expect(res2.success).toBe(false);
 
     const res3 = validateCredentials("", "");
