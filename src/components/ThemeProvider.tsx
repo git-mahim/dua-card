@@ -79,24 +79,47 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateThemeMeta = (color: string) => {
-    // 1. Remove all old theme-color meta tags
+    const isDark = color !== "#ffffff";
+    const root = document.documentElement;
+
+    // 1. Update element background colors & colorScheme directly
+    root.style.colorScheme = isDark ? "dark" : "light";
+    root.style.backgroundColor = color;
+    if (document.body) {
+      document.body.style.backgroundColor = color;
+    }
+
+    // 2. Remove all old theme-color meta tags
     const oldMetas = document.querySelectorAll('meta[name="theme-color"]');
     oldMetas.forEach((meta) => meta.remove());
 
-    // 2. Append fresh theme-color meta tag
+    // 3. Append plain theme-color meta tag
     const meta = document.createElement("meta");
     meta.setAttribute("name", "theme-color");
     meta.setAttribute("content", color);
     document.head.appendChild(meta);
 
-    // 3. Update apple-mobile-web-app-status-bar-style for iOS
+    // 4. Append explicit media query overrides so Android Chrome system theme cannot force white bar
+    const metaLight = document.createElement("meta");
+    metaLight.setAttribute("name", "theme-color");
+    metaLight.setAttribute("media", "(prefers-color-scheme: light)");
+    metaLight.setAttribute("content", color);
+    document.head.appendChild(metaLight);
+
+    const metaDark = document.createElement("meta");
+    metaDark.setAttribute("name", "theme-color");
+    metaDark.setAttribute("media", "(prefers-color-scheme: dark)");
+    metaDark.setAttribute("content", color);
+    document.head.appendChild(metaDark);
+
+    // 5. Update apple-mobile-web-app-status-bar-style for iOS
     let appleMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
     if (!appleMeta) {
       appleMeta = document.createElement("meta");
       appleMeta.setAttribute("name", "apple-mobile-web-app-status-bar-style");
       document.head.appendChild(appleMeta);
     }
-    appleMeta.setAttribute("content", color === "#ffffff" ? "default" : "black");
+    appleMeta.setAttribute("content", isDark ? "black-translucent" : "default");
   };
 
   return (

@@ -40,10 +40,6 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   colorScheme: "dark light",
-  themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#121212" },
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-  ],
   interactiveWidget: "resizes-content",
 };
 
@@ -71,21 +67,37 @@ export default function RootLayout({
                   document.documentElement.classList.remove('light');
                   document.documentElement.classList.add('dark');
                   document.documentElement.style.colorScheme = 'dark';
+                  document.documentElement.style.backgroundColor = '#121212';
                 } else {
                   document.documentElement.classList.remove('dark');
                   document.documentElement.classList.add('light');
                   document.documentElement.style.colorScheme = 'light';
+                  document.documentElement.style.backgroundColor = '#ffffff';
                 }
                 var activeColor = isDark ? '#121212' : '#ffffff';
                 var metas = document.querySelectorAll('meta[name="theme-color"]');
                 metas.forEach(function(m) { m.remove(); });
-                var newMeta = document.createElement('meta');
-                newMeta.setAttribute('name', 'theme-color');
-                newMeta.setAttribute('content', activeColor);
-                document.head.appendChild(newMeta);
+
+                var m1 = document.createElement('meta');
+                m1.setAttribute('name', 'theme-color');
+                m1.setAttribute('content', activeColor);
+                document.head.appendChild(m1);
+
+                var m2 = document.createElement('meta');
+                m2.setAttribute('name', 'theme-color');
+                m2.setAttribute('media', '(prefers-color-scheme: light)');
+                m2.setAttribute('content', activeColor);
+                document.head.appendChild(m2);
+
+                var m3 = document.createElement('meta');
+                m3.setAttribute('name', 'theme-color');
+                m3.setAttribute('media', '(prefers-color-scheme: dark)');
+                m3.setAttribute('content', activeColor);
+                document.head.appendChild(m3);
+
                 var appleMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
                 if (appleMeta) {
-                  appleMeta.setAttribute('content', isDark ? 'black' : 'default');
+                  appleMeta.setAttribute('content', isDark ? 'black-translucent' : 'default');
                 }
               } catch (e) {}
             `,
