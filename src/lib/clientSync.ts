@@ -263,11 +263,24 @@ export async function triggerCloudSync(options?: {
       return { success: false, error: data.error || "সিঙ্ক ব্যর্থ হয়েছে" };
     }
 
-    // Step 3: If server merged/updated duas returned, write back to local db
-    if (data.mergedDuas && Array.isArray(data.mergedDuas) && data.mergedDuas.length > 0) {
-      await replaceAllDuas(data.mergedDuas);
+    // Step 3: If server merged payload returned, write back to local db & refresh UI
+    const mergedPayload = data.mergedPayload || data.data;
+    if (mergedPayload && Array.isArray(mergedPayload.duas) && mergedPayload.duas.length > 0) {
+      await replaceAllDuas(mergedPayload.duas);
+      if (Array.isArray(mergedPayload.logs) && mergedPayload.logs.length > 0) {
+        try {
+          await db.logs.clear();
+          await db.logs.bulkPut(mergedPayload.logs);
+        } catch (e) {
+          console.warn("Failed to update local logs:", e);
+        }
+      }
     }
     await ensureCoreDuas();
+
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("dua_data_synced_from_cloud"));
+    }
 
     const now = Date.now();
     updateState({
