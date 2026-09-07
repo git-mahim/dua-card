@@ -485,49 +485,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               {/* User Profile Card */}
               <div className="p-3.5 bg-zinc-50 dark:bg-zinc-900/80 rounded-[18px] border border-zinc-200/60 dark:border-zinc-800 flex items-center gap-3">
                 <div className="relative shrink-0">
-                  {syncState.user.image && !imgError ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={syncState.user.image}
-                      alt={syncState.user.name || "User Avatar"}
-                      referrerPolicy="no-referrer"
-                      crossOrigin="anonymous"
-                      onError={() => setImgError(true)}
-                      className="w-12 h-12 rounded-full object-cover ring-2 ring-[#ffb31a] shadow-xs"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#ffb31a] to-[#c87d00] text-zinc-950 font-bold text-base flex items-center justify-center shadow-xs">
-                      {syncState.user.name ? syncState.user.name.charAt(0).toUpperCase() : "G"}
-                    </div>
-                  )}
-                  <div className="absolute -bottom-0.5 -right-0.5 w-4.5 h-4.5 rounded-full bg-white dark:bg-zinc-800 shadow-xs flex items-center justify-center p-0.5 ring-1 ring-white dark:ring-zinc-900">
-                    <svg className="w-3.5 h-3.5" width="14" height="14" viewBox="0 0 24 24">
-                      <path
-                        fill="#4285F4"
-                        d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
-                      />
-                      <path
-                        fill="#34A853"
-                        d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"
-                      />
-                      <path
-                        fill="#FBBC05"
-                        d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
-                      />
-                      <path
-                        fill="#EA4335"
-                        d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
-                      />
-                    </svg>
+                  <div className="w-11 h-11 rounded-full bg-[#ffb31a]/20 text-[#c87d00] dark:text-[#ffb31a] font-bold text-base flex items-center justify-center border border-[#ffb31a]/30 shadow-xs">
+                    {syncState.user.email ? syncState.user.email.charAt(0).toUpperCase() : <Cloud className="w-5 h-5" />}
                   </div>
+                  <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-zinc-900" />
                 </div>
 
                 <div className="flex-1 min-w-0 flex flex-col justify-center">
-                  <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 truncate">
-                    {syncState.user.name || (language === "bn" ? "গুগল ব্যবহারকারী" : "Google User")}
-                  </h4>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate mt-0.5 font-sans">
+                  <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate font-mono">
                     {syncState.user.email}
+                  </h4>
+                  <p className="text-[11px] text-emerald-600 dark:text-emerald-400 truncate mt-0.5 font-medium flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 stroke-[2.5]" />
+                    <span>{language === "bn" ? "অটো-সিঙ্ক সক্রিয়" : "Auto-sync active"}</span>
                   </p>
                 </div>
               </div>
@@ -552,7 +522,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       : "bg-emerald-500"
                   }`} />
                   <span className="font-semibold text-emerald-700 dark:text-emerald-400">
-                    {syncState.status === "syncing" ? (language === "bn" ? "সিঙ্ক হচ্ছে..." : "Syncing...") : (language === "bn" ? "অটো-সিঙ্ক সক্রিয়" : "Auto-Sync Active")}
+                    {syncState.status === "syncing" ? (language === "bn" ? "সিঙ্ক হচ্ছে..." : "Syncing...") : (language === "bn" ? "ক্লাউড নিরাপদ" : "Cloud Secure")}
                   </span>
                 </div>
 
@@ -591,26 +561,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   onClose();
                   onOpenLogin?.();
                 }}
-                className="w-full min-h-[44px] py-2 px-3.5 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-950 dark:text-zinc-50 font-bold text-xs rounded-[14px] border border-zinc-200 dark:border-zinc-700 shadow-2xs flex items-center justify-center gap-2.5 active:scale-98 transition-all"
+                className="w-full min-h-[44px] py-2 px-3.5 bg-[#ffb31a]/15 hover:bg-[#ffb31a]/25 text-zinc-950 dark:text-[#ffb31a] font-bold text-xs rounded-[14px] border border-[#ffb31a]/40 shadow-2xs flex items-center justify-center gap-2 active:scale-98 transition-all"
               >
-                <svg className="w-4 h-4 shrink-0" width="16" height="16" viewBox="0 0 24 24">
-                  <path
-                    fill="#4285F4"
-                    d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
-                  />
-                </svg>
+                <Cloud className="w-4 h-4 text-[#ffb31a] shrink-0" />
                 <span>{t("signInWithGoogle")}</span>
               </button>
             </div>

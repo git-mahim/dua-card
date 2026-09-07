@@ -25,8 +25,8 @@ export const SEMANTIC_STYLES: Record<string, TypographyStyle> = {
     description: "দোয়ার প্রধান শিরোনাম - বড় ও বোল্ড",
     fontSize: "text-[19px] sm:text-[21px]",
     fontWeight: "font-extrabold",
-    lineHeight: "leading-[1.4]",
-    className: "dua-title text-[19px] sm:text-[21px] font-extrabold leading-[1.4] text-zinc-900 dark:text-zinc-50 mb-2 font-bengali tracking-tight",
+    lineHeight: "leading-[1.45]",
+    className: "dua-title text-[19px] sm:text-[21px] font-bold leading-[1.45] text-zinc-900 dark:text-zinc-50 mb-2.5 font-bengali tracking-normal",
   },
   "dua-pronunciation": {
     id: "dua-pronunciation",
@@ -35,8 +35,8 @@ export const SEMANTIC_STYLES: Record<string, TypographyStyle> = {
     description: "আরবি বা বাংলা উচ্চারণ - স্পষ্ট ও পরিচ্ছন্ন",
     fontSize: "text-[16px] sm:text-[17px]",
     fontWeight: "font-medium",
-    lineHeight: "leading-[1.6]",
-    className: "dua-pronunciation text-[16px] sm:text-[17px] font-medium leading-[1.6] text-zinc-800 dark:text-zinc-200 mb-2 font-bengali",
+    lineHeight: "leading-[1.75]",
+    className: "dua-pronunciation text-[16px] sm:text-[17px] font-medium leading-[1.75] text-zinc-800 dark:text-zinc-200 mb-2 font-bengali",
   },
   "dua-meaning": {
     id: "dua-meaning",
@@ -45,8 +45,8 @@ export const SEMANTIC_STYLES: Record<string, TypographyStyle> = {
     description: "দোয়ার অর্থ ও অনুবাদ - হালকা সোনালী হাইলাইট ও বর্ডার",
     fontSize: "text-[13px] sm:text-[14px]",
     fontWeight: "font-normal",
-    lineHeight: "leading-[1.6]",
-    className: "dua-meaning text-[13px] sm:text-[14px] font-normal leading-[1.6] text-zinc-900 dark:text-zinc-50 pl-3.5 pr-3 py-2 my-2 border-l-[3px] border-[#ffb31a] bg-amber-500/8 dark:bg-amber-400/10 rounded-r-[12px] font-bengali shadow-2xs",
+    lineHeight: "leading-[1.7]",
+    className: "dua-meaning text-[13px] sm:text-[14px] font-normal leading-[1.7] text-zinc-900 dark:text-zinc-100 pl-3.5 pr-3 py-2.5 my-2.5 border-l-[3px] border-[#ffb31a] bg-amber-500/[0.06] dark:bg-amber-400/[0.08] rounded-r-[12px] font-bengali shadow-2xs",
   },
   "dua-paragraph": {
     id: "dua-paragraph",
@@ -55,7 +55,7 @@ export const SEMANTIC_STYLES: Record<string, TypographyStyle> = {
     description: "শিক্ষা, প্রেক্ষাপট বা সহায়ক নোট",
     fontSize: "text-[12px] sm:text-[13px]",
     fontWeight: "font-normal",
-    lineHeight: "leading-[1.6]",
-    className: "dua-paragraph text-[12px] sm:text-[13px] font-normal leading-[1.6] text-zinc-700 dark:text-zinc-200 my-1.5 font-bengali",
+    lineHeight: "leading-[1.7]",
+    className: "dua-paragraph text-[12px] sm:text-[13px] font-normal leading-[1.7] text-zinc-600 dark:text-zinc-300 my-2 font-bengali",
   },
 };

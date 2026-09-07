@@ -52,6 +52,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
   onDeleteRequest,
   onToggleCompleted,
   onOpenCountModal,
+  onQuickAddCount,
   onOpenAnalytics,
   onExportImage,
   onMoveUp,
@@ -158,31 +159,37 @@ export const DuaCard: React.FC<DuaCardProps> = ({
         onComplete={() => setShowCheckAnim(false)}
       />
 
-      {/* Top Bar: Reorder Handle, Status Badge & Actions Menu */}
-      <div className="flex items-center justify-between gap-2 mb-3" data-no-double-tap="true">
-        {/* Left Side: Drag Handle & Order Number Badge */}
-        <div className="flex items-center gap-1.5 shrink-0">
+      {/* Top Bar: Integrated Reorder Handle & Order Badge, Status Badge & Actions Menu */}
+      <div className="flex items-center justify-between gap-2 mb-3.5" data-no-double-tap="true">
+        {/* Left Side: Integrated Drag Handle & Order Number Badge */}
+        <div className="flex items-center shrink-0">
           {!isDragOverlay ? (
-            <button
-              type="button"
+            <div
               {...attributes}
               {...listeners}
-              aria-label={language === "bn" ? "স্থান পরিবর্তন করতে ধরে রাখুন" : "Drag to reorder"}
-              className="touch-none cursor-grab active:cursor-grabbing p-1.5 -ml-1 text-zinc-400 dark:text-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-300 rounded-lg transition-colors flex items-center justify-center shrink-0"
+              role="button"
+              tabIndex={0}
+              aria-label={
+                language === "bn"
+                  ? `ক্রমিক ${formatNumber(orderIndex ?? 1)} - স্থান পরিবর্তন করতে ধরে রাখুন`
+                  : `Order ${orderIndex} - Drag to reorder`
+              }
+              className="touch-none cursor-grab active:cursor-grabbing flex items-center gap-1 px-2.5 py-1 rounded-[10px] bg-zinc-100/90 dark:bg-zinc-850/80 hover:bg-zinc-200/80 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border border-zinc-200/70 dark:border-zinc-750 transition-colors select-none group/drag shadow-2xs"
             >
-              <GripVertical className="w-4 h-4 stroke-[2.2]" />
-            </button>
+              <GripVertical className="w-3.5 h-3.5 text-zinc-400 group-hover/drag:text-zinc-600 dark:group-hover/drag:text-zinc-300 stroke-[2.2]" />
+              {typeof orderIndex === "number" && (
+                <span className="font-mono text-[11px] font-bold text-zinc-700 dark:text-zinc-300">
+                  {formatNumber(orderIndex)}
+                </span>
+              )}
+            </div>
           ) : (
-            <div className="w-4 h-4" />
-          )}
-
-          {typeof orderIndex === "number" && (
-            <span
-              className="px-2 py-0.5 rounded-[8px] bg-zinc-100 dark:bg-zinc-800/90 text-zinc-600 dark:text-zinc-400 font-mono text-[11px] font-bold border border-zinc-200/80 dark:border-zinc-700/80 shadow-2xs select-none"
-              title={language === "bn" ? `ক্রমিক নম্বর: ${formatNumber(orderIndex)}` : `Order: ${orderIndex}`}
-            >
-              {formatNumber(orderIndex)}
-            </span>
+            typeof orderIndex === "number" && (
+              <div className="flex items-center gap-1 px-2.5 py-1 rounded-[10px] bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-mono text-[11px] font-bold border border-zinc-200 dark:border-zinc-700">
+                <GripVertical className="w-3.5 h-3.5 text-zinc-400 stroke-[2.2]" />
+                <span>{formatNumber(orderIndex)}</span>
+              </div>
+            )
           )}
         </div>
 
@@ -197,10 +204,10 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                 ? (language === "bn" ? "পড়েছি সম্পন্ন - আনচেক করতে ক্লিক করুন" : "Completed - Click to uncheck")
                 : (language === "bn" ? "বাকি দোয়া - সংখ্যা ইনপুট করতে ক্লিক করুন" : "Pending - Click to record count")
             }
-            className={`min-h-[34px] px-2.5 py-1 rounded-[10px] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer select-none active:scale-95 shadow-2xs ${
+            className={`min-h-[32px] px-2.5 py-1 rounded-[10px] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer select-none active:scale-95 shadow-2xs ${
               isCompleted
                 ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-300 dark:hover:border-rose-800"
-                : "bg-amber-500/15 text-[#c87d00] dark:text-[#ffb31a] border border-[#ffb31a]/30 hover:bg-[#ffb31a]/25"
+                : "bg-amber-500/12 text-[#c87d00] dark:text-[#ffb31a] border border-[#ffb31a]/30 hover:bg-[#ffb31a]/20"
             }`}
           >
             {isCompleted ? (
@@ -227,7 +234,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                 }}
                 aria-label={t("actions")}
                 aria-expanded={showMenu}
-                className="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                className="w-8 h-8 rounded-[10px] flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all active:scale-90"
               >
                 <MoreVertical className="w-4 h-4" />
               </button>
@@ -360,33 +367,47 @@ export const DuaCard: React.FC<DuaCardProps> = ({
       {/* Bottom Action Footer */}
       {!isDragOverlay && (
         <div
-          className="mt-3 py-3.5 sm:py-4 border-t border-zinc-100 dark:border-zinc-800/70 flex items-center justify-between gap-2"
+          className="mt-3.5 py-3 border-t border-zinc-100/90 dark:border-zinc-800/60 flex items-center justify-between gap-2"
           data-no-double-tap="true"
         >
-          {/* Left: Quick Counter Badge */}
-          <button
-            type="button"
-            onClick={() => onOpenCountModal && onOpenCountModal(dua)}
-            className={`px-3 py-1.5 rounded-[12px] text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow-2xs whitespace-nowrap ${
-              isCompleted
-                ? "bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] border border-[#ffb31a]/35 hover:bg-[#ffb31a]/25"
-                : "bg-zinc-100/90 dark:bg-zinc-800/70 hover:bg-[#ffb31a]/15 hover:border-[#ffb31a]/40 text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-100 border border-zinc-200/80 dark:border-zinc-750"
-            }`}
-            title={language === "bn" ? "আমল সংখ্যা যোগ বা পরিবর্তন করুন" : "Add or update recitation count"}
-          >
-            <span>{t("todayCount")}:</span>
-            <span className={`font-mono font-extrabold text-[13px] ${
-              isCompleted ? "text-zinc-950 dark:text-[#ffb31a]" : "text-zinc-900 dark:text-zinc-100"
-            }`}>
-              {formatNumber(currentCount)}
-            </span>
-            <span className={`text-[10px] font-medium ${
-              isCompleted ? "text-amber-900/80 dark:text-amber-300/80" : "text-zinc-500 dark:text-zinc-400"
-            }`}>
-              {t("timesSuffix")}
-            </span>
-            <Plus className="w-3 h-3 text-[#ffb31a] stroke-[2.5]" />
-          </button>
+          {/* Left: Quick Counter Stepper Pill */}
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => onOpenCountModal && onOpenCountModal(dua)}
+              className={`min-h-[34px] px-3 py-1 rounded-[11px] text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95 shadow-2xs whitespace-nowrap ${
+                isCompleted
+                  ? "bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] border border-[#ffb31a]/35 hover:bg-[#ffb31a]/25"
+                  : "bg-zinc-100/90 dark:bg-zinc-850/80 hover:bg-[#ffb31a]/12 hover:border-[#ffb31a]/30 text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-100 border border-zinc-200/70 dark:border-zinc-750"
+              }`}
+              title={language === "bn" ? "আমল সংখ্যা বিস্তারিত দেখুন বা পরিবর্তন করুন" : "Add or update recitation count"}
+            >
+              <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">{t("todayCount")}:</span>
+              <span className={`font-mono font-bold text-[13px] ${
+                isCompleted ? "text-zinc-950 dark:text-[#ffb31a]" : "text-zinc-900 dark:text-zinc-100"
+              }`}>
+                {formatNumber(currentCount)}
+              </span>
+              <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-normal">
+                {t("timesSuffix")}
+              </span>
+            </button>
+
+            {onQuickAddCount && (
+              <button
+                type="button"
+                onClick={() => {
+                  triggerHaptic(30);
+                  onQuickAddCount(dua, 1);
+                }}
+                aria-label={language === "bn" ? "১ বার যোগ করুন" : "Quick add 1"}
+                className="w-[34px] h-[34px] rounded-[10px] bg-[#ffb31a]/15 hover:bg-[#ffb31a]/25 text-[#c87d00] dark:text-[#ffb31a] border border-[#ffb31a]/30 flex items-center justify-center transition-all active:scale-90 shadow-2xs font-bold text-xs"
+                title={language === "bn" ? "দ্রুত ১ বার যোগ করুন (+১)" : "Quick +1"}
+              >
+                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              </button>
+            )}
+          </div>
 
           {/* Right: Direct Analytics Button */}
           {onOpenAnalytics && (
@@ -396,11 +417,11 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                 triggerHaptic(40);
                 onOpenAnalytics(dua);
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 active:scale-95 rounded-[12px] border border-transparent hover:border-zinc-200/80 dark:hover:border-zinc-700/80 transition-all whitespace-nowrap"
+              className="min-h-[34px] px-2.5 py-1 text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-850 active:scale-95 rounded-[10px] border border-transparent hover:border-zinc-200/70 dark:hover:border-zinc-800 transition-all flex items-center gap-1.5 whitespace-nowrap"
               title={language === "bn" ? "আমল হিস্ট্রি ও বিস্তারিত চার্ট দেখুন" : "View recitation history and analytics"}
             >
               <TrendingUp className="w-3.5 h-3.5 text-[#ffb31a]" />
-              <span>{t("analytics")}</span>
+              <span className="text-[11px] font-medium">{t("analytics")}</span>
             </button>
           )}
         </div>

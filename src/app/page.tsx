@@ -333,12 +333,12 @@ export default function HomePage() {
       </main>
 
       {/* Floating Action Button (FAB) for Adding Dua */}
-      <div className="fixed bottom-6 right-6 z-20">
+      <div className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] right-5 sm:right-6 z-20">
         <button
           type="button"
           onClick={handleOpenCreate}
           aria-label={t("addNewDua")}
-          className="w-14 h-14 rounded-full bg-[#ffb31a] hover:bg-[#e69c05] text-zinc-950 font-bold shadow-lg shadow-[#ffb31a]/25 flex items-center justify-center active:scale-95 transition-all focus:outline-none focus:ring-4 focus:ring-[#ffb31a]/30"
+          className="w-14 h-14 rounded-full bg-gradient-to-tr from-[#ff9f00] to-[#ffc247] hover:from-[#e68e00] hover:to-[#ffb31a] text-zinc-950 font-bold shadow-lg shadow-[#ffb31a]/30 hover:shadow-xl hover:shadow-[#ffb31a]/40 flex items-center justify-center active:scale-95 transition-all focus:outline-none focus:ring-4 focus:ring-[#ffb31a]/30"
         >
           <Plus className="w-6 h-6 stroke-[2.5]" />
         </button>

@@ -215,12 +215,12 @@ export const DuaReaderModal: React.FC<DuaReaderModalProps> = ({
 
       {/* Main Reading Canvas */}
       <main className="flex-1 w-full max-w-lg mx-auto px-4 sm:px-5 py-6 pb-20">
-        <article className="prose dark:prose-invert max-w-none">
+        <div className="w-full bg-surface-card border border-zinc-200/70 dark:border-zinc-800/60 rounded-[24px] p-5 sm:p-6 shadow-xs">
           <StructuredDuaViewer content={dua.richTextContent} isTruncated={false} />
-        </article>
+        </div>
 
         {/* Footer meta */}
-        <footer className="mt-12 pt-4 border-t border-zinc-200/60 dark:border-zinc-800/60 flex items-center justify-between text-[11px] text-zinc-400 dark:text-zinc-500">
+        <footer className="mt-8 pt-4 border-t border-zinc-200/50 dark:border-zinc-800/50 flex items-center justify-between text-[11px] text-zinc-400 dark:text-zinc-500">
           <span>
             {language === "bn" ? "সংরক্ষণ: " : "Saved: "}
             {new Date(dua.createdAt).toLocaleDateString(language === "bn" ? "bn-BD" : "en-US")}

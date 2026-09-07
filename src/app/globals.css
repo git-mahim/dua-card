@@ -16,8 +16,8 @@
   /* Dynamic Dua Font Size Variables (Customizable from Settings) */
   --dua-font-title: 19px;
   --dua-font-pronunciation: 17px;
-  --dua-font-meaning: 15px;
-  --dua-font-general: 14px;
+  --dua-font-meaning: 13px;
+  --dua-font-general: 12px;
 }
 
 .dark {
@@ -78,8 +78,8 @@ body {
 
 .tiptap p {
   margin-top: 0;
-  margin-bottom: 0.45rem;
-  line-height: 1.5;
+  margin-bottom: 0.5rem;
+  line-height: 1.7;
 }
 
 .tiptap p.is-editor-empty:first-child::before {
@@ -94,19 +94,19 @@ body {
 .dua-title,
 .tiptap .dua-title,
 .dua-title-render {
-  font-size: var(--dua-font-title, 20px) !important;
+  font-size: var(--dua-font-title, 19px) !important;
   font-weight: 700;
-  line-height: 1.3;
-  margin-bottom: 0.85rem;
+  line-height: 1.45;
+  margin-bottom: 0.75rem;
   color: inherit;
 }
 
 .dua-pronunciation,
 .tiptap .dua-pronunciation,
 .dua-pronunciation-render {
-  font-size: var(--dua-font-pronunciation, 16px) !important;
+  font-size: var(--dua-font-pronunciation, 17px) !important;
   font-weight: 500;
-  line-height: 1.5;
+  line-height: 1.75;
   margin-bottom: 0.75rem;
   color: inherit;
 }
@@ -114,22 +114,22 @@ body {
 .dua-meaning,
 .tiptap .dua-meaning,
 .dua-meaning-render {
-  font-size: var(--dua-font-meaning, 15px) !important;
+  font-size: var(--dua-font-meaning, 13px) !important;
   font-weight: 400;
-  line-height: 1.5;
-  padding: 0.55rem 0.85rem;
-  margin-top: 0.75rem;
-  margin-bottom: 0.85rem;
+  line-height: 1.7;
+  padding: 0.6rem 0.85rem;
+  margin-top: 0.65rem;
+  margin-bottom: 0.75rem;
   border-left: 3.5px solid #ffb31a;
-  background-color: rgba(255, 179, 26, 0.08);
-  border-top-right-radius: 0.65rem;
-  border-bottom-right-radius: 0.65rem;
+  background-color: rgba(255, 179, 26, 0.07);
+  border-top-right-radius: 0.75rem;
+  border-bottom-right-radius: 0.75rem;
 }
 
 .dark .dua-meaning,
 .dark .tiptap .dua-meaning,
 .dark .dua-meaning-render {
-  background-color: rgba(255, 179, 26, 0.12);
+  background-color: rgba(255, 179, 26, 0.09);
   border-left-color: #ffb31a;
   color: #fafafa !important;
 }
@@ -138,10 +138,10 @@ body {
 .tiptap .dua-paragraph,
 .dua-paragraph-render,
 .dua-virtue {
-  font-size: var(--dua-font-general, 15px) !important;
+  font-size: var(--dua-font-general, 12px) !important;
   font-weight: 400;
-  line-height: 1.5;
-  margin-bottom: 0.65rem;
+  line-height: 1.7;
+  margin-bottom: 0.6rem;
   color: inherit;
 }
 
@@ -149,7 +149,7 @@ body {
 .dark .tiptap .dua-paragraph,
 .dark .dua-paragraph-render,
 .dark .dua-virtue {
-  color: #e4e4e7 !important;
+  color: #d4d4d8 !important;
 }
 
 .tiptap blockquote {
