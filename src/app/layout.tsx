@@ -1,27 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Hind_Siliguri, Anek_Bangla, Noto_Sans_Bengali } from "next/font/google";
+import { Noto_Serif_Bengali, Tiro_Bangla } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/lib/i18n";
 
-const hindSiliguri = Hind_Siliguri({
+const notoSerifBengali = Noto_Serif_Bengali({
   subsets: ["bengali"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-hind-siliguri",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-noto-serif-bengali",
   display: "swap",
 });
 
-const anekBangla = Anek_Bangla({
+const tiroBangla = Tiro_Bangla({
   subsets: ["bengali"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  variable: "--font-anek-bangla",
-  display: "swap",
-});
-
-const notoSansBengali = Noto_Sans_Bengali({
-  subsets: ["bengali"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-noto-sans-bengali",
+  weight: ["400"],
+  variable: "--font-tiro-bangla",
   display: "swap",
 });
 
@@ -63,7 +56,7 @@ export default function RootLayout({
     <html
       lang="bn"
       suppressHydrationWarning
-      className={`dark ${hindSiliguri.variable} ${anekBangla.variable} ${notoSansBengali.variable}`}
+      className={`dark ${notoSerifBengali.variable} ${tiroBangla.variable}`}
     >
       <head>
         {/* Anti-flash theme initialization script */}
