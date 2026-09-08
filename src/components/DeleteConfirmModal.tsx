@@ -54,7 +54,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm bg-white dark:bg-[#181818] border border-zinc-200/90 dark:border-zinc-800/90 rounded-[20px] p-5 shadow-2xl text-left flex flex-col gap-4 touch-auto select-auto"
+        className="w-full max-w-sm bg-white dark:bg-[#181818] border-0 dark:border dark:border-zinc-800/90 rounded-[20px] p-5 shadow-2xl text-left flex flex-col gap-4 touch-auto select-auto"
       >
         <div className="flex items-start justify-between">
           {iconType === "reset" || !isDestructive ? (

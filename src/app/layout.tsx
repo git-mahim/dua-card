@@ -46,10 +46,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   colorScheme: "dark light",
-  themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#121212" },
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-  ],
+  themeColor: "#121212",
   interactiveWidget: "resizes-content",
 };
 
@@ -96,7 +93,10 @@ export default function RootLayout({
 
                 var metas = document.querySelectorAll('meta[name="theme-color"]');
                 if (metas.length > 0) {
-                  metas.forEach(function(m) { m.setAttribute('content', activeColor); });
+                  metas.forEach(function(m) {
+                    m.removeAttribute('media');
+                    m.setAttribute('content', activeColor);
+                  });
                 } else {
                   var m1 = document.createElement('meta');
                   m1.setAttribute('name', 'theme-color');

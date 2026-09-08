@@ -101,7 +101,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // 3. Update all theme-color meta tags in DOM directly without removing nodes
     const metas = document.querySelectorAll('meta[name="theme-color"]');
     if (metas.length > 0) {
-      metas.forEach((m) => m.setAttribute("content", color));
+      metas.forEach((m) => {
+        m.removeAttribute("media");
+        m.setAttribute("content", color);
+      });
     } else {
       const meta = document.createElement("meta");
       meta.setAttribute("name", "theme-color");

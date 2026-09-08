@@ -74,7 +74,7 @@ export const DuaCountModal: React.FC<DuaCountModalProps> = ({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm bg-white dark:bg-[#181818] border border-zinc-200/90 dark:border-zinc-800/90 rounded-[22px] p-5 shadow-2xl flex flex-col gap-4 animate-in zoom-in-95 duration-150 touch-auto select-auto"
+        className="w-full max-w-sm bg-white dark:bg-[#181818] border-0 dark:border dark:border-zinc-800/90 rounded-[22px] p-5 shadow-2xl flex flex-col gap-4 animate-in zoom-in-95 duration-150 touch-auto select-auto"
         role="dialog"
         aria-modal="true"
         aria-labelledby="count-modal-title"
