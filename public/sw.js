@@ -65,12 +65,14 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Cache-first for Google Fonts and Static Assets
+  // Cache-first for Google Fonts and Static Assets (outside of local dev)
+  const isLocalhost = url.hostname === "localhost" || url.hostname === "127.0.0.1";
   if (
-    url.hostname === "fonts.googleapis.com" ||
-    url.hostname === "fonts.gstatic.com" ||
-    url.pathname.startsWith("/icons/") ||
-    url.pathname.startsWith("/_next/static/")
+    !isLocalhost &&
+    (url.hostname === "fonts.googleapis.com" ||
+      url.hostname === "fonts.gstatic.com" ||
+      url.pathname.startsWith("/icons/") ||
+      url.pathname.startsWith("/_next/static/"))
   ) {
     event.respondWith(
       caches.match(request).then((cached) => {
