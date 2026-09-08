@@ -59,9 +59,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }, [theme, mounted]);
 
-  // Listen for system theme changes if user hasn't set explicit preference
+  // Listen for system theme changes and PWA window focus/visibility changes
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return;
+
+    const syncPwaMeta = () => {
+      const activeColor = theme === "dark" ? "#121212" : "#ffffff";
+      updateThemeMeta(activeColor);
+    };
+
+    window.addEventListener("focus", syncPwaMeta);
+    document.addEventListener("visibilitychange", syncPwaMeta);
+
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = (e: MediaQueryListEvent) => {
       const saved = localStorage.getItem(THEME_STORAGE_KEY);
@@ -69,9 +78,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         setThemeState(e.matches ? "dark" : "light");
       }
     };
+
     mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+    return () => {
+      window.removeEventListener("focus", syncPwaMeta);
+      document.removeEventListener("visibilitychange", syncPwaMeta);
+      mediaQuery.removeEventListener("change", handleChange);
+    };
+  }, [theme]);
 
   const setTheme = (newTheme: ThemeMode) => {
     setThemeState(newTheme);
