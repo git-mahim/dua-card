@@ -254,6 +254,66 @@ export async function logoutUser(): Promise<void> {
   });
 }
 
+const PENDING_SYNC_KEY = "dua_card_pending_offline_sync";
+
+function getStorage(): Storage | null {
+  if (typeof window !== "undefined" && window.localStorage) {
+    return window.localStorage;
+  }
+  if (typeof localStorage !== "undefined") {
+    return localStorage;
+  }
+  return null;
+}
+
+export function markPendingOfflineChanges(): void {
+  const store = getStorage();
+  if (store) {
+    try {
+      store.setItem(PENDING_SYNC_KEY, "true");
+    } catch {}
+  }
+}
+
+export function clearPendingOfflineChanges(): void {
+  const store = getStorage();
+  if (store) {
+    try {
+      store.removeItem(PENDING_SYNC_KEY);
+    } catch {}
+  }
+}
+
+export function hasPendingOfflineChanges(): boolean {
+  const store = getStorage();
+  if (store) {
+    try {
+      return store.getItem(PENDING_SYNC_KEY) === "true";
+    } catch {}
+  }
+  return false;
+}
+
+/**
+ * Auto-sync listener on window network reconnection (online event)
+ */
+if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
+  window.addEventListener("online", async () => {
+    updateState({ status: "idle" });
+    const isAuth = await checkAuthStatus();
+    if (isAuth) {
+      const res = await triggerCloudBackup({ isSilent: true });
+      if (res.success) {
+        clearPendingOfflineChanges();
+      }
+    }
+  });
+
+  window.addEventListener("offline", () => {
+    updateState({ status: "offline" });
+  });
+}
+
 /**
  * Perform Cloud Backup: Takes the current local duas and logs snapshot and saves to cloud.
  * This overwrites the cloud backup so deleted duas are permanently excluded.
@@ -266,12 +326,14 @@ export async function triggerCloudBackup(options?: {
   // Check offline
   if (typeof navigator !== "undefined" && !navigator.onLine) {
     if (!options?.isSilent) updateState({ status: "offline" });
+    markPendingOfflineChanges();
     return { success: false, error: "ইন্টারনেট সংযোগ নেই" };
   }
 
   const isAuth = await checkAuthStatus();
   if (!isAuth) {
     if (!options?.isSilent) updateState({ status: "unauthenticated" });
+    markPendingOfflineChanges();
     return { success: false, error: "অনুগ্রহ করে গুগল বা ইমেইল দিয়ে সাইন-ইন করুন" };
   }
 
@@ -307,6 +369,7 @@ export async function triggerCloudBackup(options?: {
           errorMessage: data.error || "ক্লাউড ব্যাকআপ করতে ব্যর্থ হয়েছে",
         });
       }
+      markPendingOfflineChanges();
       return { success: false, error: data.error || "ক্লাউড ব্যাকআপ ব্যর্থ হয়েছে" };
     }
 
@@ -320,6 +383,7 @@ export async function triggerCloudBackup(options?: {
 
     if (typeof window !== "undefined") {
       localStorage.setItem(LAST_BACKUP_STORAGE_KEY, String(now));
+      clearPendingOfflineChanges();
     }
 
     return {
@@ -329,6 +393,7 @@ export async function triggerCloudBackup(options?: {
     };
   } catch (err) {
     console.error("Cloud backup error:", err);
+    markPendingOfflineChanges();
     if (!options?.isSilent) {
       updateState({
         status: "error",
@@ -414,6 +479,7 @@ export async function triggerCloudRestore(): Promise<{
 
     if (typeof window !== "undefined") {
       localStorage.setItem(LAST_BACKUP_STORAGE_KEY, String(updatedAt));
+      clearPendingOfflineChanges();
       window.dispatchEvent(new CustomEvent("dua_data_synced_from_cloud"));
     }
 
@@ -457,9 +523,23 @@ export async function triggerCloudSync(): Promise<{
 }
 
 /**
- * Disabled: We no longer auto-sync or auto-restore on every data mutation (add/edit/delete/toggle).
- * This ensures that when a user deletes a dua, it is NOT restored from cloud.
+ * Notify that local data changed and attempt silent sync (or mark pending offline changes)
  */
-export function notifyDataChangedAndScheduleSync(): void {
-  // Intentionally no-op to prevent auto-sync from resurrecting deleted duas
+export async function notifyDataChangedAndScheduleSync(): Promise<void> {
+  if (typeof window === "undefined") return;
+
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    markPendingOfflineChanges();
+    return;
+  }
+
+  const isAuth = await checkAuthStatus();
+  if (isAuth) {
+    const res = await triggerCloudBackup({ isSilent: true });
+    if (!res.success) {
+      markPendingOfflineChanges();
+    }
+  } else {
+    markPendingOfflineChanges();
+  }
 }

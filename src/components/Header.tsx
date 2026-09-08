@@ -40,6 +40,21 @@ export const Header: React.FC<HeaderProps> = ({
   const { language, t } = useLanguage();
   const [formattedDate, setFormattedDate] = useState<string>("");
   const [syncState, setSyncState] = useState<SyncState>(getSyncState());
+  const [isOffline, setIsOffline] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsOffline(!navigator.onLine);
+      const handleOnline = () => setIsOffline(false);
+      const handleOffline = () => setIsOffline(true);
+      window.addEventListener("online", handleOnline);
+      window.addEventListener("offline", handleOffline);
+      return () => {
+        window.removeEventListener("online", handleOnline);
+        window.removeEventListener("offline", handleOffline);
+      };
+    }
+  }, []);
 
   useEffect(() => {
     const unsubscribe = subscribeSyncState((state) => {
@@ -61,31 +76,31 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-30 w-full bg-white/85 dark:bg-[#121212]/85 backdrop-blur-xl border-b border-zinc-200/60 dark:border-zinc-800/60 px-4 py-3 transition-colors duration-200">
-      <div className="max-w-md mx-auto flex flex-col gap-2.5">
-        <div className="flex items-center justify-between">
-          {/* Header Title: Assalamu Alaikum Greeting & Localized Date */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-[12px] bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] flex items-center justify-center shrink-0 shadow-2xs">
-              <Sparkles className="w-4 h-4 text-[#ffb31a]" />
-            </div>
-
-            <div className="flex flex-col justify-center min-w-0">
-              <div className="flex items-center gap-1.5">
-                <h1 className="text-[15px] sm:text-[16px] font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50 leading-tight">
-                  {language === "bn" ? "আসসালামু আলাইকুম" : "Assalamu Alaikum"}
-                </h1>
-                <OfflineBadge />
-              </div>
-              <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 mt-0.5 leading-none truncate">
-                {formattedDate}
-              </span>
-            </div>
+    <header className="sticky top-0 z-30 w-full bg-white/85 dark:bg-[#121212]/85 backdrop-blur-xl border-b border-zinc-200/60 dark:border-zinc-800/60 px-4 py-2.5 sm:py-3 transition-colors duration-200">
+      <div className="max-w-md mx-auto flex items-center justify-between gap-2">
+        {/* Header Title: Assalamu Alaikum Greeting & Localized Date */}
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+          <div className="w-9 h-9 rounded-[12px] bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] flex items-center justify-center shrink-0 shadow-2xs">
+            <Sparkles className="w-4 h-4 text-[#ffb31a]" />
           </div>
 
-          {/* Action Buttons Group */}
-          <div className="flex items-center gap-1">
-            {/* Cloud Sync Status / Login Button */}
+          <div className="flex flex-col justify-center min-w-0 flex-1">
+            <h1 className="text-[15px] sm:text-[16px] font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50 leading-tight whitespace-nowrap truncate">
+              {language === "bn" ? "আসসালামু আলাইকুম" : "Assalamu Alaikum"}
+            </h1>
+            <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 mt-0.5 leading-none truncate">
+              {formattedDate}
+            </span>
+          </div>
+        </div>
+
+        {/* Action Buttons Group */}
+        <div className="flex items-center gap-1 shrink-0">
+          {/* When offline: hide Cloud button and display Offline Badge in its place */}
+          {isOffline ? (
+            <OfflineBadge />
+          ) : (
+            /* Cloud Sync Status / Login Button (shown when online) */
             <button
               type="button"
               onClick={handleCloudClick}
@@ -118,49 +133,49 @@ export const Header: React.FC<HeaderProps> = ({
                 <Cloud className="w-4 h-4" />
               )}
             </button>
+          )}
 
-            {/* Direct Light / Dark Theme Toggle Button */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              aria-label={`Theme: ${theme === "dark" ? "Dark" : "Light"}`}
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-50 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-all active:scale-95"
-              title={theme === "dark" ? t("lightMode") : t("darkMode")}
-            >
-              {theme === "dark" ? (
-                <Sun className="w-4 h-4 text-[#ffb31a]" />
-              ) : (
-                <Moon className="w-4 h-4 text-zinc-700" />
-              )}
-            </button>
-
-            {/* Analytics Sheet Button */}
-            {onOpenAnalyticsSheet && (
-              <button
-                type="button"
-                onClick={() => {
-                  triggerHaptic(25);
-                  onOpenAnalyticsSheet();
-                }}
-                aria-label={language === "bn" ? "আমল শিট ও গ্রাফ" : "Analytics Sheet"}
-                className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-[#c87d00] dark:hover:text-[#ffb31a] hover:bg-[#ffb31a]/10 transition-all active:scale-95"
-                title={language === "bn" ? "আমল শিট ও এক্সেল এক্সপোর্ট" : "Analytics Sheet & Excel Export"}
-              >
-                <BarChart3 className="w-4 h-4 text-[#c87d00] dark:text-[#ffb31a]" />
-              </button>
+          {/* Theme Toggle Button */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={`Theme: ${theme === "dark" ? "Dark" : "Light"}`}
+            className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-50 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-all active:scale-95"
+            title={theme === "dark" ? t("lightMode") : t("darkMode")}
+          >
+            {theme === "dark" ? (
+              <Sun className="w-4 h-4 text-[#ffb31a]" />
+            ) : (
+              <Moon className="w-4 h-4 text-zinc-700" />
             )}
+          </button>
 
-            {/* Settings Button */}
+          {/* Analytics Sheet Button */}
+          {onOpenAnalyticsSheet && (
             <button
               type="button"
-              onClick={onOpenSettings}
-              aria-label={t("settingsTitle")}
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-50 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-all active:scale-95"
-              title={t("settingsTitle")}
+              onClick={() => {
+                triggerHaptic(25);
+                onOpenAnalyticsSheet();
+              }}
+              aria-label={language === "bn" ? "আমল শিট ও গ্রাফ" : "Analytics Sheet"}
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-[#c87d00] dark:hover:text-[#ffb31a] hover:bg-[#ffb31a]/10 transition-all active:scale-95"
+              title={language === "bn" ? "আমল শিট ও এক্সেল এক্সপোর্ট" : "Analytics Sheet & Excel Export"}
             >
-              <Settings className="w-4 h-4" />
+              <BarChart3 className="w-4 h-4 text-[#c87d00] dark:text-[#ffb31a]" />
             </button>
-          </div>
+          )}
+
+          {/* Settings Button */}
+          <button
+            type="button"
+            onClick={onOpenSettings}
+            aria-label={t("settingsTitle")}
+            className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-50 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-all active:scale-95"
+            title={t("settingsTitle")}
+          >
+            <Settings className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </header>

@@ -99,3 +99,37 @@ describe("Cloud Store Two-Way Sync Adapter", () => {
     expect(getRes.payload?.duas[0].title).toBe("টেস্ট দোয়া");
   });
 });
+
+describe("Client Offline Sync Flag Tracking", () => {
+  it("should mark and clear pending offline sync flag in localStorage", async () => {
+    const storage: Record<string, string> = {};
+    (global as any).window = {
+      localStorage: {
+        getItem: (key: string) => storage[key] || null,
+        setItem: (key: string, val: string) => {
+          storage[key] = val;
+        },
+        removeItem: (key: string) => {
+          delete storage[key];
+        },
+      },
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    };
+
+    const {
+      markPendingOfflineChanges,
+      hasPendingOfflineChanges,
+      clearPendingOfflineChanges,
+    } = await import("../src/lib/clientSync");
+
+    clearPendingOfflineChanges();
+    expect(hasPendingOfflineChanges()).toBe(false);
+
+    markPendingOfflineChanges();
+    expect(hasPendingOfflineChanges()).toBe(true);
+
+    clearPendingOfflineChanges();
+    expect(hasPendingOfflineChanges()).toBe(false);
+  });
+});

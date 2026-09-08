@@ -227,6 +227,11 @@ export async function updateDua(
  */
 export async function deleteDua(id: string): Promise<boolean> {
   try {
+    const existing = await db.duas.get(id);
+    if (existing?.isProtected) {
+      console.warn(`Cannot delete protected core dua ${id}`);
+      return false;
+    }
     await db.transaction("rw", db.duas, db.logs, async () => {
       await db.duas.delete(id);
       await db.logs.where("duaId").equals(id).delete();

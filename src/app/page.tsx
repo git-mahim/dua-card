@@ -31,6 +31,7 @@ import {
 import {
   checkAuthStatus,
   triggerCloudBackup,
+  notifyDataChangedAndScheduleSync,
 } from "@/lib/clientSync";
 import { Plus } from "lucide-react";
 import { JSONContent } from "@tiptap/react";
@@ -196,8 +197,7 @@ export default function HomePage() {
       });
     }
     await refreshDuas();
-    // Auto-backup to cloud immediately whenever a new Dua is added or edited
-    triggerCloudBackup({ isSilent: true });
+    notifyDataChangedAndScheduleSync();
   };
 
   // Delete Dua
@@ -209,6 +209,7 @@ export default function HomePage() {
     }
     setDuaToDelete(null);
     await refreshDuas();
+    notifyDataChangedAndScheduleSync();
   };
 
   // Reorder Duas via drag-and-drop
@@ -216,18 +217,21 @@ export default function HomePage() {
     setDuas(newOrderedList);
     const ids = newOrderedList.map((d) => d.id);
     await reorderDuas(ids);
+    notifyDataChangedAndScheduleSync();
   };
 
   // Accessible Move Up
   const handleMoveUp = async (dua: DuaRecord) => {
     await moveDuaUp(dua.id);
     await refreshDuas();
+    notifyDataChangedAndScheduleSync();
   };
 
   // Accessible Move Down
   const handleMoveDown = async (dua: DuaRecord) => {
     await moveDuaDown(dua.id);
     await refreshDuas();
+    notifyDataChangedAndScheduleSync();
   };
 
   // Open Create Modal
@@ -246,12 +250,14 @@ export default function HomePage() {
   const handleToggleCompleted = async (dua: DuaRecord) => {
     await toggleTodayCompleted(dua.id);
     await refreshLogs();
+    notifyDataChangedAndScheduleSync();
   };
 
   // Quick Add Count (+100, etc.)
   const handleQuickAddCount = async (dua: DuaRecord, delta: number) => {
     await addDuaCount(dua.id, delta);
     await refreshLogs();
+    notifyDataChangedAndScheduleSync();
   };
 
   // Set Count from Modal
@@ -259,6 +265,7 @@ export default function HomePage() {
     if (!activeCountDua) return;
     await setDuaCount(activeCountDua.id, count);
     await refreshLogs();
+    notifyDataChangedAndScheduleSync();
   };
 
   // Add Count from Modal
@@ -266,6 +273,7 @@ export default function HomePage() {
     if (!activeCountDua) return;
     await addDuaCount(activeCountDua.id, delta);
     await refreshLogs();
+    notifyDataChangedAndScheduleSync();
   };
 
   // Instant Reset All Today's Completed Duas
@@ -275,6 +283,7 @@ export default function HomePage() {
       setTodayLogs({});
       await resetAllTodayLogs();
       await refreshLogs();
+      notifyDataChangedAndScheduleSync();
     } catch (e) {
       console.error("Failed to reset today's logs:", e);
     }

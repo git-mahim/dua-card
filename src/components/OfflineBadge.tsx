@@ -31,10 +31,10 @@ export const OfflineBadge: React.FC = () => {
     <div
       role="status"
       aria-live="polite"
-      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-medium shrink-0 animate-pulse"
-      title={language === "bn" ? "ইন্টারনেট সংযোগ নেই - অফলাইনে কাজ করছে" : "Offline mode active"}
+      className="h-9 px-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-bold inline-flex items-center gap-1.5 shrink-0 animate-pulse transition-all shadow-2xs"
+      title={language === "bn" ? "ইন্টারনেট সংযোগ নেই - অফলাইন মোড চালু" : "Offline mode active"}
     >
-      <WifiOff className="w-3.5 h-3.5" />
+      <WifiOff className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 stroke-[2.2]" />
       <span>{language === "bn" ? "অফলাইন" : "Offline"}</span>
     </div>
   );
