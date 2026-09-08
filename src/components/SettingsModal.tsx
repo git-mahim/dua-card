@@ -615,7 +615,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <Palette className="w-3.5 h-3.5" />
             </div>
             <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
-              {language === "bn" ? "অ্যাপিয়ারেন্স ও ভাষা" : "Appearance & Language"}
+              {language === "bn" ? "অ্যাপিয়ারেন্স" : "Appearance"}
             </span>
           </div>
 
@@ -679,7 +679,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 }`}
               >
                 <span className="text-xs font-bold text-[#ffb31a]">অ</span>
-                <span>বাংলা (Bengali)</span>
+                <span>বাংলা</span>
               </button>
 
               <button
@@ -1086,7 +1086,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   disabled={isProcessing}
                   className="min-h-[40px] py-1.5 px-2 bg-[#ffb31a] hover:bg-[#e69c05] text-zinc-950 font-bold text-xs rounded-xl shadow-xs transition-all active:scale-95"
                 >
-                  {language === "bn" ? "যুক্ত করুন (Merge)" : "Merge (Add)"}
+                  {language === "bn" ? "যুক্ত করুন" : "Merge"}
                 </button>
                 <button
                   type="button"
@@ -1094,7 +1094,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   disabled={isProcessing}
                   className="min-h-[40px] py-1.5 px-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all active:scale-95"
                 >
-                  {language === "bn" ? "প্রতিস্থাপন (Replace)" : "Replace (Overwrite)"}
+                  {language === "bn" ? "প্রতিস্থাপন করুন" : "Replace"}
                 </button>
                 <button
                   type="button"
