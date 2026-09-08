@@ -83,31 +83,26 @@ export default function RootLayout({
                 }
                 var activeColor = isDark ? '#121212' : '#ffffff';
 
-                var csMeta = document.querySelector('meta[name="color-scheme"]');
-                if (!csMeta) {
-                  csMeta = document.createElement('meta');
-                  csMeta.setAttribute('name', 'color-scheme');
-                  document.head.appendChild(csMeta);
-                }
+                var oldCS = document.querySelectorAll('meta[name="color-scheme"]');
+                oldCS.forEach(function(m) { m.remove(); });
+                var csMeta = document.createElement('meta');
+                csMeta.setAttribute('name', 'color-scheme');
                 csMeta.setAttribute('content', isDark ? 'dark' : 'light');
+                document.head.appendChild(csMeta);
 
-                var metas = document.querySelectorAll('meta[name="theme-color"]');
-                if (metas.length > 0) {
-                  metas.forEach(function(m) {
-                    m.removeAttribute('media');
-                    m.setAttribute('content', activeColor);
-                  });
-                } else {
-                  var m1 = document.createElement('meta');
-                  m1.setAttribute('name', 'theme-color');
-                  m1.setAttribute('content', activeColor);
-                  document.head.appendChild(m1);
-                }
+                var oldMetas = document.querySelectorAll('meta[name="theme-color"]');
+                oldMetas.forEach(function(m) { m.remove(); });
+                var m1 = document.createElement('meta');
+                m1.setAttribute('name', 'theme-color');
+                m1.setAttribute('content', activeColor);
+                document.head.appendChild(m1);
 
-                var appleMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
-                if (appleMeta) {
-                  appleMeta.setAttribute('content', isDark ? 'black-translucent' : 'default');
-                }
+                var oldApple = document.querySelectorAll('meta[name="apple-mobile-web-app-status-bar-style"]');
+                oldApple.forEach(function(m) { m.remove(); });
+                var appleMeta = document.createElement('meta');
+                appleMeta.setAttribute('name', 'apple-mobile-web-app-status-bar-style');
+                appleMeta.setAttribute('content', isDark ? 'black-translucent' : 'default');
+                document.head.appendChild(appleMeta);
               } catch (e) {}
             `,
           }}

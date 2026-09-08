@@ -89,37 +89,32 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       document.body.style.backgroundColor = color;
     }
 
-    // 2. Update color-scheme meta tag
-    let colorSchemeMeta = document.querySelector('meta[name="color-scheme"]');
-    if (!colorSchemeMeta) {
-      colorSchemeMeta = document.createElement("meta");
-      colorSchemeMeta.setAttribute("name", "color-scheme");
-      document.head.appendChild(colorSchemeMeta);
-    }
+    // 2. Remove and re-insert color-scheme meta tag for WebAPK / PWA engine
+    const oldCS = document.querySelectorAll('meta[name="color-scheme"]');
+    oldCS.forEach((m) => m.remove());
+
+    const colorSchemeMeta = document.createElement("meta");
+    colorSchemeMeta.setAttribute("name", "color-scheme");
     colorSchemeMeta.setAttribute("content", isDark ? "dark" : "light");
+    document.head.appendChild(colorSchemeMeta);
 
-    // 3. Update all theme-color meta tags in DOM directly without removing nodes
-    const metas = document.querySelectorAll('meta[name="theme-color"]');
-    if (metas.length > 0) {
-      metas.forEach((m) => {
-        m.removeAttribute("media");
-        m.setAttribute("content", color);
-      });
-    } else {
-      const meta = document.createElement("meta");
-      meta.setAttribute("name", "theme-color");
-      meta.setAttribute("content", color);
-      document.head.appendChild(meta);
-    }
+    // 3. Remove and re-insert theme-color meta tag (forces Android WebAPK MutationObserver status bar update)
+    const oldThemeMetas = document.querySelectorAll('meta[name="theme-color"]');
+    oldThemeMetas.forEach((m) => m.remove());
 
-    // 4. Update apple-mobile-web-app-status-bar-style for iOS
-    let appleMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
-    if (!appleMeta) {
-      appleMeta = document.createElement("meta");
-      appleMeta.setAttribute("name", "apple-mobile-web-app-status-bar-style");
-      document.head.appendChild(appleMeta);
-    }
+    const newThemeMeta = document.createElement("meta");
+    newThemeMeta.setAttribute("name", "theme-color");
+    newThemeMeta.setAttribute("content", color);
+    document.head.appendChild(newThemeMeta);
+
+    // 4. Remove and re-insert apple-mobile-web-app-status-bar-style for iOS Standalone PWA
+    const oldAppleMetas = document.querySelectorAll('meta[name="apple-mobile-web-app-status-bar-style"]');
+    oldAppleMetas.forEach((m) => m.remove());
+
+    const appleMeta = document.createElement("meta");
+    appleMeta.setAttribute("name", "apple-mobile-web-app-status-bar-style");
     appleMeta.setAttribute("content", isDark ? "black-translucent" : "default");
+    document.head.appendChild(appleMeta);
   };
 
   return (
