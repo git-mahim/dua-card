@@ -195,7 +195,7 @@ export const DuaList: React.FC<DuaListProps> = ({
           >
             <span className="text-[13px] sm:text-[14px]">{t("allDuas")}</span>
             <span
-              className={`font-mono text-[11px] sm:text-[12px] font-bold leading-none px-1.5 py-0.5 rounded-full ${
+              className={`font-number text-[11px] font-bold leading-none px-1.5 py-0.5 rounded-full ${
                 activeTab === "all"
                   ? "bg-[#ffb31a]/20 text-[#c87d00] dark:text-[#ffb31a]"
                   : "bg-zinc-200/80 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300"
@@ -219,7 +219,7 @@ export const DuaList: React.FC<DuaListProps> = ({
           >
             <span className="text-[13px] sm:text-[14px]">{t("pendingDuas")}</span>
             <span
-              className={`font-mono text-[11px] sm:text-[12px] font-bold leading-none px-1.5 py-0.5 rounded-full ${
+              className={`font-number text-[11px] font-bold leading-none px-1.5 py-0.5 rounded-full ${
                 activeTab === "pending"
                   ? "bg-[#ffb31a]/20 text-[#c87d00] dark:text-[#ffb31a]"
                   : "bg-zinc-200/80 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300"
@@ -243,7 +243,7 @@ export const DuaList: React.FC<DuaListProps> = ({
           >
             <span className="text-[13px] sm:text-[14px]">{t("completedDuas")}</span>
             <span
-              className={`font-mono text-[11px] sm:text-[12px] font-bold leading-none px-1.5 py-0.5 rounded-full ${
+              className={`font-number text-[11px] font-bold leading-none px-1.5 py-0.5 rounded-full ${
                 activeTab === "completed"
                   ? "bg-[#ffb31a]/20 text-[#c87d00] dark:text-[#ffb31a]"
                   : "bg-zinc-200/80 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300"

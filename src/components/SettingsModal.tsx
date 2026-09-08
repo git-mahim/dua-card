@@ -921,7 +921,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       {item.label}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-mono font-bold text-zinc-500 dark:text-zinc-400">
+                      <span className="text-[11px] font-number font-bold text-zinc-500 dark:text-zinc-400">
                         {formatNumber(currentSize)}px
                       </span>
                       {/* S M L Preset Buttons */}

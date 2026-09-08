@@ -142,14 +142,14 @@ export const DuaCard: React.FC<DuaCardProps> = ({
             >
               <GripVertical className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400 group-hover/drag:text-zinc-800 dark:group-hover/drag:text-zinc-100 stroke-[2]" />
               {typeof orderIndex === "number" && (
-                <span className="font-mono text-[11px] font-bold text-zinc-800 dark:text-zinc-100">
+                <span className="font-number text-[11px] font-bold text-zinc-800 dark:text-zinc-100">
                   {formatNumber(orderIndex)}
                 </span>
               )}
             </div>
           ) : (
             typeof orderIndex === "number" && (
-              <div className="flex items-center gap-1 px-2.5 py-1 rounded-[10px] bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 font-mono text-[11px] font-bold border border-zinc-200 dark:border-zinc-700">
+              <div className="flex items-center gap-1 px-2.5 py-1 rounded-[10px] bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 font-number text-[11px] font-bold border border-zinc-200 dark:border-zinc-700">
                 <GripVertical className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400 stroke-[2]" />
                 <span>{formatNumber(orderIndex)}</span>
               </div>
@@ -347,12 +347,12 @@ export const DuaCard: React.FC<DuaCardProps> = ({
               }`}>
                 {t("todayCount")}:
               </span>
-              <span className={`font-mono font-extrabold text-[14px] ${
+              <span className={`font-number font-bold text-[11px] ${
                 isCompleted ? "text-zinc-950 dark:text-[#ffb31a]" : "text-zinc-950 dark:text-white"
               }`}>
                 {formatNumber(currentCount)}
               </span>
-              <span className={`text-[10.5px] font-medium ${
+              <span className={`text-[11px] font-medium ${
                 isCompleted ? "text-amber-800 dark:text-amber-200" : "text-zinc-500 dark:text-zinc-400"
               }`}>
                 {t("timesSuffix")}

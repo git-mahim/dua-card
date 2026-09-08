@@ -218,7 +218,7 @@ nextjs-portal,
   pointer-events: none !important;
 }
 
-/* Scoped English & iOS Apple font overrides */
+/* Scoped English & Inter font overrides */
 html[lang="en"],
 html[lang="en"] body,
 html[lang="en"] .font-bengali,
@@ -227,9 +227,15 @@ html.lang-en body,
 html.lang-en .font-bengali,
 .lang-en,
 .lang-en .font-bengali,
-.font-apple,
-.font-apple * {
-  font-family: var(--font-apple-stack) !important;
-  letter-spacing: -0.012em;
+.font-english {
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  letter-spacing: -0.011em;
+}
+
+/* Modern Tabular Number Styling for clean badges & count indicators */
+.font-number,
+.font-mono {
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
