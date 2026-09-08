@@ -1,54 +1,45 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Settings, Moon, Sun, Sunrise, Sunset, Cloud, RefreshCw } from "lucide-react";
+import { Settings, Moon, Sun, Cloud, RefreshCw, BarChart3, Sparkles } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { OfflineBadge } from "./OfflineBadge";
-import { subscribeSyncState, SyncState } from "@/lib/clientSync";
+import { subscribeSyncState, getSyncState, SyncState } from "@/lib/clientSync";
 import { useLanguage } from "@/lib/i18n";
+import { triggerHaptic } from "@/lib/haptics";
+import { formatBengaliDate } from "@/lib/formatters";
 
 interface HeaderProps {
   onOpenSettings: () => void;
   onOpenLogin?: () => void;
+  onOpenAnalyticsSheet?: () => void;
 }
 
-type TimeSlot = "morning" | "noon" | "evening" | "night";
-
-interface GreetingInfo {
-  bn: string;
-  en: string;
-  slot: TimeSlot;
-}
-
-function getDynamicGreeting(): GreetingInfo {
-  const hour = new Date().getHours();
-  if (hour >= 4 && hour < 12) {
-    return { bn: "সকালের আমল", en: "Morning Dhikr", slot: "morning" };
-  } else if (hour >= 12 && hour < 16) {
-    return { bn: "দুপুরের আমল", en: "Noon Dhikr", slot: "noon" };
-  } else if (hour >= 16 && hour < 19) {
-    return { bn: "সান্ধ্য আমল", en: "Evening Dhikr", slot: "evening" };
-  } else {
-    return { bn: "রাতের আমল", en: "Night Dhikr", slot: "night" };
+function getFormattedHeaderDate(lang: string): string {
+  const now = new Date();
+  if (lang === "bn") {
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    const dateStr = `${yyyy}-${mm}-${dd}`;
+    return formatBengaliDate(dateStr, false);
   }
+  return now.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+  });
 }
 
 export const Header: React.FC<HeaderProps> = ({
   onOpenSettings,
   onOpenLogin,
+  onOpenAnalyticsSheet,
 }) => {
   const { theme, setTheme } = useTheme();
   const { language, t } = useLanguage();
-  const [greeting, setGreeting] = useState<GreetingInfo>({
-    bn: "সকালের আমল",
-    en: "Morning Dhikr",
-    slot: "morning",
-  });
-  const [syncState, setSyncState] = useState<SyncState>({
-    status: "unauthenticated",
-    lastSyncedAt: null,
-    user: null,
-  });
+  const [formattedDate, setFormattedDate] = useState<string>("");
+  const [syncState, setSyncState] = useState<SyncState>(getSyncState());
 
   useEffect(() => {
     const unsubscribe = subscribeSyncState((state) => {
@@ -58,15 +49,8 @@ export const Header: React.FC<HeaderProps> = ({
   }, []);
 
   useEffect(() => {
-    setGreeting(getDynamicGreeting());
-
-    // Update greeting every 5 minutes if app stays open across time slots
-    const interval = setInterval(() => {
-      setGreeting(getDynamicGreeting());
-    }, 5 * 60 * 1000);
-
-    return () => clearInterval(interval);
-  }, []);
+    setFormattedDate(getFormattedHeaderDate(language));
+  }, [language]);
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
@@ -76,34 +60,26 @@ export const Header: React.FC<HeaderProps> = ({
     onOpenLogin?.();
   };
 
-  const displayGreeting = language === "bn" ? greeting.bn : greeting.en;
-
   return (
     <header className="sticky top-0 z-30 w-full bg-white/85 dark:bg-[#121212]/85 backdrop-blur-xl border-b border-zinc-200/60 dark:border-zinc-800/60 px-4 py-3 transition-colors duration-200">
       <div className="max-w-md mx-auto flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
-          {/* Header Title: Dynamic Time-Aware Greeting */}
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-[11px] bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] flex items-center justify-center shrink-0 shadow-2xs">
-              {greeting.slot === "morning" && (
-                <Sunrise className="w-4 h-4 text-[#ffb31a]" />
-              )}
-              {greeting.slot === "noon" && (
-                <Sun className="w-4 h-4 text-[#ffb31a]" />
-              )}
-              {greeting.slot === "evening" && (
-                <Sunset className="w-4 h-4 text-orange-500" />
-              )}
-              {greeting.slot === "night" && (
-                <Moon className="w-4 h-4 text-[#ffb31a]" />
-              )}
+          {/* Header Title: Assalamu Alaikum Greeting & Localized Date */}
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-[12px] bg-[#ffb31a]/15 text-[#c87d00] dark:text-[#ffb31a] flex items-center justify-center shrink-0 shadow-2xs">
+              <Sparkles className="w-4 h-4 text-[#ffb31a]" />
             </div>
 
-            <div className="flex items-center gap-1.5">
-              <h1 className="text-[16px] sm:text-[17px] font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50 leading-tight">
-                {displayGreeting}
-              </h1>
-              <OfflineBadge />
+            <div className="flex flex-col justify-center min-w-0">
+              <div className="flex items-center gap-1.5">
+                <h1 className="text-[15px] sm:text-[16px] font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50 leading-tight">
+                  {language === "bn" ? "আসসালামু আলাইকুম" : "Assalamu Alaikum"}
+                </h1>
+                <OfflineBadge />
+              </div>
+              <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 mt-0.5 leading-none truncate">
+                {formattedDate}
+              </span>
             </div>
           </div>
 
@@ -115,11 +91,11 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={handleCloudClick}
               aria-label={
                 syncState.user
-                  ? `Cloud Sync: ${syncState.status === "syncing" ? "Syncing" : "Synced"}`
+                  ? `Cloud: ${syncState.status === "syncing" || syncState.status === "restoring" ? "Processing" : "Connected"}`
                   : "Cloud Login"
               }
               className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all active:scale-95 ${
-                syncState.status === "syncing"
+                syncState.status === "syncing" || syncState.status === "restoring"
                   ? "text-[#c87d00] dark:text-[#ffb31a] bg-[#ffb31a]/15 animate-pulse"
                   : syncState.user
                   ? "text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
@@ -127,11 +103,11 @@ export const Header: React.FC<HeaderProps> = ({
               }`}
               title={
                 syncState.user
-                  ? `${language === "bn" ? "ক্লাউডে সিঙ্ক করা আছে" : "Synced with Cloud"} (${syncState.user.email})`
+                  ? `${language === "bn" ? "ক্লাউড অ্যাকাউন্ট সংযুক্ত" : "Cloud Account Connected"} (${syncState.user.email})`
                   : language === "bn" ? "ক্লাউড ব্যাকআপ চালু করতে লগইন করুন" : "Sign in to enable cloud backup"
               }
             >
-              {syncState.status === "syncing" ? (
+              {syncState.status === "syncing" || syncState.status === "restoring" ? (
                 <RefreshCw className="w-4 h-4 animate-spin text-[#c87d00] dark:text-[#ffb31a]" />
               ) : syncState.user ? (
                 <div className="relative">
@@ -157,6 +133,22 @@ export const Header: React.FC<HeaderProps> = ({
                 <Moon className="w-4 h-4 text-zinc-700" />
               )}
             </button>
+
+            {/* Analytics Sheet Button */}
+            {onOpenAnalyticsSheet && (
+              <button
+                type="button"
+                onClick={() => {
+                  triggerHaptic(25);
+                  onOpenAnalyticsSheet();
+                }}
+                aria-label={language === "bn" ? "আমল শিট ও গ্রাফ" : "Analytics Sheet"}
+                className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-[#c87d00] dark:hover:text-[#ffb31a] hover:bg-[#ffb31a]/10 transition-all active:scale-95"
+                title={language === "bn" ? "আমল শিট ও এক্সেল এক্সপোর্ট" : "Analytics Sheet & Excel Export"}
+              >
+                <BarChart3 className="w-4 h-4 text-[#c87d00] dark:text-[#ffb31a]" />
+              </button>
+            )}
 
             {/* Settings Button */}
             <button

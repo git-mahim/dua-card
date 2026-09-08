@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { DuaRecord, DuaDailyLog } from "@/lib/types";
 import { StructuredDuaViewer } from "./StructuredDuaViewer";
-import { DoubleTapCheckAnimation } from "./DoubleTapCheckAnimation";
 import { triggerHaptic } from "@/lib/haptics";
 import { useLanguage } from "@/lib/i18n";
+import { copyDuaTextAndMeaning } from "@/lib/copyUtils";
 import {
   MoreVertical,
   ArrowUp,
@@ -19,7 +19,7 @@ import {
   Plus,
   Check,
   Clock,
-  Image as ImageIcon,
+  Copy,
   ShieldCheck,
 } from "lucide-react";
 
@@ -33,7 +33,7 @@ interface DuaCardProps {
   onOpenCountModal?: (dua: DuaRecord) => void;
   onQuickAddCount?: (dua: DuaRecord, delta: number) => void;
   onOpenAnalytics?: (dua: DuaRecord) => void;
-  onExportImage?: (dua: DuaRecord) => void;
+  onCopyText?: (dua: DuaRecord) => void;
   onOpen?: (dua: DuaRecord) => void;
   onMoveUp?: (dua: DuaRecord) => void;
   onMoveDown?: (dua: DuaRecord) => void;
@@ -54,7 +54,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
   onOpenCountModal,
   onQuickAddCount,
   onOpenAnalytics,
-  onExportImage,
+  onCopyText,
   onMoveUp,
   onMoveDown,
   isFirst = false,
@@ -65,8 +65,6 @@ export const DuaCard: React.FC<DuaCardProps> = ({
 }) => {
   const { language, t, formatNumber } = useLanguage();
   const [showMenu, setShowMenu] = useState(false);
-  const [showCheckAnim, setShowCheckAnim] = useState(false);
-  const lastTapRef = useRef<number>(0);
 
   const isCompleted = !!(todayLog?.completed || (todayLog?.count && todayLog.count > 0));
   const currentCount = todayLog?.count || 0;
@@ -96,34 +94,6 @@ export const DuaCard: React.FC<DuaCardProps> = ({
         touchAction: "pan-y",
       };
 
-  const handleCardClick = (e: React.MouseEvent) => {
-    if (isDragOverlay) return;
-
-    const target = e.target as HTMLElement;
-    if (target.closest("[data-no-double-tap]")) return;
-
-    const now = Date.now();
-    const DOUBLE_TAP_DELAY = 320;
-
-    if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
-      triggerHaptic(50);
-      if (isCompleted) {
-        if (onToggleCompleted) {
-          onToggleCompleted(dua);
-        }
-      } else {
-        if (onOpenCountModal) {
-          onOpenCountModal(dua);
-        } else if (onToggleCompleted) {
-          onToggleCompleted(dua);
-        }
-      }
-      lastTapRef.current = 0;
-    } else {
-      lastTapRef.current = now;
-    }
-  };
-
   const handleToggleStatus = (e: React.MouseEvent) => {
     e.stopPropagation();
     triggerHaptic(40);
@@ -144,7 +114,6 @@ export const DuaCard: React.FC<DuaCardProps> = ({
     <article
       ref={setNodeRef}
       style={style}
-      onClick={handleCardClick}
       className={`group relative w-full bg-surface-card border rounded-[22px] p-4 sm:p-5 ${!isDragOverlay ? "pb-0 sm:pb-0" : ""} transition-all duration-150 select-none no-select ${
         isDragging
           ? "border-[#ffb31a] shadow-xl ring-2 ring-[#ffb31a]/30 z-30"
@@ -153,14 +122,9 @@ export const DuaCard: React.FC<DuaCardProps> = ({
           : "border-zinc-200/80 dark:border-zinc-800/80 hover:border-zinc-300 dark:hover:border-zinc-700 shadow-2xs hover:shadow-xs"
       }`}
     >
-      {/* Instagram-style Double Tap Heart/Check Animation */}
-      <DoubleTapCheckAnimation
-        show={showCheckAnim}
-        onComplete={() => setShowCheckAnim(false)}
-      />
 
       {/* Top Bar: Integrated Reorder Handle & Order Badge, Status Badge & Actions Menu */}
-      <div className="flex items-center justify-between gap-2 mb-3.5" data-no-double-tap="true">
+      <div className="flex items-center justify-between gap-2 mb-3" data-no-double-tap="true">
         {/* Left Side: Integrated Drag Handle & Order Number Badge */}
         <div className="flex items-center shrink-0">
           {!isDragOverlay ? (
@@ -174,19 +138,19 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                   ? `ক্রমিক ${formatNumber(orderIndex ?? 1)} - স্থান পরিবর্তন করতে ধরে রাখুন`
                   : `Order ${orderIndex} - Drag to reorder`
               }
-              className="touch-none cursor-grab active:cursor-grabbing flex items-center gap-1 px-2.5 py-1 rounded-[10px] bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 transition-colors select-none group/drag shadow-2xs"
+              className="touch-none cursor-grab active:cursor-grabbing flex items-center gap-1 px-2 py-0.5 rounded-lg bg-zinc-100/50 dark:bg-zinc-800/40 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border border-zinc-200/40 dark:border-zinc-800/50 transition-colors select-none group/drag"
             >
-              <GripVertical className="w-3.5 h-3.5 text-zinc-400 group-hover/drag:text-zinc-600 dark:group-hover/drag:text-zinc-200 stroke-[2.2]" />
+              <GripVertical className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 group-hover/drag:text-zinc-600 dark:group-hover/drag:text-zinc-300 stroke-[1.75]" />
               {typeof orderIndex === "number" && (
-                <span className="font-mono text-[11px] font-bold text-zinc-800 dark:text-zinc-100">
+                <span className="font-mono text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
                   {formatNumber(orderIndex)}
                 </span>
               )}
             </div>
           ) : (
             typeof orderIndex === "number" && (
-              <div className="flex items-center gap-1 px-2.5 py-1 rounded-[10px] bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-mono text-[11px] font-bold border border-zinc-200 dark:border-zinc-700">
-                <GripVertical className="w-3.5 h-3.5 text-zinc-400 stroke-[2.2]" />
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-zinc-100/50 dark:bg-zinc-800/40 text-zinc-500 dark:text-zinc-400 font-mono text-[11px] font-medium border border-zinc-200/40 dark:border-zinc-800/50">
+                <GripVertical className="w-3.5 h-3.5 text-zinc-400 stroke-[1.75]" />
                 <span>{formatNumber(orderIndex)}</span>
               </div>
             )
@@ -204,21 +168,21 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                 ? (language === "bn" ? "পড়েছি সম্পন্ন - আনচেক করতে ক্লিক করুন" : "Completed - Click to uncheck")
                 : (language === "bn" ? "বাকি দোয়া - সংখ্যা ইনপুট করতে ক্লিক করুন" : "Pending - Click to record count")
             }
-            className={`min-h-[32px] px-2.5 py-1 rounded-[10px] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer select-none active:scale-95 shadow-2xs ${
+            className={`min-h-[28px] px-2 py-0.5 rounded-lg text-[11px] font-normal transition-all flex items-center gap-1 cursor-pointer select-none active:scale-95 ${
               isCompleted
-                ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-300 dark:hover:border-rose-800"
-                : "bg-amber-500/12 text-[#c87d00] dark:text-[#ffb31a] border border-[#ffb31a]/30 hover:bg-[#ffb31a]/20"
+                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400/90 border border-emerald-500/20 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 hover:border-rose-300/40"
+                : "bg-zinc-100/60 dark:bg-zinc-800/40 text-zinc-500 dark:text-zinc-400 border border-zinc-200/40 dark:border-zinc-800/50 hover:text-amber-600 dark:hover:text-amber-400 hover:border-amber-500/30"
             }`}
           >
             {isCompleted ? (
               <>
-                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span className="leading-none translate-y-[0.5px]">{t("badgeCompleted")}</span>
+                <Check className="w-3.5 h-3.5 stroke-[2]" />
+                <span className="leading-none">{t("badgeCompleted")}</span>
               </>
             ) : (
               <>
-                <Clock className="w-3.5 h-3.5 stroke-[2.2]" />
-                <span className="leading-none translate-y-[0.5px]">{t("badgePending")}</span>
+                <Clock className="w-3.5 h-3.5 stroke-[1.75]" />
+                <span className="leading-none">{t("badgePending")}</span>
               </>
             )}
           </button>
@@ -234,7 +198,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                 }}
                 aria-label={t("actions")}
                 aria-expanded={showMenu}
-                className="w-8 h-8 rounded-[10px] flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all active:scale-90"
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-100/60 dark:hover:bg-zinc-800/40 transition-all active:scale-90"
               >
                 <MoreVertical className="w-4 h-4" />
               </button>
@@ -248,7 +212,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                       setShowMenu(false);
                     }}
                   />
-                  <div className="absolute right-0 top-7 z-50 w-48 bg-white dark:bg-[#1a1a1a] border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-xl py-1 text-xs animate-in fade-in zoom-in-95 duration-100 divide-y divide-zinc-100 dark:divide-zinc-800/60">
+                  <div className="absolute right-0 top-7 z-50 w-48 bg-white dark:bg-[#1a1a1a] border border-zinc-200/80 dark:border-zinc-800 rounded-2xl shadow-xl py-1 text-xs animate-in fade-in zoom-in-95 duration-100 divide-y divide-zinc-100 dark:divide-zinc-800/60">
                     <div className="py-1">
                       {!isFirst && onMoveUp && (
                         <button
@@ -281,20 +245,23 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                     </div>
 
                     <div className="py-1">
-                      {onExportImage && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setShowMenu(false);
-                            onExportImage(dua);
-                          }}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 text-left transition-colors font-medium"
-                        >
-                          <ImageIcon className="w-3.5 h-3.5 text-[#ffb31a]" />
-                          <span>{t("shareImage")}</span>
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          setShowMenu(false);
+                          triggerHaptic(40);
+                          if (onCopyText) {
+                            onCopyText(dua);
+                          } else {
+                            await copyDuaTextAndMeaning(dua, language);
+                          }
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 text-left transition-colors font-medium"
+                      >
+                        <Copy className="w-3.5 h-3.5 text-[#ffb31a]" />
+                        <span>{language === "bn" ? "দোয়া ও অর্থ কপি করুন" : "Copy Dua & Meaning"}</span>
+                      </button>
 
                       {onOpenAnalytics && (
                         <button
@@ -326,25 +293,18 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                     </div>
 
                     <div className="py-1">
-                      {dua.isProtected ? (
-                        <div className="w-full flex items-center gap-2 px-3 py-1.5 text-zinc-400 dark:text-zinc-500 text-[11px] font-medium select-none">
-                          <ShieldCheck className="w-3.5 h-3.5 text-[#c87d00] dark:text-[#ffb31a] shrink-0" />
-                          <span>{language === "bn" ? "স্থায়ী দোয়া (মুছে ফেলা যাবে না)" : "Protected Dua"}</span>
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setShowMenu(false);
-                            onDeleteRequest(dua);
-                          }}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-left transition-colors"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                          <span>{t("delete")}</span>
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowMenu(false);
+                          onDeleteRequest(dua);
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-left transition-colors font-medium"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>{t("delete")}</span>
+                      </button>
                     </div>
                   </div>
                 </>
@@ -367,7 +327,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
       {/* Bottom Action Footer */}
       {!isDragOverlay && (
         <div
-          className="mt-3.5 py-3 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between gap-2"
+          className="mt-3 py-2 border-t border-zinc-100/60 dark:border-zinc-800/50 flex items-center justify-between gap-2"
           data-no-double-tap="true"
         >
           {/* Left: Quick Counter Stepper Pill */}
@@ -375,26 +335,22 @@ export const DuaCard: React.FC<DuaCardProps> = ({
             <button
               type="button"
               onClick={() => onOpenCountModal && onOpenCountModal(dua)}
-              className={`min-h-[34px] px-3 py-1 rounded-[11px] text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95 shadow-2xs whitespace-nowrap ${
+              className={`min-h-[30px] px-2.5 py-0.5 rounded-lg text-xs font-normal flex items-center gap-1 transition-all active:scale-95 whitespace-nowrap ${
                 isCompleted
-                  ? "bg-[#ffb31a]/15 dark:bg-[#ffb31a]/20 text-[#c87d00] dark:text-[#ffb31a] border border-[#ffb31a]/35 dark:border-[#ffb31a]/50 hover:bg-[#ffb31a]/25"
-                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700 hover:border-[#ffb31a]/40 border border-zinc-200/80 dark:border-zinc-700"
+                  ? "bg-amber-500/10 dark:bg-amber-400/10 text-amber-800 dark:text-amber-300 border border-amber-500/20 dark:border-amber-500/25 hover:bg-amber-500/15"
+                  : "bg-zinc-100/50 dark:bg-zinc-800/40 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200/40 dark:border-zinc-800/50"
               }`}
               title={language === "bn" ? "আমল সংখ্যা বিস্তারিত দেখুন বা পরিবর্তন করুন" : "Add or update recitation count"}
             >
-              <span className={`text-[11px] font-medium ${
-                isCompleted ? "text-amber-800 dark:text-amber-200" : "text-zinc-600 dark:text-zinc-300"
-              }`}>
+              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-normal">
                 {t("todayCount")}:
               </span>
-              <span className={`font-mono font-extrabold text-[14px] ${
-                isCompleted ? "text-zinc-950 dark:text-[#ffb31a]" : "text-zinc-950 dark:text-white"
+              <span className={`font-mono font-bold text-[13px] ${
+                isCompleted ? "text-amber-900 dark:text-[#ffb31a]" : "text-zinc-700 dark:text-zinc-300"
               }`}>
                 {formatNumber(currentCount)}
               </span>
-              <span className={`text-[10.5px] font-medium ${
-                isCompleted ? "text-amber-800 dark:text-amber-200" : "text-zinc-500 dark:text-zinc-400"
-              }`}>
+              <span className="text-[10.5px] text-zinc-500 dark:text-zinc-400 font-normal">
                 {t("timesSuffix")}
               </span>
             </button>
@@ -407,10 +363,10 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                   onQuickAddCount(dua, 1);
                 }}
                 aria-label={language === "bn" ? "১ বার যোগ করুন" : "Quick add 1"}
-                className="w-[34px] h-[34px] rounded-[10px] bg-[#ffb31a]/15 dark:bg-[#ffb31a]/25 hover:bg-[#ffb31a]/25 dark:hover:bg-[#ffb31a]/35 text-[#c87d00] dark:text-[#ffb31a] border border-[#ffb31a]/35 dark:border-[#ffb31a]/50 flex items-center justify-center transition-all active:scale-90 shadow-2xs font-bold text-xs"
+                className="w-[30px] h-[30px] rounded-lg bg-zinc-100/50 dark:bg-zinc-800/40 hover:bg-amber-500/10 dark:hover:bg-amber-400/15 text-zinc-500 dark:text-zinc-400 hover:text-amber-600 dark:hover:text-[#ffb31a] border border-zinc-200/40 dark:border-zinc-800/50 hover:border-amber-500/30 flex items-center justify-center transition-all active:scale-90 font-normal text-xs"
                 title={language === "bn" ? "দ্রুত ১ বার যোগ করুন (+১)" : "Quick +1"}
               >
-                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                <Plus className="w-3.5 h-3.5 stroke-[1.75]" />
               </button>
             )}
           </div>
@@ -423,11 +379,11 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                 triggerHaptic(40);
                 onOpenAnalytics(dua);
               }}
-              className="min-h-[34px] px-2.5 py-1 text-xs font-semibold text-zinc-700 dark:text-zinc-200 hover:text-zinc-950 dark:hover:text-white bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200/80 dark:hover:bg-zinc-700 active:scale-95 rounded-[11px] border border-zinc-200/80 dark:border-zinc-700 transition-all flex items-center gap-1.5 whitespace-nowrap shadow-2xs"
+              className="min-h-[30px] px-2.5 py-0.5 text-xs font-normal text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 bg-zinc-100/50 dark:bg-zinc-800/40 hover:bg-zinc-100 dark:hover:bg-zinc-800 active:scale-95 rounded-lg border border-zinc-200/40 dark:border-zinc-800/50 transition-all flex items-center gap-1 whitespace-nowrap"
               title={language === "bn" ? "আমল হিস্ট্রি ও বিস্তারিত চার্ট দেখুন" : "View recitation history and analytics"}
             >
-              <TrendingUp className="w-3.5 h-3.5 text-[#ffb31a]" />
-              <span className="text-[11px] font-medium">{t("analytics")}</span>
+              <TrendingUp className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" />
+              <span className="text-[11px] font-normal">{t("analytics")}</span>
             </button>
           )}
         </div>

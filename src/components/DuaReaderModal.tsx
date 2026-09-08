@@ -188,24 +188,17 @@ export const DuaReaderModal: React.FC<DuaReaderModalProps> = ({
                       <span>{t("moveDown")}</span>
                     </button>
                   )}
-                  {dua.isProtected ? (
-                    <div className="w-full flex items-center gap-2 px-3 py-2 text-zinc-400 dark:text-zinc-500 text-left text-[11px] font-medium select-none">
-                      <ShieldCheck className="w-3.5 h-3.5 text-[#c87d00] dark:text-[#ffb31a] shrink-0" />
-                      <span>{language === "bn" ? "স্থায়ী সংরক্ষিত দোয়া" : "Protected Dua"}</span>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowMenu(false);
-                        onDeleteRequest(dua);
-                      }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-left transition-colors"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      <span>{t("delete")}</span>
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowMenu(false);
+                      onDeleteRequest(dua);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-left transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>{t("delete")}</span>
+                  </button>
                 </div>
               </>
             )}

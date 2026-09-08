@@ -112,43 +112,23 @@ export async function getDuaCount(): Promise<number> {
 }
 
 /**
- * Ensure the 25 core authentic duas are always present in the database.
- * If any core dua is missing or corrupt, it puts the authentic version in.
+/**
+ * Ensure initial 25 core authentic duas are seeded on first app launch.
+ * Never re-inserts deleted duas or overwrites user custom sort order!
  */
 export async function ensureCoreDuas(): Promise<DuaRecord[]> {
   try {
     const { INITIAL_DEMO_DUAS } = await import("./seedData");
-    const legacyDemoIds = [
-      "demo_dua_1",
-      "demo_dua_2",
-      "demo_dua_3",
-      "demo_dua_4",
-      "demo_dua_5",
-    ];
+    const count = await db.duas.count();
 
-    // Clean up legacy 5 demo duas if present
-    for (const legacyId of legacyDemoIds) {
-      await db.duas.delete(legacyId);
-      await db.logs.where("duaId").equals(legacyId).delete();
-    }
-
-    const existing = await db.duas.toArray();
-    const existingMap = new Map(existing.map((d) => [d.id, d]));
-
-    for (const core of INITIAL_DEMO_DUAS) {
-      const current = existingMap.get(core.id);
-      if (!current) {
-        await db.duas.put(core);
-      } else if (!current.isProtected || current.plainTextPreview !== core.plainTextPreview) {
-        await db.duas.put({
-          ...core,
-          sortOrder: typeof current.sortOrder === "number" ? current.sortOrder : core.sortOrder,
-        });
+    if (count === 0) {
+      const isSeeded = typeof window !== "undefined" && localStorage.getItem("dua_card_db_seeded");
+      if (!isSeeded) {
+        await db.duas.bulkPut(INITIAL_DEMO_DUAS);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("dua_card_db_seeded", "true");
+        }
       }
-    }
-
-    if (existing.length === 0) {
-      await db.duas.bulkPut(INITIAL_DEMO_DUAS);
     }
 
     return await db.duas.orderBy("sortOrder").toArray();
@@ -159,15 +139,22 @@ export async function ensureCoreDuas(): Promise<DuaRecord[]> {
 }
 
 /**
- * Restore initial demo duas
+ * Restore initial demo duas (re-instates missing core 25 duas into user collection)
  */
 export async function restoreDemoDuas(): Promise<DuaRecord[]> {
   const { INITIAL_DEMO_DUAS } = await import("./seedData");
   if (typeof window !== "undefined") {
-    localStorage.removeItem("dua_card_cleared_v1");
+    localStorage.setItem("dua_card_db_seeded", "true");
   }
-  await replaceAllDuas(INITIAL_DEMO_DUAS);
-  return INITIAL_DEMO_DUAS;
+  await db.transaction("rw", db.duas, async () => {
+    for (const demoDua of INITIAL_DEMO_DUAS) {
+      const existing = await db.duas.get(demoDua.id);
+      if (!existing) {
+        await db.duas.put(demoDua);
+      }
+    }
+  });
+  return await db.duas.orderBy("sortOrder").toArray();
 }
 
 /**
@@ -212,7 +199,7 @@ export async function createDua(data: {
     for (let i = 0; i < newOrderedList.length; i++) {
       const item = newOrderedList[i];
       if (item.id === id) {
-        await db.duas.add({ ...item, sortOrder: i });
+        await db.duas.put({ ...item, sortOrder: i });
       } else {
         await db.duas.update(item.id, { sortOrder: i, updatedAt: now });
       }
@@ -236,14 +223,10 @@ export async function updateDua(
 }
 
 /**
- * Delete a dua by ID and remove associated logs (protected duas cannot be deleted)
+ * Delete a dua by ID and remove associated logs.
  */
 export async function deleteDua(id: string): Promise<boolean> {
   try {
-    const target = await db.duas.get(id);
-    if (target?.isProtected) {
-      return false; // Protected core dua cannot be removed
-    }
     await db.transaction("rw", db.duas, db.logs, async () => {
       await db.duas.delete(id);
       await db.logs.where("duaId").equals(id).delete();

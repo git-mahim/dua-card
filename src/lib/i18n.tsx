@@ -83,14 +83,23 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     themeSetting: "থিম / Appearance",
     lightMode: "লাইট মোড",
     darkMode: "ডার্ক মোড",
-    googleProfileTitle: "ক্লাউড অ্যাকাউন্ট ও অটো-সিঙ্ক",
+    googleProfileTitle: "ক্লাউড অ্যাকাউন্ট ও ব্যাকআপ",
     connected: "সংযুক্ত",
     notConnected: "সংযুক্ত নেই",
-    lastSynced: "সর্বশেষ সিঙ্ক / আপডেট:",
-    syncNow: "সিঙ্ক করুন",
+    lastSynced: "সর্বশেষ ব্যাকআপ:",
+    lastBackup: "সর্বশেষ ব্যাকআপ:",
+    syncNow: "ক্লাউড ব্যাকআপ",
+    backupNow: "ক্লাউড ব্যাকআপ",
+    restoreNow: "রিস্টোর করুন",
+    autoBackupNotice: "ব্যাকআপ বাটনে টিপ দিলে ক্লাউডে ব্যাকআপ সেভ হবে, এবং রিস্টোর বাটনে টিপ দিলে ক্লাউড থেকে রিস্টোর হবে।",
+    confirmRestoreCloudTitle: "ক্লাউড ব্যাকআপ রিস্টোর করবেন?",
+    confirmRestoreCloudDesc: "ক্লাউডের সর্বশেষ ব্যাকআপ থেকে দোয়াসমূহ লোকাল অ্যাপে রিস্টোর করা হবে। আপনি কি নিশ্চিত?",
+    noCloudBackupFound: "ক্লাউডে কোনো ব্যাকআপ পাওয়া যায়নি",
+    cloudBackupSuccess: "ক্লাউডে সফলভাবে ব্যাকআপ সংরক্ষিত হয়েছে",
+    cloudRestoreSuccess: "ক্লাউড ব্যাকআপ সফলভাবে রিস্টোর হয়েছে",
     logout: "লগআউট",
     signInWithGoogle: "ইমেইল ও পাসকোড দিয়ে ক্লাউড লগইন",
-    googleAuthDesc: "আপনার ইমেইল ও পাসকোড দিয়ে লগইন করে সকল ডিভাইসে দোয়া অটোমেটিক ব্যাকআপ ও সিঙ্ক রাখুন।",
+    googleAuthDesc: "আপনার ইমেইল ও পাসকোড দিয়ে লগইন করে সকল ডিভাইসে দোয়া ক্লাউড ব্যাকআপ ও রিস্টোর রাখুন।",
     dailyResetTitle: "দৈনিক আমল রিসেট সময়",
     dailyResetSub: "প্রতিদিন এই সময়ে দোয়ার স্ট্যাটাস আবার নতুন দিনের জন্য রিসেট হবে",
     setTime: "নির্ধারিত সময়:",
@@ -218,11 +227,20 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     themeSetting: "Theme / Appearance",
     lightMode: "Light",
     darkMode: "Dark",
-    googleProfileTitle: "Cloud Account & Auto-Sync",
+    googleProfileTitle: "Cloud Account & Backup",
     connected: "Connected",
     notConnected: "Not Connected",
-    lastSynced: "Last Synced / Updated:",
-    syncNow: "Sync Now",
+    lastSynced: "Last Backup:",
+    lastBackup: "Last Backup:",
+    syncNow: "Cloud Backup",
+    backupNow: "Cloud Backup",
+    restoreNow: "Restore Backup",
+    autoBackupNotice: "Tap 'Cloud Backup' to save to cloud, and tap 'Restore Backup' to restore your last backup.",
+    confirmRestoreCloudTitle: "Restore Cloud Backup?",
+    confirmRestoreCloudDesc: "This will restore suas from your latest cloud backup into this device. Are you sure?",
+    noCloudBackupFound: "No cloud backup found on server",
+    cloudBackupSuccess: "Cloud backup saved successfully",
+    cloudRestoreSuccess: "Cloud backup restored successfully",
     logout: "Logout",
     signInWithGoogle: "Sign In with Email & Passcode",
     googleAuthDesc: "Sign in with your Email and Passcode to keep your duas securely backed up across devices.",
@@ -306,6 +324,14 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const saved = localStorage.getItem(STORAGE_KEY) as Language;
       if (saved === "en" || saved === "bn") {
         setLanguageState(saved);
+        if (typeof document !== "undefined") {
+          document.documentElement.lang = saved;
+          if (saved === "en") {
+            document.documentElement.classList.add("lang-en");
+          } else {
+            document.documentElement.classList.remove("lang-en");
+          }
+        }
       }
     } catch {}
   }, []);
@@ -314,7 +340,14 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setLanguageState(lang);
     try {
       localStorage.setItem(STORAGE_KEY, lang);
-      document.documentElement.lang = lang;
+      if (typeof document !== "undefined") {
+        document.documentElement.lang = lang;
+        if (lang === "en") {
+          document.documentElement.classList.add("lang-en");
+        } else {
+          document.documentElement.classList.remove("lang-en");
+        }
+      }
     } catch {}
   };
 

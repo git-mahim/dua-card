@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { JSONContent } from "@tiptap/react";
 import { SEMANTIC_STYLES } from "@/styles/typography";

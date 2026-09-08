@@ -161,7 +161,7 @@ export const DuaAnalyticsModal: React.FC<DuaAnalyticsModalProps> = ({
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-50 bg-background text-foreground flex flex-col w-full max-w-full overflow-x-hidden overflow-y-auto overscroll-x-none touch-pan-y animate-in fade-in duration-150"
+      className="fixed inset-0 z-[60] bg-background text-foreground flex flex-col w-full max-w-full overflow-x-hidden overflow-y-auto overscroll-x-none touch-pan-y animate-in fade-in duration-150"
     >
       {/* Solid Sticky Top Navigation Bar */}
       <header className="sticky top-0 z-20 bg-white/95 dark:bg-[#121212]/95 backdrop-blur-xl border-b border-zinc-200/80 dark:border-zinc-800/80 shrink-0 px-4 py-3.5 w-full max-w-full shadow-xs box-border">

@@ -7,6 +7,7 @@ export type SyncStatus =
   | "idle"
   | "syncing"
   | "synced"
+  | "restoring"
   | "offline"
   | "unauthenticated"
   | "error";
@@ -22,14 +23,28 @@ export interface SyncUser {
 export interface SyncState {
   status: SyncStatus;
   lastSyncedAt: number | null;
+  lastBackupAt?: number | null;
   user: SyncUser | null;
   isGoogleConfigured?: boolean;
   errorMessage?: string;
 }
 
+const LAST_BACKUP_STORAGE_KEY = "dua_card_last_backup_time";
+
+function getInitialLastBackup(): number | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const val = localStorage.getItem(LAST_BACKUP_STORAGE_KEY);
+    return val ? parseInt(val, 10) : null;
+  } catch {
+    return null;
+  }
+}
+
 let currentState: SyncState = {
   status: "unauthenticated",
-  lastSyncedAt: null,
+  lastSyncedAt: getInitialLastBackup(),
+  lastBackupAt: getInitialLastBackup(),
   user: null,
   isGoogleConfigured: false,
 };
@@ -38,6 +53,13 @@ const listeners = new Set<(state: SyncState) => void>();
 
 function updateState(partial: Partial<SyncState>) {
   currentState = { ...currentState, ...partial };
+  // Keep lastSyncedAt and lastBackupAt in sync for backward compatibility
+  if (partial.lastBackupAt !== undefined && partial.lastSyncedAt === undefined) {
+    currentState.lastSyncedAt = partial.lastBackupAt;
+  } else if (partial.lastSyncedAt !== undefined && partial.lastBackupAt === undefined) {
+    currentState.lastBackupAt = partial.lastSyncedAt;
+  }
+
   listeners.forEach((listener) => {
     try {
       listener(currentState);
@@ -60,6 +82,29 @@ export function getSyncState(): SyncState {
 }
 
 /**
+ * Fetch server backup metadata (updatedAt timestamp) without restoring data
+ */
+export async function fetchCloudBackupMeta(): Promise<number | null> {
+  try {
+    const res = await fetch("/api/sync", { method: "GET" });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.updatedAt) {
+        const time = Number(data.updatedAt);
+        updateState({ lastBackupAt: time, lastSyncedAt: time });
+        if (typeof window !== "undefined") {
+          localStorage.setItem(LAST_BACKUP_STORAGE_KEY, String(time));
+        }
+        return time;
+      }
+    }
+  } catch (e) {
+    console.warn("Failed to fetch cloud backup metadata:", e);
+  }
+  return null;
+}
+
+/**
  * Check if the user is currently authenticated with the server
  */
 export async function checkAuthStatus(): Promise<boolean> {
@@ -78,6 +123,9 @@ export async function checkAuthStatus(): Promise<boolean> {
           status: currentState.status === "unauthenticated" ? "idle" : currentState.status,
           user: data.user,
         });
+
+        // Also fetch latest cloud backup timestamp (read-only, no auto-restore)
+        fetchCloudBackupMeta();
         return true;
       }
     }
@@ -119,8 +167,9 @@ export async function loginUser(
       errorMessage: undefined,
     });
 
-    // Automatically trigger initial cloud pull/sync
-    await triggerCloudSync({ forcePullIfServerHasData: true });
+    // Fetch cloud backup metadata only (NO auto-restore!)
+    await fetchCloudBackupMeta();
+
     return { success: true };
   } catch (err) {
     updateState({
@@ -138,7 +187,6 @@ export async function loginWithGoogle(): Promise<void> {
   if (typeof window === "undefined") return;
 
   try {
-    // Fetch NextAuth CSRF token
     const csrfRes = await fetch("/api/auth/csrf");
     if (!csrfRes.ok) {
       window.location.href = "/api/auth/signin/google";
@@ -146,7 +194,6 @@ export async function loginWithGoogle(): Promise<void> {
     }
     const { csrfToken } = await csrfRes.json();
 
-    // Create and submit POST form to NextAuth Google sign in endpoint
     const form = document.createElement("form");
     form.method = "POST";
     form.action = "/api/auth/signin/google";
@@ -204,34 +251,33 @@ export async function logoutUser(): Promise<void> {
   updateState({
     status: "unauthenticated",
     user: null,
-    lastSyncedAt: null,
   });
 }
 
 /**
- * Perform Cloud Sync (Push local to cloud and restore if cloud has newer data)
+ * Perform Cloud Backup: Takes the current local duas and logs snapshot and saves to cloud.
+ * This overwrites the cloud backup so deleted duas are permanently excluded.
  */
-export async function triggerCloudSync(options?: {
-  forcePullIfServerHasData?: boolean;
-}): Promise<{ success: boolean; syncedCount?: number; error?: string }> {
+export async function triggerCloudBackup(options?: {
+  isSilent?: boolean;
+}): Promise<{ success: boolean; count?: number; error?: string; backupAt?: number }> {
   if (typeof window === "undefined") return { success: false };
 
   // Check offline
   if (typeof navigator !== "undefined" && !navigator.onLine) {
-    updateState({ status: "offline" });
+    if (!options?.isSilent) updateState({ status: "offline" });
     return { success: false, error: "ইন্টারনেট সংযোগ নেই" };
   }
 
   const isAuth = await checkAuthStatus();
   if (!isAuth) {
-    updateState({ status: "unauthenticated" });
-    return { success: false, error: "অনুগ্রহ করে গুগল দিয়ে সাইন-ইন করুন" };
+    if (!options?.isSilent) updateState({ status: "unauthenticated" });
+    return { success: false, error: "অনুগ্রহ করে গুগল বা ইমেইল দিয়ে সাইন-ইন করুন" };
   }
 
   try {
-    updateState({ status: "syncing" });
+    if (!options?.isSilent) updateState({ status: "syncing" });
 
-    // Step 1: Export local data payload
     const localDuas = await getAllDuas();
     const allLogs = await db.logs.toArray();
 
@@ -247,7 +293,6 @@ export async function triggerCloudSync(options?: {
       logs: allLogs,
     };
 
-    // Step 2: Send to /api/sync
     const res = await fetch("/api/sync", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -256,73 +301,165 @@ export async function triggerCloudSync(options?: {
 
     const data = await res.json();
     if (!res.ok || !data.success) {
-      updateState({
-        status: "error",
-        errorMessage: data.error || "সিঙ্ক করতে ব্যর্থ হয়েছে",
-      });
-      return { success: false, error: data.error || "সিঙ্ক ব্যর্থ হয়েছে" };
-    }
-
-    // Step 3: If server merged payload returned, write back to local db & refresh UI
-    const mergedPayload = data.mergedPayload || data.data;
-    if (mergedPayload && Array.isArray(mergedPayload.duas) && mergedPayload.duas.length > 0) {
-      await replaceAllDuas(mergedPayload.duas);
-      if (Array.isArray(mergedPayload.logs) && mergedPayload.logs.length > 0) {
-        try {
-          await db.logs.clear();
-          await db.logs.bulkPut(mergedPayload.logs);
-        } catch (e) {
-          console.warn("Failed to update local logs:", e);
-        }
+      if (!options?.isSilent) {
+        updateState({
+          status: "error",
+          errorMessage: data.error || "ক্লাউড ব্যাকআপ করতে ব্যর্থ হয়েছে",
+        });
       }
-    }
-    await ensureCoreDuas();
-
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent("dua_data_synced_from_cloud"));
+      return { success: false, error: data.error || "ক্লাউড ব্যাকআপ ব্যর্থ হয়েছে" };
     }
 
-    const now = Date.now();
+    const now = data.backupAt || Date.now();
     updateState({
       status: "synced",
+      lastBackupAt: now,
       lastSyncedAt: now,
       errorMessage: undefined,
     });
 
+    if (typeof window !== "undefined") {
+      localStorage.setItem(LAST_BACKUP_STORAGE_KEY, String(now));
+    }
+
     return {
       success: true,
-      syncedCount: data.totalRecords || localDuas.length,
+      count: localDuas.length,
+      backupAt: now,
     };
   } catch (err) {
-    console.error("Cloud sync error:", err);
-    updateState({
-      status: "error",
-      errorMessage: "ক্লাউড সিঙ্ক করতে সমস্যা হয়েছে",
-    });
-    return { success: false, error: "ক্লাউড সিঙ্ক করতে সমস্যা হয়েছে" };
+    console.error("Cloud backup error:", err);
+    if (!options?.isSilent) {
+      updateState({
+        status: "error",
+        errorMessage: "ক্লাউড ব্যাকআপ করতে সমস্যা হয়েছে",
+      });
+    }
+    return { success: false, error: "ক্লাউড ব্যাকআপ করতে সমস্যা হয়েছে" };
   }
 }
 
 /**
- * Schedule background auto-sync debounced (e.g. after any dua add/edit/delete/mark completed)
+ * Perform Cloud Restore: Explicitly restores data from the latest cloud backup.
+ * ONLY runs when the user explicitly clicks the 'Restore' button!
  */
-let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+export async function triggerCloudRestore(): Promise<{
+  success: boolean;
+  count?: number;
+  error?: string;
+  backupAt?: number;
+}> {
+  if (typeof window === "undefined") return { success: false };
 
-export function notifyDataChangedAndScheduleSync(): void {
-  if (typeof window === "undefined") return;
-
-  if (debounceTimer) {
-    clearTimeout(debounceTimer);
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    updateState({ status: "offline" });
+    return { success: false, error: "ইন্টারনেট সংযোগ নেই" };
   }
 
-  debounceTimer = setTimeout(async () => {
-    try {
-      const state = getSyncState();
-      if (state.user && state.status !== "syncing") {
-        await triggerCloudSync();
-      }
-    } catch (e) {
-      console.warn("Auto-sync failed:", e);
+  const isAuth = await checkAuthStatus();
+  if (!isAuth) {
+    updateState({ status: "unauthenticated" });
+    return { success: false, error: "অনুগ্রহ করে সাইন-ইন করুন" };
+  }
+
+  try {
+    updateState({ status: "restoring" });
+
+    const res = await fetch("/api/sync", { method: "GET" });
+    const data = await res.json();
+
+    if (!res.ok || !data.success || !data.data) {
+      updateState({
+        status: "idle",
+        errorMessage: data.error || "কোনো ক্লাউড ব্যাকআপ পাওয়া যায়নি",
+      });
+      return {
+        success: false,
+        error: data.error || "ক্লাউডে কোনো ব্যাকআপ ডেটা পাওয়া যায়নি",
+      };
     }
-  }, 1200);
+
+    const cloudPayload = data.data as BackupPayload;
+    if (!cloudPayload.duas || !Array.isArray(cloudPayload.duas) || cloudPayload.duas.length === 0) {
+      updateState({
+        status: "idle",
+      });
+      return {
+        success: false,
+        error: "ক্লাউড ব্যাকআপে কোনো দোয়ার তথ্য নেই",
+      };
+    }
+
+    // Replace local database with the cloud snapshot
+    await replaceAllDuas(cloudPayload.duas);
+
+    if (Array.isArray(cloudPayload.logs) && cloudPayload.logs.length > 0) {
+      try {
+        await db.logs.clear();
+        await db.logs.bulkPut(cloudPayload.logs);
+      } catch (e) {
+        console.warn("Failed to restore logs:", e);
+      }
+    }
+
+    await ensureCoreDuas();
+
+    const updatedAt = data.updatedAt || Date.now();
+    updateState({
+      status: "synced",
+      lastBackupAt: updatedAt,
+      lastSyncedAt: updatedAt,
+      errorMessage: undefined,
+    });
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem(LAST_BACKUP_STORAGE_KEY, String(updatedAt));
+      window.dispatchEvent(new CustomEvent("dua_data_synced_from_cloud"));
+    }
+
+    return {
+      success: true,
+      count: cloudPayload.duas.length,
+      backupAt: updatedAt,
+    };
+  } catch (err) {
+    console.error("Cloud restore error:", err);
+    updateState({
+      status: "error",
+      errorMessage: "ক্লাউড ব্যাকআপ রিস্টোর করতে সমস্যা হয়েছে",
+    });
+    return { success: false, error: "ক্লাউড ব্যাকআপ রিস্টোর করতে সমস্যা হয়েছে" };
+  }
+}
+
+/**
+ * Auto-backup disabled per user requirement:
+ * Backups are only triggered manually when the user presses the 'Backup' button.
+ */
+export async function checkAndPerformDailyAutoBackup(): Promise<boolean> {
+  return false;
+}
+
+/**
+ * Backward compatibility alias: triggerCloudSync will now invoke triggerCloudBackup
+ */
+export async function triggerCloudSync(): Promise<{
+  success: boolean;
+  syncedCount?: number;
+  error?: string;
+}> {
+  const res = await triggerCloudBackup();
+  return {
+    success: res.success,
+    syncedCount: res.count,
+    error: res.error,
+  };
+}
+
+/**
+ * Disabled: We no longer auto-sync or auto-restore on every data mutation (add/edit/delete/toggle).
+ * This ensures that when a user deletes a dua, it is NOT restored from cloud.
+ */
+export function notifyDataChangedAndScheduleSync(): void {
+  // Intentionally no-op to prevent auto-sync from resurrecting deleted duas
 }

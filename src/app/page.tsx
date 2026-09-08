@@ -7,9 +7,9 @@ import { DuaReaderModal } from "@/components/DuaReaderModal";
 import { DuaEditorModal } from "@/components/DuaEditorModal";
 import { DuaCountModal } from "@/components/DuaCountModal";
 import { DuaAnalyticsModal } from "@/components/DuaAnalyticsModal";
+import { DuaAnalyticsSheetModal } from "@/components/DuaAnalyticsSheetModal";
 import { SettingsModal } from "@/components/SettingsModal";
 import { DeleteConfirmModal } from "@/components/DeleteConfirmModal";
-import { DuaExportModal } from "@/components/DuaExportModal";
 import { LoginModal } from "@/components/LoginModal";
 import { DuaRecord, DuaDailyLog } from "@/lib/types";
 import {
@@ -30,8 +30,7 @@ import {
 } from "@/lib/db";
 import {
   checkAuthStatus,
-  triggerCloudSync,
-  notifyDataChangedAndScheduleSync,
+  triggerCloudBackup,
 } from "@/lib/clientSync";
 import { Plus } from "lucide-react";
 import { JSONContent } from "@tiptap/react";
@@ -49,6 +48,7 @@ export default function HomePage() {
   const [todayLogs, setTodayLogs] = useState<Record<string, DuaDailyLog>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isAnalyticsSheetOpen, setIsAnalyticsSheetOpen] = useState(false);
 
   // Card view preferences (Hide title and virtue on home cards)
   const [hideTitleOnHome, setHideTitleOnHome] = useState(false);
@@ -64,10 +64,10 @@ export default function HomePage() {
   const [editingDua, setEditingDua] = useState<DuaRecord | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  // Habit Tracker & Export Modals
+  // Habit Tracker & Analytics Modals
   const [activeCountDua, setActiveCountDua] = useState<DuaRecord | null>(null);
   const [activeAnalyticsDua, setActiveAnalyticsDua] = useState<DuaRecord | null>(null);
-  const [activeExportDua, setActiveExportDua] = useState<DuaRecord | null>(null);
+  const [copyNotification, setCopyNotification] = useState<string | null>(null);
 
   // Deletion modal state
   const [duaToDelete, setDuaToDelete] = useState<DuaRecord | null>(null);
@@ -111,10 +111,10 @@ export default function HomePage() {
     }
   }, []);
 
-  // Fetch all duas from IndexedDB (with 5 core authentic duas guaranteed)
+  // Fetch all duas from IndexedDB
   const refreshDuas = useCallback(async () => {
     try {
-      const list = await ensureCoreDuas();
+      const list = await getAllDuas();
       setDuas(list);
       await refreshLogs();
     } catch (err) {
@@ -125,14 +125,12 @@ export default function HomePage() {
   }, [refreshLogs]);
 
   useEffect(() => {
-    refreshDuas();
-
-    // Check cloud login status & sync if online
-    checkAuthStatus().then((isAuth) => {
-      if (isAuth && typeof navigator !== "undefined" && navigator.onLine) {
-        triggerCloudSync();
-      }
+    // Seed core duas on first launch if empty, then refresh
+    ensureCoreDuas().then(() => {
+      refreshDuas();
     });
+
+    checkAuthStatus();
 
     const handleResetTimeChange = () => {
       refreshLogs();
@@ -148,7 +146,7 @@ export default function HomePage() {
       window.addEventListener("focus", refreshLogs);
     }
 
-    // Periodic check every 60 seconds to detect crossing the daily reset time threshold
+    // Periodic check every 60 seconds to detect crossing daily reset time threshold
     const timer = setInterval(() => {
       refreshLogs();
     }, 60 * 1000);
@@ -198,23 +196,19 @@ export default function HomePage() {
       });
     }
     await refreshDuas();
-    notifyDataChangedAndScheduleSync();
+    // Auto-backup to cloud immediately whenever a new Dua is added or edited
+    triggerCloudBackup({ isSilent: true });
   };
 
   // Delete Dua
   const handleConfirmDelete = async () => {
     if (!duaToDelete) return;
-    if (duaToDelete.isProtected) {
-      setDuaToDelete(null);
-      return;
-    }
     await deleteDua(duaToDelete.id);
     if (activeReaderDua?.id === duaToDelete.id) {
       setActiveReaderDua(null);
     }
     setDuaToDelete(null);
     await refreshDuas();
-    notifyDataChangedAndScheduleSync();
   };
 
   // Reorder Duas via drag-and-drop
@@ -222,21 +216,18 @@ export default function HomePage() {
     setDuas(newOrderedList);
     const ids = newOrderedList.map((d) => d.id);
     await reorderDuas(ids);
-    notifyDataChangedAndScheduleSync();
   };
 
   // Accessible Move Up
   const handleMoveUp = async (dua: DuaRecord) => {
     await moveDuaUp(dua.id);
     await refreshDuas();
-    notifyDataChangedAndScheduleSync();
   };
 
   // Accessible Move Down
   const handleMoveDown = async (dua: DuaRecord) => {
     await moveDuaDown(dua.id);
     await refreshDuas();
-    notifyDataChangedAndScheduleSync();
   };
 
   // Open Create Modal
@@ -255,14 +246,12 @@ export default function HomePage() {
   const handleToggleCompleted = async (dua: DuaRecord) => {
     await toggleTodayCompleted(dua.id);
     await refreshLogs();
-    notifyDataChangedAndScheduleSync();
   };
 
   // Quick Add Count (+100, etc.)
   const handleQuickAddCount = async (dua: DuaRecord, delta: number) => {
     await addDuaCount(dua.id, delta);
     await refreshLogs();
-    notifyDataChangedAndScheduleSync();
   };
 
   // Set Count from Modal
@@ -270,7 +259,6 @@ export default function HomePage() {
     if (!activeCountDua) return;
     await setDuaCount(activeCountDua.id, count);
     await refreshLogs();
-    notifyDataChangedAndScheduleSync();
   };
 
   // Add Count from Modal
@@ -278,7 +266,6 @@ export default function HomePage() {
     if (!activeCountDua) return;
     await addDuaCount(activeCountDua.id, delta);
     await refreshLogs();
-    notifyDataChangedAndScheduleSync();
   };
 
   // Instant Reset All Today's Completed Duas
@@ -288,7 +275,6 @@ export default function HomePage() {
       setTodayLogs({});
       await resetAllTodayLogs();
       await refreshLogs();
-      notifyDataChangedAndScheduleSync();
     } catch (e) {
       console.error("Failed to reset today's logs:", e);
     }
@@ -300,6 +286,7 @@ export default function HomePage() {
       <Header
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenLogin={() => setIsLoginOpen(true)}
+        onOpenAnalyticsSheet={() => setIsAnalyticsSheetOpen(true)}
       />
 
       {/* Main Container */}
@@ -320,7 +307,6 @@ export default function HomePage() {
             onOpenCountModal={(dua) => setActiveCountDua(dua)}
             onQuickAddCount={handleQuickAddCount}
             onOpenAnalytics={(dua) => setActiveAnalyticsDua(dua)}
-            onExportImage={(dua) => setActiveExportDua(dua)}
             onResetAllToday={handleResetAllToday}
             onMoveUp={handleMoveUp}
             onMoveDown={handleMoveDown}
@@ -396,6 +382,19 @@ export default function HomePage() {
         hideVirtueOnHome={hideVirtueOnHome}
         onToggleHideVirtue={handleToggleHideVirtue}
         onOpenLogin={() => setIsLoginOpen(true)}
+        onOpenAnalyticsSheet={() => setIsAnalyticsSheetOpen(true)}
+      />
+
+      {/* Dua Overall Analytics & Sheet Modal */}
+      <DuaAnalyticsSheetModal
+        isOpen={isAnalyticsSheetOpen}
+        onClose={() => setIsAnalyticsSheetOpen(false)}
+        onSelectDua={(duaId) => {
+          const found = duas.find((d) => d.id === duaId);
+          if (found) {
+            setActiveAnalyticsDua(found);
+          }
+        }}
       />
 
       {/* Cloud Login Modal */}
@@ -405,12 +404,7 @@ export default function HomePage() {
         onLoginSuccess={refreshDuas}
       />
 
-      {/* Dua Image Export & Share Modal */}
-      <DuaExportModal
-        dua={activeExportDua}
-        isOpen={!!activeExportDua}
-        onClose={() => setActiveExportDua(null)}
-      />
+
 
       {/* Delete Single Dua Confirmation Modal */}
       <DeleteConfirmModal

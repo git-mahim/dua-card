@@ -1,8 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Noto_Serif_Bengali, Tiro_Bangla } from "next/font/google";
+import { Noto_Serif_Bengali, Tiro_Bangla, Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/lib/i18n";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 const notoSerifBengali = Noto_Serif_Bengali({
   subsets: ["bengali"],
@@ -56,7 +62,7 @@ export default function RootLayout({
     <html
       lang="bn"
       suppressHydrationWarning
-      className={`dark ${notoSerifBengali.variable} ${tiroBangla.variable}`}
+      className={`dark ${inter.variable} ${notoSerifBengali.variable} ${tiroBangla.variable}`}
     >
       <head>
         {/* Anti-flash theme initialization script */}

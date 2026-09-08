@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 import {
   loginUser,
   logoutUser,
-  triggerCloudSync,
+  triggerCloudBackup,
+  triggerCloudRestore,
   getSyncState,
   subscribeSyncState,
   SyncState,
@@ -23,7 +24,11 @@ import {
   Lock,
   Mail,
   Cloud,
+  CloudDownload,
+  CloudUpload,
 } from "lucide-react";
+
+import { toBengaliNumber } from "@/lib/formatters";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -100,28 +105,53 @@ export const LoginModal: React.FC<LoginModalProps> = ({
     }
   };
 
-  const handleManualSync = async () => {
+  const handleBackup = async () => {
     try {
       setIsSyncing(true);
+      setErrorMsg(null);
       triggerHaptic(40);
-      const res = await triggerCloudSync();
+      const res = await triggerCloudBackup();
       setIsSyncing(false);
       if (res.success) {
-        setSuccessMsg(
-          language === "bn"
-            ? "ক্লাউডের সাথে সকল দোয়া সফলভাবে সিঙ্ক হয়েছে"
-            : "All duas synced with cloud successfully"
-        );
+        setSuccessMsg(t("cloudBackupSuccess") || "ক্লাউডে সফলভাবে ব্যাকআপ সংরক্ষিত হয়েছে");
         setTimeout(() => setSuccessMsg(null), 2500);
       } else {
         setErrorMsg(
-          res.error || (language === "bn" ? "সিঙ্ক করতে ব্যর্থ হয়েছে" : "Sync failed")
+          res.error || (language === "bn" ? "ব্যাকআপ করতে ব্যর্থ হয়েছে" : "Backup failed")
         );
       }
     } catch (e) {
       setIsSyncing(false);
       setErrorMsg(
-        language === "bn" ? "ক্লাউড সিঙ্ক করতে সমস্যা হয়েছে" : "Sync failed"
+        language === "bn" ? "ক্লাউড ব্যাকআপ করতে সমস্যা হয়েছে" : "Backup failed"
+      );
+    }
+  };
+
+  const handleRestore = async () => {
+    try {
+      setIsSyncing(true);
+      setErrorMsg(null);
+      triggerHaptic(50);
+      const res = await triggerCloudRestore();
+      setIsSyncing(false);
+      if (res.success) {
+        setSuccessMsg(
+          language === "bn"
+            ? `ক্লাউড ব্যাকআপ থেকে ${toBengaliNumber(res.count || 0)} টি দোয়া সফলভাবে রিস্টোর হয়েছে`
+            : `Successfully restored ${res.count || 0} duas from cloud backup`
+        );
+        onLoginSuccess?.();
+        setTimeout(() => setSuccessMsg(null), 2500);
+      } else {
+        setErrorMsg(
+          res.error || (language === "bn" ? "রিস্টোর করতে ব্যর্থ হয়েছে" : "Restore failed")
+        );
+      }
+    } catch (e) {
+      setIsSyncing(false);
+      setErrorMsg(
+        language === "bn" ? "ক্লাউড ব্যাকআপ রিস্টোর করতে সমস্যা হয়েছে" : "Restore failed"
       );
     }
   };
@@ -225,56 +255,73 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     {syncState.user.email}
                   </h3>
                   <div className="flex items-center gap-1.5 mt-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
-                    <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                    <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">
                       {language === "bn"
-                        ? "ক্লাউড সিঙ্ক সক্রিয় রয়েছে"
-                        : "Cloud Auto-Sync Active"}
+                        ? "ম্যানুয়াল ব্যাকআপ ও রিস্টোর"
+                        : "Manual Backup & Restore"}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Last Sync Timestamp Record */}
+              {/* Last Backup Record */}
               <div className="p-3 bg-amber-500/[0.06] dark:bg-amber-400/[0.06] rounded-[16px] border border-[#ffb31a]/30 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs text-zinc-700 dark:text-zinc-300">
                   <Clock className="w-3.5 h-3.5 text-[#ffb31a] shrink-0" />
                   <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
-                    {t("lastSynced")}
+                    {t("lastBackup")}
                   </span>
                 </div>
                 <span className="text-xs font-bold text-zinc-900 dark:text-[#ffb31a]">
-                  {formatSyncTime(syncState.lastSyncedAt)}
+                  {syncState.lastBackupAt || syncState.lastSyncedAt
+                    ? formatSyncTime(syncState.lastBackupAt || syncState.lastSyncedAt)
+                    : language === "bn" ? "এখনও ব্যাকআপ নেওয়া হয়নি" : "No backup taken yet"}
                 </span>
               </div>
 
-              {/* Action Buttons */}
+              {/* Dual Action Buttons: Backup & Restore */}
               <div className="grid grid-cols-2 gap-2 pt-1">
                 <button
                   type="button"
-                  onClick={handleManualSync}
-                  disabled={isSyncing || syncState.status === "syncing"}
+                  onClick={handleBackup}
+                  disabled={isSyncing || syncState.status === "syncing" || syncState.status === "restoring"}
                   className="min-h-[44px] px-3 py-2 bg-[#ffb31a] hover:bg-[#e69c05] text-zinc-950 font-bold text-xs rounded-[14px] shadow-xs flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-50"
+                  title="বর্তমান দোয়াসমূহ ক্লাউডে সেভ করুন"
                 >
-                  <RefreshCw
-                    className={`w-3.5 h-3.5 ${
-                      isSyncing || syncState.status === "syncing"
-                        ? "animate-spin"
-                        : ""
-                    }`}
-                  />
-                  <span>{t("syncNow")}</span>
+                  {isSyncing && syncState.status === "syncing" ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <CloudUpload className="w-3.5 h-3.5" />
+                  )}
+                  <span>{t("backupNow")}</span>
                 </button>
 
                 <button
                   type="button"
-                  onClick={handleLogout}
-                  className="min-h-[44px] px-3 py-2 bg-zinc-100 dark:bg-zinc-800/80 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-zinc-700 hover:text-rose-600 dark:text-zinc-300 dark:hover:text-rose-400 font-semibold text-xs rounded-[14px] border border-zinc-200/60 dark:border-zinc-700/60 flex items-center justify-center gap-2 active:scale-95 transition-all"
+                  onClick={handleRestore}
+                  disabled={isSyncing || syncState.status === "syncing" || syncState.status === "restoring"}
+                  className="min-h-[44px] px-3 py-2 bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 font-bold text-xs rounded-[14px] border border-zinc-200/60 dark:border-zinc-700/60 flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-50"
+                  title="ক্লাউডের সর্বশেষ ব্যাকআপ ফিরিয়ে আনুন"
                 >
-                  <LogOut className="w-3.5 h-3.5" />
-                  <span>{t("logout")}</span>
+                  {isSyncing && syncState.status === "restoring" ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <CloudDownload className="w-3.5 h-3.5 text-[#c87d00] dark:text-[#ffb31a]" />
+                  )}
+                  <span>{t("restoreNow")}</span>
                 </button>
               </div>
+
+              {/* Logout Button */}
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="w-full min-h-[40px] px-3 py-2 bg-zinc-50 dark:bg-zinc-900/60 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-zinc-600 hover:text-rose-600 dark:text-zinc-400 dark:hover:text-rose-400 font-semibold text-xs rounded-[14px] border border-zinc-200/60 dark:border-zinc-800/60 flex items-center justify-center gap-2 active:scale-95 transition-all"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>{t("logout")}</span>
+              </button>
             </div>
           ) : (
             /* Logged Out Direct Form View */
