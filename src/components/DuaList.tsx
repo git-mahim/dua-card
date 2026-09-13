@@ -425,8 +425,9 @@ export const DuaList: React.FC<DuaListProps> = ({
 
       {/* Footer Branding Credit */}
       <footer className="pt-2 pb-12 text-center w-full">
-        <p className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 tracking-wide">
-          Build by Apurbo Khan
+        <p className="text-xs text-zinc-400 dark:text-zinc-500 tracking-wide">
+          <span className="font-light">Build by </span>
+          <span className="font-bold text-zinc-700 dark:text-zinc-300">Apurbo Khan</span>
         </p>
       </footer>
     </div>

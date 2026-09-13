@@ -1158,8 +1158,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* Footer Branding Credit */}
         <footer className="pt-3 pb-4 text-center">
-          <p className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 tracking-wide">
-            Build by Apurbo Khan
+          <p className="text-xs text-zinc-400 dark:text-zinc-500 tracking-wide">
+            <span className="font-light">Build by </span>
+            <span className="font-bold text-zinc-700 dark:text-zinc-300">Apurbo Khan</span>
           </p>
         </footer>
       </main>
