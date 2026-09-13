@@ -114,12 +114,12 @@ export const DuaCard: React.FC<DuaCardProps> = ({
     <article
       ref={setNodeRef}
       style={style}
-      className={`group relative w-full bg-surface-card border rounded-[22px] p-4 sm:p-5 ${!isDragOverlay ? "pb-0 sm:pb-0" : ""} transition-all duration-150 select-none no-select ${
+      className={`group relative w-full bg-surface-card border rounded-[22px] p-4 sm:p-5 ${!isDragOverlay ? "pb-0 sm:pb-0" : ""} transition-all duration-200 select-none no-select ${
         isDragging
-          ? "border-[#ffb31a] shadow-xl ring-2 ring-[#ffb31a]/30 z-30"
+          ? "border-[#ffb31a] shadow-xl ring-2 ring-[#ffb31a]/40 z-30 scale-[1.02]"
           : isCompleted
-          ? "border-emerald-500/30 dark:border-emerald-500/25 bg-emerald-500/[0.02] dark:bg-emerald-950/[0.08]"
-          : "border-zinc-200/80 dark:border-zinc-800/80 hover:border-zinc-300 dark:hover:border-zinc-700 shadow-2xs hover:shadow-xs"
+          ? "border-emerald-500/40 dark:border-emerald-400/35 bg-emerald-500/[0.03] dark:bg-emerald-950/[0.12] shadow-xs"
+          : "border-amber-500/25 dark:border-amber-500/20 hover:border-[#ffb31a]/60 dark:hover:border-[#ffb31a]/50 shadow-2xs hover:shadow-xs"
       }`}
     >
 
@@ -327,7 +327,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
       {/* Bottom Action Footer */}
       {!isDragOverlay && (
         <div
-          className="mt-3.5 py-3 border-t border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-between gap-2"
+          className="mt-3.5 py-3 border-t border-amber-500/15 dark:border-amber-500/10 flex items-center justify-between gap-2"
           data-no-double-tap="true"
         >
           {/* Left: Quick Counter Stepper Pill */}
