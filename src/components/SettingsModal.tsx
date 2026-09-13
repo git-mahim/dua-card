@@ -1155,6 +1155,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               : "All your dua records are securely stored locally in your browser's IndexedDB. Use cloud sync or file backup to keep your data safe."}
           </span>
         </section>
+
+        {/* Footer Branding Credit */}
+        <footer className="pt-3 pb-4 text-center">
+          <p className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 tracking-wide">
+            Build by Apurbo Khan
+          </p>
+        </footer>
       </main>
 
       {/* Cloud Restore Confirmation Modal */}

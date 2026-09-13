@@ -408,7 +408,7 @@ export const DuaList: React.FC<DuaListProps> = ({
 
       {/* Bottom Action: Reset all completed cards */}
       {duas.length > 0 && onResetAllToday && (
-        <div className="pt-4 pb-20 flex flex-col items-center w-full relative z-10">
+        <div className="pt-4 pb-4 flex flex-col items-center w-full relative z-10">
           <button
             type="button"
             onClick={(e) => {
@@ -422,6 +422,13 @@ export const DuaList: React.FC<DuaListProps> = ({
           </button>
         </div>
       )}
+
+      {/* Footer Branding Credit */}
+      <footer className="pt-2 pb-12 text-center w-full">
+        <p className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 tracking-wide">
+          Build by Apurbo Khan
+        </p>
+      </footer>
     </div>
   );
 };
