@@ -208,6 +208,13 @@ describe("IndexedDB Dua Card Database Operations", () => {
     expect(todayMap[d1.id]?.completed).toBe(true);
     expect(todayMap[d2.id]?.count).toBe(50);
 
+    // Add historical log for yesterday
+    const baseDate = getSpiritualDate();
+    const yesterday = new Date(baseDate);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = getLocalDateString(yesterday);
+    await setDuaCount(d1.id, 100, yesterdayStr);
+
     // Call resetAllTodayLogs
     const { resetAllTodayLogs } = await import("../src/lib/db");
     await resetAllTodayLogs();
@@ -215,6 +222,15 @@ describe("IndexedDB Dua Card Database Operations", () => {
     todayMap = await getAllTodayLogs();
     expect(todayMap[d1.id]).toBeUndefined();
     expect(todayMap[d2.id]).toBeUndefined();
+
+    // Verify yesterday's log is preserved intact
+    const yesterdayLog = await db.logs.get(`${d1.id}_${yesterdayStr}`);
+    expect(yesterdayLog).toBeDefined();
+    expect(yesterdayLog?.count).toBe(100);
+
+    // Verify rolling 7-day weekly count includes yesterday's log
+    const stats = await getDuaAggregatedStats(d1.id);
+    expect(stats.thisWeekCount).toBe(100);
   });
 
   it("should prevent deleting protected core duas", async () => {

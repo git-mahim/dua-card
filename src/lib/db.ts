@@ -448,13 +448,15 @@ export async function toggleTodayCompleted(
 }
 
 /**
- * Reset all completed logs and counts (uncheck all cards)
+ * Reset today's completed logs and counts (uncheck all cards for today without deleting historical records)
  */
-export async function resetAllTodayLogs(): Promise<void> {
+export async function resetAllTodayLogs(
+  dateStr: string = getLocalDateString()
+): Promise<void> {
   try {
-    await db.logs.clear();
+    await db.logs.where("date").equals(dateStr).delete();
   } catch (error) {
-    console.error("Failed to reset logs:", error);
+    console.error(`Failed to reset today's logs for ${dateStr}:`, error);
   }
 }
 
@@ -543,10 +545,9 @@ export async function getDuaAggregatedStats(duaId: string): Promise<DuaAggregate
     const todayDate = getSpiritualDate();
     const todayStr = getLocalDateString();
     
-    // Start of this week (Sunday)
-    const dayOfWeek = todayDate.getDay();
+    // Start of past 7 days (rolling weekly window)
     const startOfWeek = new Date(todayDate);
-    startOfWeek.setDate(todayDate.getDate() - dayOfWeek);
+    startOfWeek.setDate(todayDate.getDate() - 6);
     const startOfWeekStr = getLocalDateString(startOfWeek);
 
     // Current month prefix (YYYY-MM)
