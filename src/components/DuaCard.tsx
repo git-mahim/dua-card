@@ -114,12 +114,12 @@ export const DuaCard: React.FC<DuaCardProps> = ({
     <article
       ref={setNodeRef}
       style={style}
-      className={`group relative w-full bg-surface-card border rounded-[22px] p-4 sm:p-5 ${!isDragOverlay ? "pb-0 sm:pb-0" : ""} transition-all duration-200 select-none no-select ${
+      className={`group relative w-full border rounded-[22px] p-4 sm:p-5 ${!isDragOverlay ? "pb-0 sm:pb-0" : ""} transition-all duration-200 select-none no-select ${
         isDragging
-          ? "border-[#ffb31a] shadow-xl ring-2 ring-[#ffb31a]/40 z-30 scale-[1.02]"
+          ? "border-[#ffb31a] shadow-xl ring-2 ring-[#ffb31a]/40 z-30 scale-[1.02] bg-surface-card"
           : isCompleted
-          ? "border-emerald-500/40 dark:border-emerald-400/35 bg-emerald-500/[0.03] dark:bg-emerald-950/[0.12] shadow-xs"
-          : "border-amber-500/25 dark:border-amber-500/20 hover:border-[#ffb31a]/60 dark:hover:border-[#ffb31a]/50 shadow-2xs hover:shadow-xs"
+          ? "bg-emerald-500/[0.03] dark:bg-[#0d1612] border-emerald-500/40 dark:border-emerald-500/40 dark:shadow-[0_4px_20px_rgba(16,185,129,0.08)]"
+          : "bg-surface-card border-amber-500/25 dark:border-zinc-800/90 hover:border-[#ffb31a]/60 dark:hover:border-[#ffb31a]/50 shadow-2xs hover:shadow-xs"
       }`}
     >
 
@@ -138,7 +138,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                   ? `ক্রমিক ${formatNumber(orderIndex ?? 1)} - স্থান পরিবর্তন করতে ধরে রাখুন`
                   : `Order ${orderIndex} - Drag to reorder`
               }
-              className="touch-none cursor-grab active:cursor-grabbing flex items-center gap-1 px-2.5 py-1 rounded-[10px] bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 transition-colors select-none group/drag shadow-2xs"
+              className="touch-none cursor-grab active:cursor-grabbing flex items-center gap-1 px-2.5 py-1 rounded-[10px] bg-zinc-100 dark:bg-zinc-900/90 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border border-zinc-200/80 dark:border-zinc-800 transition-colors select-none group/drag shadow-2xs"
             >
               <GripVertical className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400 group-hover/drag:text-zinc-800 dark:group-hover/drag:text-zinc-100 stroke-[2]" />
               {typeof orderIndex === "number" && (
@@ -149,7 +149,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
             </div>
           ) : (
             typeof orderIndex === "number" && (
-              <div className="flex items-center gap-1 px-2.5 py-1 rounded-[10px] bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 font-number text-[11px] font-bold border border-zinc-200 dark:border-zinc-700">
+              <div className="flex items-center gap-1 px-2.5 py-1 rounded-[10px] bg-zinc-100 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-200 font-number text-[11px] font-bold border border-zinc-200 dark:border-zinc-800">
                 <GripVertical className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400 stroke-[2]" />
                 <span>{formatNumber(orderIndex)}</span>
               </div>
@@ -170,8 +170,8 @@ export const DuaCard: React.FC<DuaCardProps> = ({
             }
             className={`min-h-[30px] px-2.5 py-1 rounded-[10px] text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer select-none active:scale-95 shadow-2xs ${
               isCompleted
-                ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-300 dark:hover:border-rose-800"
-                : "bg-amber-500/15 text-[#b36b00] dark:text-[#ffb31a] border border-[#ffb31a]/35 dark:border-[#ffb31a]/50 hover:bg-[#ffb31a]/25"
+                ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 dark:border-emerald-500/40 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-300 dark:hover:border-rose-800"
+                : "bg-amber-500/15 text-[#b36b00] dark:text-[#ffc247] border border-[#ffb31a]/35 dark:border-[#ffb31a]/40 hover:bg-[#ffb31a]/25"
             }`}
           >
             {isCompleted ? (
@@ -198,7 +198,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                 }}
                 aria-label={t("actions")}
                 aria-expanded={showMenu}
-                className="w-8 h-8 rounded-[10px] flex items-center justify-center text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200/80 dark:border-zinc-700/80 transition-all active:scale-90 shadow-2xs"
+                className="w-8 h-8 rounded-[10px] flex items-center justify-center text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-800 transition-all active:scale-90 shadow-2xs"
               >
                 <MoreVertical className="w-4 h-4" />
               </button>
@@ -212,7 +212,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                       setShowMenu(false);
                     }}
                   />
-                  <div className="absolute right-0 top-7 z-50 w-48 bg-white dark:bg-[#1a1a1a] border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-xl py-1 text-xs animate-in fade-in zoom-in-95 duration-100 divide-y divide-zinc-100 dark:divide-zinc-800/60">
+                  <div className="absolute right-0 top-7 z-50 w-48 bg-white dark:bg-[#18181c] border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-xl py-1 text-xs animate-in fade-in zoom-in-95 duration-100 divide-y divide-zinc-100 dark:divide-zinc-800/60">
                     <div className="py-1">
                       {!isFirst && onMoveUp && (
                         <button
@@ -327,7 +327,11 @@ export const DuaCard: React.FC<DuaCardProps> = ({
       {/* Bottom Action Footer */}
       {!isDragOverlay && (
         <div
-          className="mt-3.5 py-3 border-t border-amber-500/15 dark:border-amber-500/10 flex items-center justify-between gap-2"
+          className={`mt-3.5 py-3 border-t flex items-center justify-between gap-2 ${
+            isCompleted
+              ? "border-emerald-500/20 dark:border-emerald-500/25"
+              : "border-zinc-200/80 dark:border-zinc-800/80"
+          }`}
           data-no-double-tap="true"
         >
           {/* Left: Quick Counter Stepper Pill */}
@@ -337,23 +341,23 @@ export const DuaCard: React.FC<DuaCardProps> = ({
               onClick={() => onOpenCountModal && onOpenCountModal(dua)}
               className={`min-h-[34px] px-3 py-1 rounded-[11px] text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95 shadow-2xs whitespace-nowrap ${
                 isCompleted
-                  ? "bg-amber-500/15 dark:bg-amber-400/20 text-[#b36b00] dark:text-[#ffb31a] border border-[#ffb31a]/35 dark:border-[#ffb31a]/50 hover:bg-[#ffb31a]/25"
-                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700 hover:border-[#ffb31a]/40 border border-zinc-200/80 dark:border-zinc-700"
+                  ? "bg-emerald-500/15 dark:bg-emerald-500/15 text-[#b36b00] dark:text-emerald-400 border border-emerald-500/30 dark:border-emerald-500/40 hover:bg-emerald-500/25"
+                  : "bg-zinc-100 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-800 hover:border-[#ffb31a]/40 border border-zinc-200/80 dark:border-zinc-800"
               }`}
               title={language === "bn" ? "আমল সংখ্যা বিস্তারিত দেখুন বা পরিবর্তন করুন" : "Add or update recitation count"}
             >
               <span className={`text-[11px] font-medium ${
-                isCompleted ? "text-amber-800 dark:text-amber-200" : "text-zinc-600 dark:text-zinc-400"
+                isCompleted ? "text-emerald-800 dark:text-emerald-300" : "text-zinc-600 dark:text-zinc-400"
               }`}>
                 {t("todayCount")}:
               </span>
               <span className={`font-number font-bold text-[11px] ${
-                isCompleted ? "text-zinc-950 dark:text-[#ffb31a]" : "text-zinc-950 dark:text-white"
+                isCompleted ? "text-emerald-950 dark:text-emerald-300" : "text-zinc-950 dark:text-white"
               }`}>
                 {formatNumber(currentCount)}
               </span>
               <span className={`text-[11px] font-medium ${
-                isCompleted ? "text-amber-800 dark:text-amber-200" : "text-zinc-500 dark:text-zinc-400"
+                isCompleted ? "text-emerald-800 dark:text-emerald-300" : "text-zinc-500 dark:text-zinc-400"
               }`}>
                 {t("timesSuffix")}
               </span>
@@ -367,7 +371,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                   onQuickAddCount(dua, 1);
                 }}
                 aria-label={language === "bn" ? "১ বার যোগ করুন" : "Quick add 1"}
-                className="w-[34px] h-[34px] rounded-[10px] bg-[#ffb31a]/15 dark:bg-[#ffb31a]/25 hover:bg-[#ffb31a]/25 dark:hover:bg-[#ffb31a]/35 text-[#c87d00] dark:text-[#ffb31a] border border-[#ffb31a]/35 dark:border-[#ffb31a]/50 flex items-center justify-center transition-all active:scale-90 shadow-2xs font-bold text-xs"
+                className="w-[34px] h-[34px] rounded-[10px] bg-[#ffb31a]/15 dark:bg-[#ffb31a]/20 hover:bg-[#ffb31a]/25 dark:hover:bg-[#ffb31a]/30 text-[#c87d00] dark:text-[#ffc247] border border-[#ffb31a]/35 dark:border-[#ffb31a]/40 flex items-center justify-center transition-all active:scale-90 shadow-2xs font-bold text-xs"
                 title={language === "bn" ? "দ্রুত ১ বার যোগ করুন (+১)" : "Quick +1"}
               >
                 <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -383,7 +387,7 @@ export const DuaCard: React.FC<DuaCardProps> = ({
                 triggerHaptic(40);
                 onOpenAnalytics(dua);
               }}
-              className="min-h-[34px] px-2.5 py-1 text-xs font-semibold text-zinc-700 dark:text-zinc-200 hover:text-zinc-950 dark:hover:text-white bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200/80 dark:hover:bg-zinc-700 active:scale-95 rounded-[11px] border border-zinc-200/80 dark:border-zinc-700 transition-all flex items-center gap-1.5 whitespace-nowrap shadow-2xs"
+              className="min-h-[34px] px-2.5 py-1 text-xs font-semibold text-zinc-700 dark:text-zinc-200 hover:text-zinc-950 dark:hover:text-white bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200/80 dark:hover:bg-zinc-800 active:scale-95 rounded-[11px] border border-zinc-200/80 dark:border-zinc-800 transition-all flex items-center gap-1.5 whitespace-nowrap shadow-2xs"
               title={language === "bn" ? "আমল হিস্ট্রি ও বিস্তারিত চার্ট দেখুন" : "View recitation history and analytics"}
             >
               <TrendingUp className="w-3.5 h-3.5 text-[#c87d00] dark:text-[#ffb31a]" />

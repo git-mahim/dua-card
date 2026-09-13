@@ -46,7 +46,7 @@ export const SEMANTIC_STYLES: Record<string, TypographyStyle> = {
     fontSize: "text-[13px] sm:text-[14px]",
     fontWeight: "font-normal",
     lineHeight: "leading-[1.7]",
-    className: "dua-meaning text-[13px] sm:text-[14px] font-normal leading-[1.7] text-zinc-900 dark:text-zinc-100 pl-3.5 pr-3 py-2.5 my-2.5 border-l-[3px] border-[#ffb31a] bg-amber-500/[0.06] dark:bg-amber-400/[0.08] rounded-r-[12px] font-bengali shadow-2xs",
+    className: "dua-meaning text-[13px] sm:text-[14px] font-normal leading-[1.7] text-zinc-900 dark:text-zinc-100 pl-3.5 pr-3 py-2.5 my-2.5 border-l-[3px] border-[#ffb31a] bg-amber-500/[0.06] dark:bg-[#1a1712] dark:border-[#ffb31a]/90 rounded-r-[12px] font-bengali shadow-2xs",
   },
   "dua-paragraph": {
     id: "dua-paragraph",

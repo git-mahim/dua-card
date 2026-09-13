@@ -180,7 +180,7 @@ export const DuaList: React.FC<DuaListProps> = ({
     <div className="w-full flex flex-col gap-4 pb-24">
       {/* Smart Status Filter Tabs (All | Pending | Completed) */}
       {!isSearchActive && (
-        <div className="w-full grid grid-cols-3 gap-1.5 p-1.5 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-[18px] shadow-2xs">
+        <div className="w-full grid grid-cols-3 gap-1.5 p-1.5 bg-zinc-100 dark:bg-[#121214] border border-zinc-200/80 dark:border-zinc-800 rounded-[18px] shadow-2xs">
           <button
             type="button"
             onClick={() => {
@@ -189,16 +189,16 @@ export const DuaList: React.FC<DuaListProps> = ({
             }}
             className={`min-h-[44px] py-2 px-1.5 rounded-[14px] font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
               activeTab === "all"
-                ? "bg-white dark:bg-zinc-800 text-zinc-950 dark:text-zinc-50 shadow-xs scale-[1.01]"
-                : "text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-white/50 dark:hover:bg-zinc-800/60"
+                ? "bg-white dark:bg-[#1e1e24] text-zinc-950 dark:text-zinc-50 border border-transparent dark:border-zinc-700/60 shadow-xs scale-[1.01]"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-white/50 dark:hover:bg-zinc-800/60"
             }`}
           >
             <span className="text-[13px] sm:text-[14px]">{t("allDuas")}</span>
             <span
               className={`font-number text-[11px] font-bold leading-none px-1.5 py-0.5 rounded-full ${
                 activeTab === "all"
-                  ? "bg-[#ffb31a]/20 text-[#c87d00] dark:text-[#ffb31a]"
-                  : "bg-zinc-200/80 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300"
+                  ? "bg-[#ffb31a]/20 text-[#c87d00] dark:text-[#ffc247]"
+                  : "bg-zinc-200/80 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
               }`}
             >
               {formatNumber(duas.length)}
@@ -213,16 +213,16 @@ export const DuaList: React.FC<DuaListProps> = ({
             }}
             className={`min-h-[44px] py-2 px-1.5 rounded-[14px] font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
               activeTab === "pending"
-                ? "bg-white dark:bg-zinc-800 text-zinc-950 dark:text-zinc-50 shadow-xs scale-[1.01]"
-                : "text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-white/50 dark:hover:bg-zinc-800/60"
+                ? "bg-white dark:bg-[#1e1e24] text-zinc-950 dark:text-zinc-50 border border-transparent dark:border-zinc-700/60 shadow-xs scale-[1.01]"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-white/50 dark:hover:bg-zinc-800/60"
             }`}
           >
             <span className="text-[13px] sm:text-[14px]">{t("pendingDuas")}</span>
             <span
               className={`font-number text-[11px] font-bold leading-none px-1.5 py-0.5 rounded-full ${
                 activeTab === "pending"
-                  ? "bg-[#ffb31a]/20 text-[#c87d00] dark:text-[#ffb31a]"
-                  : "bg-zinc-200/80 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300"
+                  ? "bg-[#ffb31a]/20 text-[#c87d00] dark:text-[#ffc247]"
+                  : "bg-zinc-200/80 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
               }`}
             >
               {formatNumber(pendingCount)}
@@ -237,16 +237,16 @@ export const DuaList: React.FC<DuaListProps> = ({
             }}
             className={`min-h-[44px] py-2 px-1.5 rounded-[14px] font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
               activeTab === "completed"
-                ? "bg-white dark:bg-zinc-800 text-zinc-950 dark:text-zinc-50 shadow-xs scale-[1.01]"
-                : "text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-white/50 dark:hover:bg-zinc-800/60"
+                ? "bg-white dark:bg-[#1e1e24] text-zinc-950 dark:text-zinc-50 border border-transparent dark:border-zinc-700/60 shadow-xs scale-[1.01]"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-white/50 dark:hover:bg-zinc-800/60"
             }`}
           >
             <span className="text-[13px] sm:text-[14px]">{t("completedDuas")}</span>
             <span
               className={`font-number text-[11px] font-bold leading-none px-1.5 py-0.5 rounded-full ${
                 activeTab === "completed"
-                  ? "bg-[#ffb31a]/20 text-[#c87d00] dark:text-[#ffb31a]"
-                  : "bg-zinc-200/80 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300"
+                  ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400"
+                  : "bg-zinc-200/80 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
               }`}
             >
               {formatNumber(completedCount)}
