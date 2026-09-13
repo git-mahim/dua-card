@@ -37,6 +37,7 @@ html {
   padding: 0;
   margin: 0;
   background-color: var(--background);
+  touch-action: pan-x pan-y;
 }
 
 body {
@@ -50,6 +51,7 @@ body {
   text-rendering: optimizeLegibility;
   font-feature-settings: "kern" 1, "liga" 1;
   overscroll-behavior-y: contain;
+  touch-action: pan-x pan-y;
   /* Support for mobile status bars and notches */
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);

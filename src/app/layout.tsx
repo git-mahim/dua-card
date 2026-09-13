@@ -45,6 +45,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  viewportFit: "cover",
   colorScheme: "dark light",
   themeColor: "#121212",
   interactiveWidget: "resizes-content",
@@ -62,11 +63,28 @@ export default function RootLayout({
       className={`dark ${inter.variable} ${notoSerifBengali.variable} ${tiroBangla.variable}`}
     >
       <head>
-        {/* Anti-flash theme initialization script */}
+        {/* Anti-flash theme initialization script & Anti-pinch zoom handlers */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               try {
+                // Prevent multi-touch pinch zoom gestures in PWA & Mobile Web
+                document.addEventListener('touchstart', function(e) {
+                  if (e.touches && e.touches.length > 1) {
+                    e.preventDefault();
+                  }
+                }, { passive: false });
+
+                document.addEventListener('touchmove', function(e) {
+                  if (e.touches && e.touches.length > 1) {
+                    e.preventDefault();
+                  }
+                }, { passive: false });
+
+                document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+                document.addEventListener('gesturechange', function(e) { e.preventDefault(); });
+                document.addEventListener('gestureend', function(e) { e.preventDefault(); });
+
                 var savedTheme = localStorage.getItem('dua_card_theme_pref');
                 var systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                 var isDark = savedTheme === 'dark' || (!savedTheme && systemPrefersDark);
