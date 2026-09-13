@@ -138,22 +138,11 @@ export const DuaAnalyticsSheetModal: React.FC<DuaAnalyticsSheetModalProps> = ({
               </h1>
               <p className="text-[11px] text-zinc-500 truncate">
                 {language === "bn"
-                  ? "দোয়ার উচ্চারণ অনুযায়ী পাঠের পরিসংখ্যান ও এক্সেল রিপোর্ট"
-                  : "Track read vs unread duas & export Excel report"}
+                  ? "দোয়ার উচ্চারণ অনুযায়ী পাঠের পরিসংখ্যান ও বিস্তৃত তালিকা"
+                  : "Track read vs unread duas & recitation stats"}
               </p>
             </div>
           </div>
-
-          <button
-            type="button"
-            onClick={handleExportCsv}
-            disabled={!data || data.items.length === 0}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#ffb31a] hover:bg-[#e69c05] text-zinc-950 rounded-xl text-xs font-bold transition-all active:scale-95 shadow-2xs shrink-0"
-            title={language === "bn" ? "এক্সেল (CSV) শিট ডাউনলোড করুন" : "Export Excel (CSV) Sheet"}
-          >
-            <FileSpreadsheet className="w-4 h-4" />
-            <span className="hidden sm:inline">{language === "bn" ? "এক্সেল শিট" : "Export Sheet"}</span>
-          </button>
         </div>
       </header>
 
@@ -446,23 +435,6 @@ export const DuaAnalyticsSheetModal: React.FC<DuaAnalyticsSheetModalProps> = ({
                 </div>
               )}
             </section>
-
-            {/* Excel Download Banner Button */}
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={handleExportCsv}
-                disabled={!data || data.items.length === 0}
-                className="w-full min-h-[46px] py-3 px-4 bg-[#ffb31a] hover:bg-[#e69c05] text-zinc-950 font-bold text-xs rounded-[16px] shadow-2xs flex items-center justify-center gap-2 active:scale-98 transition-all"
-              >
-                <FileSpreadsheet className="w-4 h-4 text-zinc-950 shrink-0" />
-                <span>
-                  {language === "bn"
-                    ? "সম্পূর্ণ আমল রিপোর্ট এক্সেল (CSV) ফাইলে ডাউনলোড করুন"
-                    : "Download Full Recitation Report as Excel (CSV)"}
-                </span>
-              </button>
-            </div>
           </>
         )}
       </main>

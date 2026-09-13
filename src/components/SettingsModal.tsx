@@ -973,18 +973,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <BarChart3 className="w-3.5 h-3.5" />
               </div>
               <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
-                {language === "bn" ? "আমল বিশ্লেষণ ও এক্সেল শিট" : "Analytics Sheet & Excel Export"}
+                {language === "bn" ? "আমল শিট ও গ্রাফ বিশ্লেষণ" : "Analytics Sheet & Charts"}
               </span>
             </div>
           </div>
 
           <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed">
             {language === "bn"
-              ? "কোন দোয়াগুলো বেশি পড়া হচ্ছে এবং কোন দোয়াগুলো পড়া হচ্ছে না তার স্মার্ট গ্রাফিক্স বিশ্লেষণ দেখুন ও এক্সেল শিটে (CSV) এক্সপোর্ট করুন।"
-              : "View smart charts of most read & unread duas, and export full recitation reports to Excel sheet."}
+              ? "কোন দোয়াগুলো বেশি পড়া হচ্ছে এবং কোন দোয়াগুলো পড়া হচ্ছে না তার বিস্তারিত তালিকা ও স্মার্ট গ্রাফিক্স বিশ্লেষণ দেখুন।"
+              : "View smart charts and detailed recitation breakdown of read vs unread duas."}
           </p>
 
-          <div className="grid grid-cols-2 gap-2 pt-1">
+          <div className="pt-1">
             <button
               type="button"
               onClick={() => {
@@ -992,24 +992,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 onClose();
                 onOpenAnalyticsSheet?.();
               }}
-              className="flex items-center justify-center gap-2 min-h-[44px] px-3 py-2.5 bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950 rounded-xl text-xs font-bold shadow-2xs transition-all active:scale-95"
+              className="w-full flex items-center justify-center gap-2 min-h-[44px] px-3 py-2.5 bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950 rounded-xl text-xs font-bold shadow-2xs transition-all active:scale-95"
             >
               <TrendingUp className="w-4 h-4 text-[#ffb31a]" />
               <span>{language === "bn" ? "শিট ও গ্রাফ দেখুন" : "View Sheet & Charts"}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={async () => {
-                triggerHaptic(40);
-                const { fetchAllDuasAnalytics, exportAnalyticsToCsv } = await import("@/lib/analytics");
-                const summary = await fetchAllDuasAnalytics();
-                exportAnalyticsToCsv(summary.items);
-              }}
-              className="flex items-center justify-center gap-2 min-h-[44px] px-3 py-2.5 bg-[#ffb31a] hover:bg-[#e69c05] text-zinc-950 rounded-xl text-xs font-bold shadow-2xs transition-all active:scale-95"
-            >
-              <FileSpreadsheet className="w-4 h-4 text-zinc-950" />
-              <span>{language === "bn" ? "এক্সেলে ডাউনলোড" : "Export Excel"}</span>
             </button>
           </div>
         </section>

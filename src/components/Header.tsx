@@ -160,7 +160,7 @@ export const Header: React.FC<HeaderProps> = ({
               }}
               aria-label={language === "bn" ? "আমল শিট ও গ্রাফ" : "Analytics Sheet"}
               className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-[#c87d00] dark:hover:text-[#ffb31a] hover:bg-[#ffb31a]/10 transition-all active:scale-95"
-              title={language === "bn" ? "আমল শিট ও এক্সেল এক্সপোর্ট" : "Analytics Sheet & Excel Export"}
+              title={language === "bn" ? "আমল শিট ও গ্রাফ বিশ্লেষণ" : "Analytics Sheet & Charts"}
             >
               <BarChart3 className="w-4 h-4 text-[#c87d00] dark:text-[#ffb31a]" />
             </button>
